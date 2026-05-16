@@ -9,6 +9,7 @@ const wireLayer = document.getElementById('wire-layer');
 const handleLayer = document.getElementById('wire-handles');
 const expressionLabel = document.getElementById('expression-label');
 const deleteToggleBtn = document.querySelector('[data-action="toggle-delete"]');
+const zoomLabel = document.getElementById('zoom-label');
 
 const state = {
     gates: [],
@@ -16,11 +17,51 @@ const state = {
     nodes: new Map()
 };
 
+const zoomConfig = {
+    min: 0.6,
+    max: 1.6,
+    step: 0.1
+};
+
 let dragTarget = null;
 let dragOffset = { x: 0, y: 0 };
+let panDrag = null;
 let wiring = null;
 let previewPath = null;
 let deleteMode = false;
+let zoomLevel = 1;
+const panOffset = { x: 0, y: 0 };
+
+function screenToWorld(event) {
+    const workspaceRect = workspace.getBoundingClientRect();
+
+    return {
+        x: (event.clientX - workspaceRect.left - panOffset.x) / zoomLevel,
+        y: (event.clientY - workspaceRect.top - panOffset.y) / zoomLevel
+    };
+}
+
+function applyViewport() {
+    const transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`;
+    wireLayer.style.transform = transform;
+    nodeLayer.style.transform = transform;
+    handleLayer.style.transform = transform;
+
+    workspace.style.setProperty('--pan-x', `${panOffset.x}px`);
+    workspace.style.setProperty('--pan-y', `${panOffset.y}px`);
+
+    if (zoomLabel) {
+        zoomLabel.textContent = `${Math.round(zoomLevel * 100)}%`;
+    }
+
+    updateAllWires();
+}
+
+function changeZoom(direction) {
+    const nextZoom = zoomLevel + direction * zoomConfig.step;
+    zoomLevel = Math.max(zoomConfig.min, Math.min(zoomConfig.max, Number(nextZoom.toFixed(2))));
+    applyViewport();
+}
 
 function setDeleteMode(enabled) {
     deleteMode = enabled;
@@ -56,6 +97,7 @@ function removeGate(gateId) {
     state.wires.forEach((wire) => {
         if (wire.fromId === gateId || wire.toId === gateId) {
             wire.path?.remove();
+            wire.energyDots?.remove();
             wire.deleteHandle?.remove();
             return;
         }
@@ -67,6 +109,7 @@ function removeGate(gateId) {
 
 function clearSimulator() {
     dragTarget = null;
+    panDrag = null;
     wiring = null;
     if (previewPath) {
         previewPath.remove();
@@ -75,6 +118,7 @@ function clearSimulator() {
 
     state.wires.forEach((wire) => {
         wire.path?.remove();
+        wire.energyDots?.remove();
         wire.deleteHandle?.remove();
     });
 
@@ -93,7 +137,31 @@ function addWire(fromId, toId, inputIndex) {
     wire.path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     wire.path.classList.add('wire');
     wire.path.dataset.wireId = wire.id;
+    wire.path.id = `wire-path-${wire.id}`;
     wireLayer.appendChild(wire.path);
+
+    wire.energyDots = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    wire.energyDots.classList.add('wire-energy-dots');
+    wire.energyDots.dataset.wireId = wire.id;
+
+    [0, -0.28, -0.56].forEach((delay) => {
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('r', '4');
+
+        const motion = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
+        motion.setAttribute('dur', '0.95s');
+        motion.setAttribute('begin', `${delay}s`);
+        motion.setAttribute('repeatCount', 'indefinite');
+
+        const motionPath = document.createElementNS('http://www.w3.org/2000/svg', 'mpath');
+        motionPath.setAttribute('href', `#${wire.path.id}`);
+        motion.appendChild(motionPath);
+
+        dot.appendChild(motion);
+        wire.energyDots.appendChild(dot);
+    });
+
+    wireLayer.appendChild(wire.energyDots);
 
     wire.deleteHandle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     wire.deleteHandle.classList.add('wire-delete');
@@ -122,25 +190,30 @@ function updateAllWires() {
         const path = wire.path;
         const deleteHandle = wire.deleteHandle;
         if (!fromGate || !toGate || !path) {
+            wire.energyDots?.classList.remove('active');
             return;
         }
 
         const fromNode = state.nodes.get(fromGate.id);
         const toNode = state.nodes.get(toGate.id);
         if (!fromNode || !toNode) {
+            wire.energyDots?.classList.remove('active');
             return;
         }
 
         const fromPin = fromNode.querySelector('.pin.output');
         const toPin = toNode.querySelector(`.pin.input[data-pin-index="${wire.inputIndex}"]`);
         if (!fromPin || !toPin) {
+            wire.energyDots?.classList.remove('active');
             return;
         }
 
-        const from = getPinCenter(fromPin, workspace);
-        const to = getPinCenter(toPin, workspace);
+        const from = getPinCenter(fromPin, workspace, zoomLevel, panOffset);
+        const to = getPinCenter(toPin, workspace, zoomLevel, panOffset);
         updateWirePath(path, from, to);
-        path.classList.toggle('active', fromGate.output === 1);
+        const isActive = fromGate.output === 1;
+        path.classList.toggle('active', isActive);
+        wire.energyDots?.classList.toggle('active', isActive);
         if (deleteHandle) {
             const midX = (from.x + to.x) / 2;
             const midY = (from.y + to.y) / 2;
@@ -164,6 +237,10 @@ function updateSimulation() {
 function handleAddClick(event) {
     const btn = event.target.closest('[data-add]');
     if (!btn) {
+        return;
+    }
+    if (btn.closest('.logic-drawer')) {
+        alert('Falta fazer oq vai acontecer quando clicar aqui');
         return;
     }
     const type = btn.dataset.add;
@@ -211,6 +288,20 @@ function handleWorkspacePointerDown(event) {
 
     const node = event.target.closest('.node');
     if (!node) {
+        if (event.button !== 0) {
+            return;
+        }
+
+        panDrag = {
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            originX: panOffset.x,
+            originY: panOffset.y
+        };
+        workspace.classList.add('panning');
+        workspace.setPointerCapture?.(event.pointerId);
+        event.preventDefault();
         return;
     }
 
@@ -223,21 +314,28 @@ function handleWorkspacePointerDown(event) {
 
     const rect = node.getBoundingClientRect();
     dragOffset = {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top
+        x: (event.clientX - rect.left) / zoomLevel,
+        y: (event.clientY - rect.top) / zoomLevel
     };
 }
 
 function handleWorkspacePointerMove(event) {
+    if (panDrag) {
+        panOffset.x = panDrag.originX + event.clientX - panDrag.startX;
+        panOffset.y = panDrag.originY + event.clientY - panDrag.startY;
+        applyViewport();
+        return;
+    }
+
     if (dragTarget) {
         const gate = state.gates.find((item) => item.id === dragTarget.dataset.gateId);
         if (!gate) {
             return;
         }
 
-        const workspaceRect = workspace.getBoundingClientRect();
-        gate.x = event.clientX - workspaceRect.left - dragOffset.x;
-        gate.y = event.clientY - workspaceRect.top - dragOffset.y;
+        const pointer = screenToWorld(event);
+        gate.x = pointer.x - dragOffset.x;
+        gate.y = pointer.y - dragOffset.y;
         updateGatePosition(dragTarget, gate);
         updateAllWires();
     }
@@ -246,16 +344,19 @@ function handleWorkspacePointerMove(event) {
         const fromGate = state.gates.find((item) => item.id === wiring.fromId);
         const fromNode = state.nodes.get(fromGate.id);
         const fromPin = fromNode.querySelector('.pin.output');
-        const from = getPinCenter(fromPin, workspace);
-        const to = {
-            x: event.clientX - workspace.getBoundingClientRect().left,
-            y: event.clientY - workspace.getBoundingClientRect().top
-        };
+        const from = getPinCenter(fromPin, workspace, zoomLevel, panOffset);
+        const to = screenToWorld(event);
         updateWirePath(previewPath, from, to);
     }
 }
 
 function handleWorkspacePointerUp(event) {
+    if (panDrag) {
+        workspace.releasePointerCapture?.(panDrag.pointerId);
+        workspace.classList.remove('panning');
+        panDrag = null;
+    }
+
     if (dragTarget) {
         dragTarget.classList.remove('dragging');
         dragTarget = null;
@@ -298,6 +399,7 @@ function handleWireClick(event) {
     }
     handle.remove();
     wireLayer.querySelector(`.wire[data-wire-id="${wireId}"]`)?.remove();
+    wireLayer.querySelector(`.wire-energy-dots[data-wire-id="${wireId}"]`)?.remove();
     updateSimulation();
 }
 
@@ -410,6 +512,19 @@ function handleNodeDoubleClick(event) {
     }
 
     node.classList.toggle('show-input-control');
+}
+
+function handleZoomClick(event) {
+    const zoomIn = event.target.closest('[data-action="zoom-in"]');
+    if (zoomIn) {
+        changeZoom(1);
+        return;
+    }
+
+    const zoomOut = event.target.closest('[data-action="zoom-out"]');
+    if (zoomOut) {
+        changeZoom(-1);
+    }
 }
 
 function isSimple(expr) {
@@ -598,6 +713,7 @@ function init() {
         deleteToggleBtn.addEventListener('click', handleDeleteToggle);
     }
     document.addEventListener('click', handleClearSimulator);
+    document.addEventListener('click', handleZoomClick);
 
     workspace.addEventListener('pointerdown', handleWorkspacePointerDown);
     workspace.addEventListener('click', handleWireClick);
@@ -611,7 +727,104 @@ function init() {
 
     setupPreset();
     updateSimulation();
+    applyViewport();
     setDeleteMode(false);
 }
 
 init();
+
+/* --- Tabs: Truth Table view --- */
+function cloneStateForCompute() {
+    const gates = state.gates.map((g) => ({ id: g.id, type: g.type, inputs: Array.from(g.inputs), output: g.output, label: g.label }));
+    const wires = state.wires.map((w) => ({ id: w.id, fromId: w.fromId, toId: w.toId, inputIndex: w.inputIndex }));
+    return { gates, wires };
+}
+
+function generateTruthTable() {
+    const inputs = state.gates.filter((g) => g.type === 'INPUT');
+    const outputs = state.gates.filter((g) => g.type === 'OUTPUT');
+
+    const container = document.getElementById('truth-table-placeholder');
+    if (!container) return;
+
+    if (inputs.length === 0 || outputs.length === 0) {
+        container.innerHTML = '<div>Nenhuma entrada ou saída presente no circuito.</div>';
+        return;
+    }
+
+    if (inputs.length > 12) {
+        container.innerHTML = '<div>Muitos inputs (>12) — não é possível gerar tabela grande.</div>';
+        return;
+    }
+
+    const headerCols = inputs.map((i) => i.label || 'IN').concat(outputs.map((o) => o.label || 'OUT'));
+
+    const rows = [];
+    const combos = 1 << inputs.length;
+    for (let mask = 0; mask < combos; mask += 1) {
+        const temp = cloneStateForCompute();
+        // set input outputs
+        inputs.forEach((inp, idx) => {
+            const val = (mask >> (inputs.length - 1 - idx)) & 1;
+            const tg = temp.gates.find((g) => g.id === inp.id);
+            if (tg) tg.output = val;
+        });
+        // ensure outputs reset
+        temp.gates.forEach((g) => { if (g.type !== 'INPUT') g.output = 0; });
+        // recompute on temp
+        try {
+            const { recompute: recomputeLocal } = awaitImportSimulator();
+            recomputeLocal(temp);
+        } catch (e) {
+            // fallback: call global recompute with temp by temporarily binding
+            recompute(temp);
+        }
+
+        const outVals = outputs.map((o) => {
+            const tg = temp.gates.find((g) => g.id === o.id);
+            return tg ? tg.output : 0;
+        });
+
+        const inVals = inputs.map((i) => ((mask >> (inputs.length - 1 - inputs.indexOf(i))) & 1));
+        rows.push({ inVals, outVals });
+    }
+
+    // build table HTML
+    let html = '<table class="truth-table"><thead><tr>';
+    headerCols.forEach((h) => { html += `<th>${h}</th>`; });
+    html += '</tr></thead><tbody>';
+    rows.forEach((r) => {
+        html += '<tr>';
+        r.inVals.forEach((v) => { html += `<td>${v}</td>`; });
+        r.outVals.forEach((v) => { html += `<td>${v}</td>`; });
+        html += '</tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function awaitImportSimulator() {
+    // utility to access recompute if imported differently; here we just return the existing recompute
+    return { recompute };
+}
+
+// Tab toggles
+const tabSim = document.getElementById('tab-simulator');
+const tabTT = document.getElementById('tab-truthtable');
+const simSection = document.getElementById('simulator-workspace');
+const ttSection = document.getElementById('truth-table-view');
+if (tabSim && tabTT && simSection && ttSection) {
+    tabSim.addEventListener('click', () => {
+        tabSim.classList.add('active');
+        tabTT.classList.remove('active');
+        simSection.style.display = '';
+        ttSection.style.display = 'none';
+    });
+    tabTT.addEventListener('click', () => {
+        tabTT.classList.add('active');
+        tabSim.classList.remove('active');
+        simSection.style.display = 'none';
+        ttSection.style.display = '';
+        generateTruthTable();
+    });
+}

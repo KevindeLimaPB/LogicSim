@@ -2,7 +2,6 @@ import { getInputCount } from './gates.js';
 
 const SVG_GATES = {
     AND: {
-        src: './img/Portas/porta-and.svg',
         viewBox: { width: 160, height: 100 },
         inputs: [
             { x: 15, y: 35 },
@@ -11,7 +10,6 @@ const SVG_GATES = {
         output: { x: 145, y: 50 }
     },
     OR: {
-        src: './img/Portas/porta-or.svg',
         viewBox: { width: 200, height: 120 },
         inputs: [
             { x: 15, y: 40 },
@@ -20,13 +18,11 @@ const SVG_GATES = {
         output: { x: 185, y: 60 }
     },
     NOT: {
-        src: './img/Portas/porta-not.svg',
         viewBox: { width: 100, height: 60 },
         inputs: [{ x: 20, y: 30 }],
         output: { x: 100, y: 30 }
     },
     NAND: {
-        src: './img/Portas/porta-nand.svg',
         viewBox: { width: 300, height: 200 },
         inputs: [
             { x: 50, y: 70 },
@@ -35,7 +31,6 @@ const SVG_GATES = {
         output: { x: 270, y: 100 }
     },
     NOR: {
-        src: './img/Portas/porta-nor.svg',
         viewBox: { width: 300, height: 200 },
         inputs: [
             { x: 50, y: 70 },
@@ -44,7 +39,6 @@ const SVG_GATES = {
         output: { x: 270, y: 100 }
     },
     XOR: {
-        src: './img/Portas/porta-xor.svg',
         viewBox: { width: 300, height: 200 },
         inputs: [
             { x: 50, y: 70 },
@@ -53,7 +47,6 @@ const SVG_GATES = {
         output: { x: 270, y: 100 }
     },
     XNOR: {
-        src: './img/Portas/porta-xnor.svg',
         viewBox: { width: 300, height: 200 },
         inputs: [
             { x: 50, y: 70 },
@@ -62,6 +55,86 @@ const SVG_GATES = {
         output: { x: 270, y: 100 }
     }
 };
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function createSvgElement(tag, attributes = {}) {
+    const element = document.createElementNS(SVG_NS, tag);
+    Object.entries(attributes).forEach(([key, value]) => {
+        element.setAttribute(key, String(value));
+    });
+    return element;
+}
+
+function appendGateLine(group, x1, y1, x2, y2) {
+    group.appendChild(createSvgElement('line', { x1, y1, x2, y2 }));
+}
+
+function appendGatePath(group, d) {
+    group.appendChild(createSvgElement('path', { d }));
+}
+
+function appendInversionBubble(group, cx, cy, outputEndX) {
+    group.appendChild(createSvgElement('circle', { cx, cy, r: 10 }));
+    appendGateLine(group, cx + 10, cy, outputEndX, cy);
+}
+
+function createLogicGateSvg(type, viewBox, inputCount) {
+    const svg = createSvgElement('svg', {
+        class: `logic-gate-svg logic-gate-svg--${type.toLowerCase()}`,
+        viewBox: `0 0 ${viewBox.width} ${viewBox.height}`,
+        'aria-hidden': 'true',
+        focusable: 'false'
+    });
+
+    const group = createSvgElement('g', { class: 'logic-gate-shape' });
+    svg.appendChild(group);
+
+    const addInputLines = (startX, endX) => {
+        const spacing = viewBox.height / (inputCount + 1);
+        for (let i = 0; i < inputCount; i += 1) {
+            const y = spacing * (i + 1);
+            appendGateLine(group, startX, y, endX, y);
+        }
+    };
+
+    if (type === 'AND' || type === 'NAND') {
+        const large = viewBox.width > 200;
+        addInputLines(large ? 50 : 15, large ? 100 : 50);
+        appendGatePath(group, large
+            ? 'M 100 50 L 160 50 A 50 50 0 0 1 160 150 L 100 150 Z'
+            : 'M 50 20 L 50 80 L 75 80 A 30 30 0 0 0 75 20 Z');
+
+        if (type === 'NAND') {
+            appendInversionBubble(group, 220, viewBox.height / 2, 270);
+        } else {
+            appendGateLine(group, large ? 210 : 105, viewBox.height / 2, large ? 270 : 145, viewBox.height / 2);
+        }
+    } else if (type === 'OR' || type === 'NOR' || type === 'XOR' || type === 'XNOR') {
+        const large = viewBox.width > 200;
+        addInputLines(large ? 50 : 15, large ? 100 : 68);
+
+        if (type === 'XOR' || type === 'XNOR') {
+            appendGatePath(group, large ? 'M 85 50 A 120 120 0 0 1 85 150' : 'M 48 20 Q 63 60 48 100');
+        }
+
+        appendGatePath(group, large
+            ? 'M 100 50 A 120 120 0 0 1 100 150 Q 180 150, 200 100 Q 180 50, 100 50 Z'
+            : 'M 60 20 Q 75 60 60 100 Q 105 100 135 77 C 148 67 155 64 155 60 C 155 56 148 53 135 43 Q 105 20 60 20 Z');
+
+        if (type === 'NOR' || type === 'XNOR') {
+            appendInversionBubble(group, large ? 215 : 165, viewBox.height / 2, large ? 270 : 185);
+        } else {
+            appendGateLine(group, large ? 200 : 155, viewBox.height / 2, large ? 270 : 185, viewBox.height / 2);
+        }
+    } else if (type === 'NOT') {
+        appendGateLine(group, 0, 30, 20, 30);
+        appendGatePath(group, 'M 20 10 L 60 30 L 20 50 Z');
+        appendInversionBubble(group, 70, 30, 100);
+    }
+
+    return svg;
+}
 
 function createPin({ x, y }, viewBox, type, gateId, index) {
     const pin = document.createElement('div');
@@ -91,6 +164,12 @@ export function renderGate(gate, nodeLayer) {
     node.style.left = `${gate.x}px`;
     node.style.top = `${gate.y}px`;
 
+    if (gate.type === 'INPUT') {
+        node.classList.add('node-input');
+    } else if (gate.type === 'OUTPUT') {
+        node.classList.add('node-output');
+    }
+
     const svgGate = SVG_GATES[gate.type];
     if (svgGate) {
         node.classList.add('node-svg');
@@ -103,21 +182,8 @@ export function renderGate(gate, nodeLayer) {
         graphic.style.width = `${width}px`;
         graphic.style.height = `${height}px`;
 
-        const img = document.createElement('img');
         const inputCount = gate.inputs?.length ?? getInputCount(gate.type);
-        let src = svgGate.src;
-        try {
-            if (inputCount === 3) {
-                src = `./img/portas-fios/porta-${gate.type.toLowerCase()}-tree.svg`;
-            } else if (inputCount >= 4) {
-                src = `./img/portas-fios/porta-${gate.type.toLowerCase()}-for.svg`;
-            }
-        } catch (e) {
-            src = svgGate.src;
-        }
-        img.src = src;
-        img.alt = `${gate.type} gate`;
-        graphic.appendChild(img);
+        graphic.appendChild(createLogicGateSvg(gate.type, svgGate.viewBox, inputCount));
         const leftX = svgGate.inputs && svgGate.inputs[0] ? svgGate.inputs[0].x : 15;
         
         for (let i = 0; i < inputCount; i += 1) {
@@ -267,18 +333,26 @@ export function updateGatePosition(node, gate) {
 export function updateGateValues(gate, node) {
     const outputPin = node.querySelector('.pin.output');
     if (outputPin) {
-        outputPin.classList.toggle('active', gate.output === 1);
+        const isOn = gate.output === 1;
+        outputPin.classList.toggle('active', isOn);
+        outputPin.classList.toggle('inactive', !isOn);
     }
 
     const value = node.querySelector('[data-role="output-value"]');
     if (value) {
-        value.textContent = gate.inputs[0] ? '1' : '0';
+        const isOn = gate.inputs[0] ? '1' : '0';
+        value.textContent = isOn;
+        value.classList.toggle('is-on', isOn === '1');
+        value.classList.toggle('is-off', isOn !== '1');
     }
 
     const toggle = node.querySelector('[data-action="toggle-input"]');
     if (toggle) {
-        toggle.textContent = gate.output ? '1' : '0';
-        toggle.classList.toggle('active', gate.output === 1);
+        const isOn = gate.output ? '1' : '0';
+        toggle.textContent = isOn;
+        toggle.classList.toggle('active', isOn === '1');
+        toggle.classList.toggle('is-on', isOn === '1');
+        toggle.classList.toggle('is-off', isOn !== '1');
     }
 
     const label = node.querySelector('[data-action="set-label"]');
@@ -294,12 +368,12 @@ export function updateWirePath(path, from, to) {
     path.setAttribute('d', `M ${from.x} ${from.y} C ${c1x} ${from.y}, ${c2x} ${to.y}, ${to.x} ${to.y}`);
 }
 
-export function getPinCenter(pin, workspace) {
+export function getPinCenter(pin, workspace, zoomLevel = 1, panOffset = { x: 0, y: 0 }) {
     const pinRect = pin.getBoundingClientRect();
     const workspaceRect = workspace.getBoundingClientRect();
 
     return {
-        x: pinRect.left - workspaceRect.left + pinRect.width / 2,
-        y: pinRect.top - workspaceRect.top + pinRect.height / 2
+        x: (pinRect.left - workspaceRect.left + pinRect.width / 2 - panOffset.x) / zoomLevel,
+        y: (pinRect.top - workspaceRect.top + pinRect.height / 2 - panOffset.y) / zoomLevel
     };
 }

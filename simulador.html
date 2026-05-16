@@ -3,150 +3,395 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="icon" href="./favicon.svg" title="image/svg+xml">
     <title>LogicSim - Simulador</title>
 </head>
-<body>
-<header class="header-bg" id="header-menuBG">
-    <div class="header container">
-        <div class="header-menu" id="header-menu">
+<body class="simulator-page theme-dark">
+    <div class="simulator-page__shell">
+        <nav class="top-navbar">
+            <div class="top-navbar__left">
+                <button
+                    class="menu-toggle"
+                    id="logic-drawer-toggle"
+                    type="button"
+                    aria-controls="logic-drawer"
+                    aria-expanded="false"
+                    aria-label="Abrir menu de portas"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
 
-            <div class="header-btn" id="header-btn">
-                <span></span>
-                <span></span>
-                <span></span>
+                <a class="hero-brand" href="./" aria-label="LogicSim">
+                    <img src="./img/LogicSim-Marca.svg" alt="LogicSim">
+                </a>
+
+                <a href="sobre.html">Sobre</a>
+                <a href="#sobre-simulador">Saiba mais</a>
             </div>
 
-    <nav class="header-nav" id="header-nav" aria-label="primaria">
-        <ul>
-            <li><a href="./">Inicío</a></li>
-            <li><a href="./simulador.html">Simulador</a></li>
-            <li><a href="./tabela.html">Tabela Verdade</a></li>
-            <li><a href="./sobre.html">Sobre</a></li>
-        </ul>
-
-        <div class="header-descricao">
-        <p>Simulador de <br>Circuitos Lógicos</p>
-        <img src="./img/Portas/porta-and.svg" alt="">
-        </div>
-    </nav>
-        <div class="header-descBG" id="header-descBG"></div>        
-
-            <a href="./">
-                <img src="./img/LogicSim-Marca.svg" alt="LogicSim" >
-            </a>
-          
-                <div class="lampada">
-                    <img src="./img/lampadas/desligada.svg" alt="" id="imagem">
-                </div>
-        </div>
-    </div>
-</header>
-
-<main class="editor-bg" id="simulador-bg">
-    <div class="editor-toolbar">
-        <div class="toolbar-group">
-            <button class="toolbar-btn" data-add="INPUT">Input</button>
-            <button class="toolbar-btn" data-add="OUTPUT">Output</button>
-            <button class="toolbar-btn" data-action="toggle-delete">Deletar</button>
-            <button class="toolbar-btn" data-action="clear-simulator">Limpar</button>
-            <button class="toolbar-btn" data-add="AND">
-                <img class="toolbar-icon" src="./img/Portas/porta-and.svg" alt="" aria-hidden="true">
-                AND
-            </button>
-            <button class="toolbar-btn" data-add="OR">
-                <img class="toolbar-icon" src="./img/Portas/porta-or.svg" alt="" aria-hidden="true">
-                OR
-            </button>
-            <button class="toolbar-btn" data-add="NOT">
-                <img class="toolbar-icon" src="./img/Portas/porta-not.svg" alt="" aria-hidden="true">
-                NOT
-            </button>
-            <button class="toolbar-btn" data-add="NAND">
-                <img class="toolbar-icon" src="./img/Portas/porta-nand.svg" alt="" aria-hidden="true">
-                NAND
-            </button>
-            <button class="toolbar-btn" data-add="NOR">
-                <img class="toolbar-icon" src="./img/Portas/porta-nor.svg" alt="" aria-hidden="true">
-                NOR
-            </button>
-            <button class="toolbar-btn" data-add="XOR">
-                <img class="toolbar-icon" src="./img/Portas/porta-xor.svg" alt="" aria-hidden="true">
-                XOR
-            </button>
-            <button class="toolbar-btn" data-add="XNOR">
-                <img class="toolbar-icon" src="./img/Portas/porta-xnor.svg" alt="" aria-hidden="true">
-                XNOR
-            </button>
-        </div>
-        <div class="toolbar-group">
-            <div class="toolbar-expression">
-                <span>Expressão Booleana</span>
-                <div id="expression-label" class="expression-list">-</div>
+            <div class="top-navbar__right">
+                <button
+                    id="theme-toggle"
+                    type="button"
+                    class="toolbar-btn theme-toggle-btn"
+                    aria-label="Alternar tema"
+                    title="Alternar tema"
+                >
+                    <i class="fa-solid fa-sun" aria-hidden="true" data-theme-icon="sun"></i>
+                    <i class="fa-solid fa-moon" aria-hidden="true" data-theme-icon="moon"></i>
+                </button>
             </div>
-        </div>
-    </div>
+        </nav>
 
-    <div class="editor-workspace" id="workspace">
-        <svg class="wire-layer" id="wire-layer"></svg>
-        <div class="node-layer" id="node-layer"></div>
-        <svg class="wire-handles" id="wire-handles"></svg>
-    </div>
-</main>
+        <header class="simulator-hero">
+            <div class="hero-grid">
+                <section class="hero-copy">
+                    <p class="hero-kicker">Dark UI • SVG • Lógica combinacional</p>
+                    <h1>Simulador de Circuitos Lógicos</h1>
+                    <p class="hero-description">
+                        Monte, teste e explore circuitos digitais em tempo real.
+                    </p>
 
-<!--
-FAZ A PARTE DA TABELA VERDADE AQUI MATEUS
-CRIA UM NOVO ARQUIVO JS PARA TABELA VERDADE(Opcional)
--->
+                    <div class="hero-actions">
+                        <a class="hero-btn hero-btn--primary" href="#simulator-workspace">Começar Simulação</a>
+                        <a class="hero-btn hero-btn--secondary" href="#sobre-simulador">Saiba mais</a>
+                    </div>
 
-    <!--
-    AQUI O TUTORIAL NO P MIGUEL
-    O CSS DEIXA QUE EU FAÇO
-    -->
-    <section class="tutorial-bg" arial-label="primeiro">
-        <div class="tutorial-conteudo">
-            <h2>Informações De Uso.</h2>
-            <dl>
-                <div>
-                    <dt><strong>Como usar o circuito</strong></dt>
-                    <dd>
-                        Dentro da interface tem vários botões onde tem as entradas codinome input as saídas codinome output tem o deletar onde é usado para deletar as portas, &nbsp;entradas,&nbsp; saídas e fios. Também tem o botão de limpar onde faz a mesma função de deletar só que ele limpar todo o simulador.
-                        <br>
-                        Na mesma interface temos os botões das portas com 7 portas disponíveis no simulador,&nbsp; Leia as informações das portas abaixo para entender a lógica de cada porta.
-                    </dd>
+                    <div class="hero-metrics" aria-label="destaques">
+                        <article class="metric-chip">
+                            <strong>Drag & Drop</strong>
+                            <span>Monte circuitos com rapidez</span>
+                        </article>
+                        <article class="metric-chip">
+                            <strong>SVG Wiring</strong>
+                            <span>Conexões suaves e responsivas</span>
+                        </article>
+                        <article class="metric-chip">
+                            <strong>Boolean Engine</strong>
+                            <span>Expressões e saídas em tempo real</span>
+                        </article>
+                    </div>
+                </section>
+
+                <aside class="hero-visual" aria-label="visual decorativo">
+                    <div class="hero-visual-card">
+                        <div class="hero-visual-head">
+                            <span>Fluxo lógico ativo</span>
+                            <span class="hero-live"><i></i> online</span>
+                        </div>
+
+                        <svg class="hero-circuit" viewBox="0 0 640 420" role="img" aria-label="Circuito decorativo">
+                            <defs>
+                                <linearGradient id="heroGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#4cc9ff" stop-opacity="0.95" />
+                                    <stop offset="100%" stop-color="#68f5c1" stop-opacity="0.9" />
+                                </linearGradient>
+                                <radialGradient id="heroSpot" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stop-color="#4cc9ff" stop-opacity="0.85" />
+                                    <stop offset="100%" stop-color="#4cc9ff" stop-opacity="0" />
+                                </radialGradient>
+                            </defs>
+                            <rect x="18" y="18" width="604" height="384" rx="30" fill="rgba(6,10,20,0.42)" stroke="rgba(148,163,184,0.18)" />
+                            <circle cx="510" cy="102" r="68" fill="url(#heroSpot)" />
+                            <path d="M 88 108 H 214 C 236 108 250 122 250 144 V 188 C 250 210 266 226 288 226 H 370" fill="none" stroke="url(#heroGlow)" stroke-width="3.5" stroke-linecap="round" />
+                            <path d="M 88 208 H 182 C 212 208 228 226 228 250 V 276 C 228 298 244 314 266 314 H 390" fill="none" stroke="url(#heroGlow)" stroke-width="3.5" stroke-linecap="round" />
+                            <path d="M 336 88 H 468 C 492 88 508 104 508 128 V 158" fill="none" stroke="url(#heroGlow)" stroke-width="3.5" stroke-linecap="round" />
+                            <rect x="292" y="164" width="122" height="74" rx="20" fill="rgba(8,15,30,0.9)" stroke="rgba(76,201,255,0.6)" />
+                            <text x="353" y="197" text-anchor="middle" fill="#f5fbff" font-size="16" font-weight="700">AND</text>
+                            <text x="353" y="218" text-anchor="middle" fill="#9fb0ca" font-size="11">3 entradas</text>
+                            <rect x="432" y="246" width="116" height="62" rx="18" fill="rgba(8,15,30,0.8)" stroke="rgba(104,245,193,0.55)" />
+                            <text x="490" y="281" text-anchor="middle" fill="#f5fbff" font-size="15" font-weight="700">OUTPUT</text>
+                            <circle cx="88" cy="108" r="9" fill="#ff6b6b" />
+                            <circle cx="88" cy="208" r="9" fill="#4cc9ff" />
+                            <circle cx="510" cy="102" r="9" fill="#68f5c1" />
+                            <circle cx="390" cy="226" r="7" fill="#4cc9ff" />
+                            <circle cx="390" cy="314" r="7" fill="#4cc9ff" />
+                            <circle cx="508" cy="158" r="7" fill="#68f5c1" />
+                        </svg>
+
+                        <div class="hero-floating-grid">
+                            <article class="hero-floating-card">
+                                <span>Inputs</span>
+                                <strong>A-Z</strong>
+                            </article>
+                            <article class="hero-floating-card">
+                                <span>Wires</span>
+                                <strong>SVG</strong>
+                            </article>
+                            <article class="hero-floating-card">
+                                <span>Output</span>
+                                <strong>Realtime</strong>
+                            </article>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </header>
+
+        <div class="logic-overlay" id="logic-overlay"></div>
+
+        <aside class="logic-drawer" id="logic-drawer" aria-hidden="true">
+            <div class="drawer-head">
+                <div class="drawer-title">
+                    <span>LogicSim</span>
+                    <strong>Biblioteca de blocos</strong>
+                </div>
+                <button class="drawer-close" id="logic-drawer-close" type="button" aria-label="Fechar menu">×</button>
+            </div>
+
+            <nav class="drawer-groups" aria-label="Portas lógicas">
+                <section class="drawer-group">
+                    <h2>Entradas</h2>
+                    <div class="drawer-list">
+                        <button class="drawer-item" type="button" data-add="INPUT">
+                            <i class="fa-solid fa-circle-dot" aria-hidden="true"></i>
+                            <span>Input</span>
+                        </button>
+                        <button class="drawer-item" type="button" data-add="OUTPUT">
+                            <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+                            <span>Output</span>
+                        </button>
+                    </div>
+                </section>
+
+                <section class="drawer-group">
+                    <h2>Portas Básicas</h2>
+                    <div class="drawer-list">
+                        <button class="drawer-item" type="button" data-add="AND">
+                            <svg class="drawer-gate-icon drawer-gate-icon--and" viewBox="0 0 160 100" aria-hidden="true" focusable="false">
+                                <line x1="15" y1="35" x2="50" y2="35" />
+                                <line x1="15" y1="65" x2="50" y2="65" />
+                                <path d="M 50 20 L 50 80 L 75 80 A 30 30 0 0 0 75 20 Z" />
+                                <line x1="105" y1="50" x2="145" y2="50" />
+                            </svg>
+                            <span>AND</span>
+                        </button>
+                        <button class="drawer-item" type="button" data-add="OR">
+                            <svg class="drawer-gate-icon drawer-gate-icon--or" viewBox="0 0 200 120" aria-hidden="true" focusable="false">
+                                <line x1="15" y1="40" x2="68" y2="40" />
+                                <line x1="15" y1="80" x2="68" y2="80" />
+                                <path d="M 60 20 Q 75 60 60 100 Q 105 100 135 77 C 148 67 155 64 155 60 C 155 56 148 53 135 43 Q 105 20 60 20 Z" />
+                                <line x1="155" y1="60" x2="185" y2="60" />
+                            </svg>
+                            <span>OR</span>
+                        </button>
+                        <button class="drawer-item" type="button" data-add="NOT">
+                            <svg class="drawer-gate-icon drawer-gate-icon--not" viewBox="0 0 100 60" aria-hidden="true" focusable="false">
+                                <line x1="0" y1="30" x2="20" y2="30" />
+                                <path d="M 20 10 L 60 30 L 20 50 Z" />
+                                <circle cx="70" cy="30" r="10" />
+                                <line x1="80" y1="30" x2="100" y2="30" />
+                            </svg>
+                            <span>NOT</span>
+                        </button>
+                    </div>
+                </section>
+
+                <section class="drawer-group">
+                    <h2>Portas Avançadas</h2>
+                    <div class="drawer-list">
+                        <button class="drawer-item" type="button" data-add="NAND">
+                            <svg class="drawer-gate-icon drawer-gate-icon--nand" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                <line x1="50" y1="70" x2="100" y2="70" />
+                                <line x1="50" y1="130" x2="100" y2="130" />
+                                <path d="M 100 50 L 160 50 A 50 50 0 0 1 160 150 L 100 150 Z" />
+                                <circle cx="220" cy="100" r="10" />
+                                <line x1="230" y1="100" x2="270" y2="100" />
+                            </svg>
+                            <span>NAND</span>
+                        </button>
+                        <button class="drawer-item" type="button" data-add="NOR">
+                            <svg class="drawer-gate-icon drawer-gate-icon--nor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                <line x1="50" y1="70" x2="100" y2="70" />
+                                <line x1="50" y1="130" x2="100" y2="130" />
+                                <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
+                                <circle cx="215" cy="100" r="10" />
+                                <line x1="225" y1="100" x2="270" y2="100" />
+                            </svg>
+                            <span>NOR</span>
+                        </button>
+                        <button class="drawer-item" type="button" data-add="XOR">
+                            <svg class="drawer-gate-icon drawer-gate-icon--xor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                <line x1="50" y1="70" x2="100" y2="70" />
+                                <line x1="50" y1="130" x2="100" y2="130" />
+                                <path d="M 85 50 A 120 120 0 0 1 85 150" />
+                                <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
+                                <line x1="200" y1="100" x2="270" y2="100" />
+                            </svg>
+                            <span>XOR</span>
+                        </button>
+                        <button class="drawer-item" type="button" data-add="XNOR">
+                            <svg class="drawer-gate-icon drawer-gate-icon--xnor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                <line x1="50" y1="70" x2="100" y2="70" />
+                                <line x1="50" y1="130" x2="100" y2="130" />
+                                <path d="M 85 50 A 120 120 0 0 1 85 150" />
+                                <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
+                                <circle cx="215" cy="100" r="10" />
+                                <line x1="225" y1="100" x2="270" y2="100" />
+                            </svg>
+                            <span>XNOR</span>
+                        </button>
+                    </div>
+                </section>
+            </nav>
+
+            <div class="drawer-footer">
+                
+            </div>
+        </aside>
+
+        <main class="simulator-page__main" id="simulador-bg">
+            <div class="page-tabs">
+                <button id="tab-simulator" class="tab active">SIMULADOR</button>
+                <button id="tab-truthtable" class="tab">TABELA VERDADE</button>
+            </div>
+
+
+            <section class="simulator-shell" id="simulator-workspace">
+                <div class="editor-toolbar">
+                    <div class="toolbar-group toolbar-group--actions">
+                        <button class="toolbar-btn" data-add="INPUT">
+                            <i class="fa-solid fa-circle-dot" aria-hidden="true"></i>
+                            Input
+                        </button>
+                        <button class="toolbar-btn" data-add="OUTPUT">
+                            <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+                            Output
+                        </button>
+                        <button class="toolbar-btn" data-action="toggle-delete">
+                            <i class="fa-solid fa-eraser" aria-hidden="true"></i>
+                            Deletar
+                        </button>
+                        <button class="toolbar-btn toolbar-btn--danger" data-action="clear-simulator">
+                            <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                            Limpar
+                        </button>
+                        <button class="toolbar-btn" data-add="AND">
+                            <svg class="drawer-gate-icon drawer-gate-icon--and" viewBox="0 0 160 100" aria-hidden="true" focusable="false">
+                                <line x1="15" y1="35" x2="50" y2="35" />
+                                <line x1="15" y1="65" x2="50" y2="65" />
+                                <path d="M 50 20 L 50 80 L 75 80 A 30 30 0 0 0 75 20 Z" />
+                                <line x1="105" y1="50" x2="145" y2="50" />
+                            </svg>
+                            AND
+                        </button>
+                        <button class="toolbar-btn" data-add="OR">
+                            <svg class="drawer-gate-icon drawer-gate-icon--or" viewBox="0 0 200 120" aria-hidden="true" focusable="false">
+                                <line x1="15" y1="40" x2="68" y2="40" />
+                                <line x1="15" y1="80" x2="68" y2="80" />
+                                <path d="M 60 20 Q 75 60 60 100 Q 105 100 135 77 C 148 67 155 64 155 60 C 155 56 148 53 135 43 Q 105 20 60 20 Z" />
+                                <line x1="155" y1="60" x2="185" y2="60" />
+                            </svg>
+                            OR
+                        </button>
+                        <button class="toolbar-btn" data-add="NOT">
+                            <svg class="drawer-gate-icon drawer-gate-icon--not" viewBox="0 0 100 60" aria-hidden="true" focusable="false">
+                                <line x1="0" y1="30" x2="20" y2="30" />
+                                <path d="M 20 10 L 60 30 L 20 50 Z" />
+                                <circle cx="70" cy="30" r="10" />
+                                <line x1="80" y1="30" x2="100" y2="30" />
+                            </svg>
+                            NOT
+                        </button>
+                        <button class="toolbar-btn" data-add="NAND">
+                            <svg class="drawer-gate-icon drawer-gate-icon--nand" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                <line x1="50" y1="70" x2="100" y2="70" />
+                                <line x1="50" y1="130" x2="100" y2="130" />
+                                <path d="M 100 50 L 160 50 A 50 50 0 0 1 160 150 L 100 150 Z" />
+                                <circle cx="220" cy="100" r="10" />
+                                <line x1="230" y1="100" x2="270" y2="100" />
+                            </svg>
+                            NAND
+                        </button>
+                        <button class="toolbar-btn" data-add="NOR">
+                            <svg class="drawer-gate-icon drawer-gate-icon--nor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                <line x1="50" y1="70" x2="100" y2="70" />
+                                <line x1="50" y1="130" x2="100" y2="130" />
+                                <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
+                                <circle cx="215" cy="100" r="10" />
+                                <line x1="225" y1="100" x2="270" y2="100" />
+                            </svg>
+                            NOR
+                        </button>
+                        <button class="toolbar-btn" data-add="XOR">
+                            <svg class="drawer-gate-icon drawer-gate-icon--xor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                <line x1="50" y1="70" x2="100" y2="70" />
+                                <line x1="50" y1="130" x2="100" y2="130" />
+                                <path d="M 85 50 A 120 120 0 0 1 85 150" />
+                                <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
+                                <line x1="200" y1="100" x2="270" y2="100" />
+                            </svg>
+                            XOR
+                        </button>
+                        <button class="toolbar-btn" data-add="XNOR">
+                            <svg class="drawer-gate-icon drawer-gate-icon--xnor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                <line x1="50" y1="70" x2="100" y2="70" />
+                                <line x1="50" y1="130" x2="100" y2="130" />
+                                <path d="M 85 50 A 120 120 0 0 1 85 150" />
+                                <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
+                                <circle cx="215" cy="100" r="10" />
+                                <line x1="225" y1="100" x2="270" y2="100" />
+                            </svg>
+                            XNOR
+                        </button>
+                    </div>
+
+                    <div class="toolbar-group toolbar-group--zoom" aria-label="Controles de zoom">
+                        <button class="toolbar-btn toolbar-btn--zoom" data-action="zoom-out" type="button" aria-label="Diminuir zoom">-</button>
+                        <span class="zoom-label" id="zoom-label">100%</span>
+                        <button class="toolbar-btn toolbar-btn--zoom" data-action="zoom-in" type="button" aria-label="Aumentar zoom">+</button>
+                    </div>
+
+                    <div class="toolbar-group toolbar-group--expression">
+                        <div class="toolbar-expression">
+                            <span>Expressão Booleana</span>
+                            <div id="expression-label" class="expression-list">-</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div>
-                    <dt><Strong>Como usar a Porta AND (E)</Strong></dt>
-                    <dd>Só retorna 1 se todas as entradas forem 1.</dd>
-                    
-                    <dt><strong>Como usar a Porta OR (OU)</strong></dt>
-                    <dd>Só Retorna 1 se pelo menos UMA entrada for verdadeira.</dd>
-
-                    <dt><strong>Como usar a Porta NOT (NÃO)</strong></dt>
-                    <dd>Inverte o valor, irá trocar o 1 por 0 ou 0 por 1.</dd>
-
-                    <dt><strong>Como usar a Porta NAND (NOT AND)</strong></dt>
-                    <dd> O NAND é o negado do AND onde se você coloca 0 o resultado vai sair 1 pois o 0 vira 1, &nbsp; Se você coloca 0 e 1 a saída será 1 pois o 0 vira negado mas ser coloca 1 e 1 a saída será 0, &nbsp; Se houver qualquer zero na jogada, a saída será 1.</dd>
-
-                    <dt><strong>Como usar a Porta NOR (NOT OR)</strong></dt>
-                    <dd>A porta NOR é o OR negado. Se definirmos as entradas como 0 e 0,&nbsp;  a saída será 1. Se definirmos as entradas como 0 e 1,&nbsp;  a saída será 0;&nbsp;  o mesmo ocorrerá se as entradas forem 1 e 1.</dd>
-
-                    <dt><strong>Como usar a Porta XOR (OR Exclusivo)</strong></dt>
-                    <dd>A porta XOR (Ou Exclusivo) retorna 1 sempre que a quantidade de entradas em nível alto (1) for ÍMPAR. Se a quantidade de entradas "1" for par (como 0, 2 ou 4), a saída será 0. Em sistemas simples com apenas duas entradas, ela retorna 1 apenas quando os valores são diferentes.</dd>
-
-                    <dt><strong>Como usar a Porta do XNOR (OR NOT Exclusivo)</strong></dt>
-                    <dd>O XNOR possui duas regras. A primeira é a da **igualdade**: se todas as entradas forem iguais (tudo 0 ou tudo 1), a saída será 1. A segunda é a da **paridade** para três ou mais entradas: se a soma das entradas "1" for par (ex: 1+1=2 ou 0+0=0), a saída será 1. Se a soma for ímpar (ex: 0+0+1=1 ou 1+1+1=3), a saída será 0.</dd>
+                <div class="editor-workspace" id="workspace">
+                    <svg class="wire-layer" id="wire-layer"></svg>
+                    <div class="node-layer" id="node-layer"></div>
+                    <svg class="wire-handles" id="wire-handles"></svg>
                 </div>
-            </dl>
-        </div>
-    </section>
+            </section>
 
+            <section id="truth-table-view" class="truth-table-view" style="display:none;">
+                <div class="truth-table-container">
+                    <h3>Tabela Verdade</h3>
+                    <div id="truth-table-placeholder">Nenhuma tabela gerada.</div>
+                </div>
+            </section>
+
+            <section class="about-strip" id="sobre-simulador">
+                <article class="about-card">
+                    <span>01</span>
+                    <h2>Interface limpa</h2>
+                    <p>Hierarquia visual clara para manter o simulador como foco principal.</p>
+                </article>
+                <article class="about-card">
+                    <span>02</span>
+                    <h2>Fluxo em tempo real</h2>
+                    <p>Portas, fios e expressões continuam reagindo imediatamente a cada mudança.</p>
+                </article>
+                <article class="about-card">
+                    <span>03</span>
+                    <h2>Ferramentas rápidas</h2>
+                    <p>Menu lateral, toolbar compacta e ações de edição pensadas para uso técnico.</p>
+                </article>
+            </section>
+        </main>
+    </div>
 
     <script src="./js/config/menu.js"></script>
     <script src="./js/animação/anima.js"></script>
     <script type="module" src="./js/editor/main.js"></script>
+    <script type="module" src="./js/editor/theme-toggle.js"></script>
+
 </body>
 </html>

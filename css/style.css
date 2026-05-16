@@ -23,3 +23,7 @@
 /* SOBRE */
 
 @import "./sobre/sobre.css";
+
+/* MATERIAL THEME */
+
+@import "./theme-material.css";
