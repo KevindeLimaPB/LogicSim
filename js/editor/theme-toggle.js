@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'logicSimTheme';
+const mudarCor = document.getElementById('mudarCor')
 
 function getInitialTheme() {
     try {
@@ -12,6 +13,8 @@ function getInitialTheme() {
     return prefersDark ? 'dark' : 'light';
 }
 
+
+//recebe a cor atual
 function applyTheme(theme) {
     const body = document.body;
     if (!body) return;
@@ -21,12 +24,19 @@ function applyTheme(theme) {
 
     body.dataset.theme = theme;
 
+        //SVG na parte SIM muda de cor
+        mudarCor.style.fill = theme === 'light'
+        ? '#000000'
+        : 'white';
+
     try {
         localStorage.setItem(STORAGE_KEY, theme);
     } catch {
        
     }
 
+
+    //PARTE DA TROCA DE IMAGENS
     const toggleBtn = document.getElementById('theme-toggle');
     const isLight = theme === 'light';
     if (toggleBtn) {
@@ -44,6 +54,7 @@ function applyTheme(theme) {
             : 'Dark UI • SVG • Lógica combinacional';
     }
 }
+    
 
 function initThemeToggle() {
     const toggleBtn = document.getElementById('theme-toggle');

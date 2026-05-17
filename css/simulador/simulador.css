@@ -240,11 +240,6 @@ body.simulator-page.theme-light .theme-toggle-btn {
     text-decoration: none;
 }
 
-.hero-brand img {
-    width: 32px;
-    height: 32px;
-}
-
 .theme-toggle-btn {
     min-width: 46px;
     width: 46px;
@@ -333,7 +328,7 @@ body.simulator-page.theme-light .theme-toggle-btn {
     margin: 0;
     max-width: 42ch;
     color: var(--text-secondary);
-    font-size: clamp(0.96rem, 1.3vw, 1.08rem);
+    font-size: 1.125rem;
     line-height: 1.5;
 }
 

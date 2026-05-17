@@ -4,57 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="./favicon.svg" title="image/svg+xml">
-    <link rel="stylesheet" href="../css/style.css">
-    <title>LogicSim</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <title>LogicSim - Sobre</title>
 </head>
 <body>
-     <header class="header-bg" id="header-menuBG">
-    <div class="header container">
-        <div class="header-menu" id="header-menu">
+    <header class="simulator-page theme-ligth">
+        <a href="./simulador.html">
+            <svg width="200" height="60" viewBox="0 0 200 60"           xmlns="http://www.w3.org/2000/svg">
+                <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold">
+                <tspan fill="#007BFF">Logic</tspan><tspan fill="#000000">Sim</tspan>
+                 </text>
+            </svg>
+        </a>
 
-            <div class="header-btn" id="header-btn">
-                <span></span>
-                <span></span>
-                <span></span>
+        <div class="top-navbar__right">
+                <button
+                    id="theme-toggle"
+                    type="button"
+                    class="toolbar-btn theme-toggle-btn"
+                    aria-label="Alternar tema"
+                    title="Alternar tema"
+                >
+                    <i class="fa-solid fa-sun" aria-hidden="true" data-theme-icon="sun"></i>
+                    <i class="fa-solid fa-moon" aria-hidden="true" data-theme-icon="moon"></i>
+                </button>
             </div>
-
-    <nav class="header-nav" id="header-nav" aria-label="primaria">
-        <ul>
-            <li><a href="./">Inicío</a></li>
-            <li><a href="./simulador.html">Simulador</a></li>
-            <li><a href="./tabela.html">Tabela Verdade</a></li>
-            <li><a href="./sobre.html">Sobre</a></li>
-        </ul>
-
-        <div class="header-descricao">
-        <p>Simulador de <br>Circuitos Lógicos</p>
-        <img src="./img/Portas/porta-and.svg" alt="">
-        </div>
-    </nav>
-        <div class="header-descBG" id="header-descBG"></div>        
-
-            <a href="./">
-                <img src="./img/LogicSim-Marca.svg" alt="LogicSim" >
-            </a>
-          
-                <div class="lampada">
-                    <img src="./img/lampadas/desligada.svg" alt="" id="imagem">
-                </div>
-        </div>
-    </div>
-</header>
+    </header>
 
     <section class="sobre-bg">
         <div class="sobre-contexto">
             <img src="./img/circuito.svg" alt="circuito">
             <img src="./img/LogicSim-Marca.svg" alt="Logo">
-            <p>Simulador de Circuitos Lógicos</p>
+            <p>MANUTENÇÃO - KEVIN</p>
             <p>Versão 1.0</p>
             <p>Aplicação desenvolvida para facilitar o aprendizado de lógica digital através da simulação de portas lógicas, visualização de expressões booleanas e geração automáticas de tabelas verdade.</p>
         </div>
     </section>
 
     <script src="./js/config/menu.js"></script>
-    <script src="./js/animação/anima.js"></script>
+    <script src="./js/editor/theme-toggle.js"></script>
+    
 </body>
 </html>

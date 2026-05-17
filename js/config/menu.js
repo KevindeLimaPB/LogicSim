@@ -23,10 +23,13 @@ function initModernDrawer() {
         drawer.setAttribute('aria-hidden', String(!isOpen));
         drawerToggle.setAttribute('aria-expanded', String(isOpen));
         body.style.overflow = isOpen ? 'hidden' : '';
+
+        
     };
 
     const openDrawer = () => {
         isOpen = true;
+        
         syncState();
     };
 

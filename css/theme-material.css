@@ -95,13 +95,19 @@ a {
 }
 
 .header-bg {
-    background: var(--md-surface);
+    /*mudança*/
     border-bottom: 1px solid var(--md-outline);
     box-shadow: var(--md-elevation-1);
 }
 
 .header {
     min-height: 72px;
+}
+
+.hero-brand img {
+    max-width: 100%;
+    width: auto;
+    height: auto;
 }
 
 .header-btn,

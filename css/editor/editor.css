@@ -692,7 +692,7 @@
 }
 
 /* Tabs and Truth Table */
-.page-tabs { display:flex; gap:8px; padding:10px 18px; }
+.page-tabs { display:flex; gap:8px; padding:10px 18px; border-radius: 12px;}
 .page-tabs .tab { background:transparent; border:1px solid rgba(148,163,184,0.06); color:#cfe8ff; padding:8px 12px; border-radius:8px; cursor:pointer; }
 .page-tabs .tab.active { background: rgba(255,60,60,0.08); border-color: rgba(255,60,60,0.18); color:#ffb7b7; }
 .truth-table-view { padding: 18px; }
