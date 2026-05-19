@@ -252,6 +252,7 @@
             <div class="page-tabs">
                 <button id="tab-simulator" class="tab active">SIMULADOR</button>
                 <button id="tab-truthtable" class="tab">TABELA VERDADE</button>
+                <button id="tab-switching" class="tab">CIRCUITO DE COMUTAÇÃO</button>
             </div>
 
 
@@ -362,6 +363,29 @@
                     <svg class="wire-layer" id="wire-layer"></svg>
                     <div class="node-layer" id="node-layer"></div>
                     <svg class="wire-handles" id="wire-handles"></svg>
+                </div>
+            </section>
+
+            <section class="switching-shell" id="switching-shell" style="display:none;">
+                <div class="switching-head">
+                    <div>
+                        <h3>Circuito de comutacao</h3>
+                        <p>Conversao automatica do circuito logico para comutacao eletrica em tempo real.</p>
+                    </div>
+                    <div class="switching-head__controls">
+                        <label class="switching-selector" for="switching-circuit-select">
+                            <span>Ver circuito</span>
+                            <select id="switching-circuit-select"></select>
+                        </label>
+                        <div class="switching-status" id="switching-status">Sem saida</div>
+                    </div>
+                </div>
+
+                <div class="switching-canvas">
+                    <svg class="switching-svg" id="switching-svg" viewBox="0 0 1200 360" aria-label="Circuito de comutacao"></svg>
+                    <div class="switching-empty" id="switching-empty">
+                        Monte um circuito com saida para visualizar a conversao eletrica.
+                    </div>
                 </div>
             </section>
 

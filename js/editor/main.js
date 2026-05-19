@@ -2,6 +2,7 @@ import { createGate } from './gates.js';
 import { createWire } from './wires.js';
 import { renderGate, updateGatePosition, updateGateValues, updateWirePath, getPinCenter } from './renderer.js';
 import { recompute } from './simulator.js';
+import { updateElectricalView } from '../electrical/main.js';
 
 const workspace = document.getElementById('workspace');
 const nodeLayer = document.getElementById('node-layer');
@@ -32,6 +33,7 @@ let deleteMode = false;
 let zoomLevel = 1;
 const panOffset = { x: 0, y: 0 };
 
+// Converte a posição do mouse para as coordenadas do simulador.
 function screenToWorld(event) {
     const workspaceRect = workspace.getBoundingClientRect();
 
@@ -41,6 +43,7 @@ function screenToWorld(event) {
     };
 }
 
+// Aplica zoom e pan na área de trabalho e atualiza os fios.
 function applyViewport() {
     const transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`;
     wireLayer.style.transform = transform;
@@ -57,12 +60,14 @@ function applyViewport() {
     updateAllWires();
 }
 
+// Ajusta o nível de zoom respeitando os limites configurados.
 function changeZoom(direction) {
     const nextZoom = zoomLevel + direction * zoomConfig.step;
     zoomLevel = Math.max(zoomConfig.min, Math.min(zoomConfig.max, Number(nextZoom.toFixed(2))));
     applyViewport();
 }
 
+// Liga ou desliga o modo de remoção de elementos.
 function setDeleteMode(enabled) {
     deleteMode = enabled;
     workspace.classList.toggle('delete-mode', deleteMode);
@@ -71,6 +76,7 @@ function setDeleteMode(enabled) {
     }
 }
 
+// Cria e renderiza uma nova porta no editor.
 function addGate(type, x = 120, y = 120, options = {}) {
     const gate = createGate(type, x, y);
     if (options.label) {
@@ -84,6 +90,7 @@ function addGate(type, x = 120, y = 120, options = {}) {
     return gate;
 }
 
+// Remove uma porta e apaga os fios ligados a ela.
 function removeGate(gateId) {
     const node = state.nodes.get(gateId);
     if (node) {
@@ -107,6 +114,7 @@ function removeGate(gateId) {
     updateSimulation();
 }
 
+// Limpa todo o circuito e reinicia a área do editor.
 function clearSimulator() {
     dragTarget = null;
     panDrag = null;
@@ -130,8 +138,10 @@ function clearSimulator() {
     state.wires = [];
     state.nodes.clear();
     expressionLabel.textContent = '-';
+    updateElectricalView(state);
 }
 
+// Cria um fio visual e registra a conexão entre portas.
 function addWire(fromId, toId, inputIndex) {
     const wire = createWire(fromId, toId, inputIndex);
     wire.path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -181,6 +191,7 @@ function addWire(fromId, toId, inputIndex) {
     return wire;
 }
 
+// Recalcula o caminho e o estado visual de todos os fios.
 function updateAllWires() {
     const gateMap = new Map(state.gates.map((gate) => [gate.id, gate]));
 
@@ -222,6 +233,7 @@ function updateAllWires() {
     });
 }
 
+// Reavalia o circuito e sincroniza a interface com os novos valores.
 function updateSimulation() {
     recompute(state);
     state.gates.forEach((gate) => {
@@ -232,8 +244,10 @@ function updateSimulation() {
     });
     updateAllWires();
     computeExpression();
+    updateElectricalView(state);
 }
 
+// Trata o clique nos botões que adicionam novas portas.
 function handleAddClick(event) {
     const btn = event.target.closest('[data-add]');
     if (!btn) {
@@ -248,6 +262,7 @@ function handleAddClick(event) {
     updateSimulation();
 }
 
+// Alterna o modo de exclusão ao clicar no botão correspondente.
 function handleDeleteToggle(event) {
     const btn = event.target.closest('[data-action="toggle-delete"]');
     if (!btn) {
@@ -257,6 +272,7 @@ function handleDeleteToggle(event) {
     setDeleteMode(!deleteMode);
 }
 
+// Confirma e executa a limpeza completa do simulador.
 function handleClearSimulator(event) {
     const btn = event.target.closest('[data-action="clear-simulator"]');
     if (!btn) {
@@ -271,6 +287,7 @@ function handleClearSimulator(event) {
     clearSimulator();
 }
 
+// Inicia arraste, pan ou criação de fio conforme o alvo clicado.
 function handleWorkspacePointerDown(event) {
     if (event.target.closest('[data-action="delete-node"], [data-action="inc-inputs"], [data-action="dec-inputs"], [data-action="toggle-input"], [data-action="set-label"]')) {
         return;
@@ -319,6 +336,7 @@ function handleWorkspacePointerDown(event) {
     };
 }
 
+// Atualiza arraste, pan e pré-visualização dos fios enquanto o ponteiro move.
 function handleWorkspacePointerMove(event) {
     if (panDrag) {
         panOffset.x = panDrag.originX + event.clientX - panDrag.startX;
@@ -350,6 +368,7 @@ function handleWorkspacePointerMove(event) {
     }
 }
 
+// Finaliza interações de arraste, pan ou ligação de fios.
 function handleWorkspacePointerUp(event) {
     if (panDrag) {
         workspace.releasePointerCapture?.(panDrag.pointerId);
@@ -376,6 +395,7 @@ function handleWorkspacePointerUp(event) {
     }
 }
 
+// Remove um fio quando ele é clicado no modo de exclusão.
 function handleWireClick(event) {
     const target = event.target;
     const handle = target.closest?.('.wire-delete')
@@ -403,6 +423,7 @@ function handleWireClick(event) {
     updateSimulation();
 }
 
+// Processa o clique em um nó para selecionar, editar ou alternar estado.
 function handleNodeClick(event) {
     const deleteBtn = event.target.closest('[data-action="delete-node"]');
     if (deleteBtn) {
@@ -425,6 +446,7 @@ function handleNodeClick(event) {
     updateSimulation();
 }
 
+// Atualiza o rótulo da porta quando o seletor do nó muda.
 function handleNodeChange(event) {
     const labelSelect = event.target.closest('[data-action="set-label"]');
     if (!labelSelect) {
@@ -440,6 +462,7 @@ function handleNodeChange(event) {
     computeExpression();
 }
 
+// Ajusta a quantidade de entradas de uma porta e limpa conexões inválidas.
 function changeInputCount(gateId, newCount) {
     const gate = state.gates.find((g) => g.id === gateId);
     if (!gate) return;
@@ -482,6 +505,7 @@ function changeInputCount(gateId, newCount) {
     updateSimulation();
 }
 
+// Trata ações dos controles internos do nó, como troca de tipo ou valor.
 function handleNodeControls(event) {
     const inc = event.target.closest('[data-action="inc-inputs"]');
     if (inc) {
@@ -500,6 +524,7 @@ function handleNodeControls(event) {
     }
 }
 
+// Abre o modo de edição rápida ao dar duplo clique em uma porta.
 function handleNodeDoubleClick(event) {
     const node = event.target.closest('.node');
     if (!node) {
@@ -514,6 +539,7 @@ function handleNodeDoubleClick(event) {
     node.classList.toggle('show-input-control');
 }
 
+// Processa os botões de zoom da interface.
 function handleZoomClick(event) {
     const zoomIn = event.target.closest('[data-action="zoom-in"]');
     if (zoomIn) {
@@ -527,18 +553,22 @@ function handleZoomClick(event) {
     }
 }
 
+// Indica se a expressão é simples o bastante para exibição direta.
 function isSimple(expr) {
     return /^[A-Z0-9?]+$/i.test(expr);
 }
 
+// Envolve a expressão com parênteses quando necessário.
 function wrap(expr) {
     return isSimple(expr) ? expr : `(${expr})`;
 }
 
+// Junta partes simbólicas de uma expressão em uma forma legível.
 function combine(symbolic) {
     return symbolic;
 }
 
+// Monta a expressão booleana correspondente ao circuito atual.
 function computeExpression() {
     if (!expressionLabel) {
         return;
@@ -556,6 +586,8 @@ function computeExpression() {
         return;
     }
 
+    // Monta recursivamente a expressão de uma porta e detecta ciclos.
+    // Monta recursivamente a expressão de uma porta e detecta ciclos.
     const buildExpr = (gateId, visiting = new Set()) => {
         const gate = gateMap.get(gateId);
         if (!gate) {
@@ -568,6 +600,8 @@ function computeExpression() {
 
         visiting.add(gateId);
 
+        // Lê a expressão de uma entrada específica da porta.
+        // Lê a expressão de uma entrada específica da porta.
         const inputExpr = (index) => {
             const wire = wireMap.get(`${gate.id}:${index}`);
             if (!wire) {
@@ -663,8 +697,19 @@ function computeExpression() {
         .join('');
 }
 
+// Carrega um circuito pronto no editor.
 function setupPreset() {
     let selectedGate = null;
+    let forcedInputCount = null;
+    let forceThirdInput = false;
+
+    const params = new URLSearchParams(window.location.search);
+    const preset = (params.get('preset') || '').toLowerCase();
+    if (preset === 'xnor3' || preset === 'xnor-3') {
+        selectedGate = 'XNOR';
+        forcedInputCount = 3;
+        forceThirdInput = true;
+    }
     try {
         selectedGate = sessionStorage.getItem('selectedGate');
     } catch (error) {
@@ -691,20 +736,45 @@ function setupPreset() {
         // Ignore storage errors.
     }
 
-    const gateType = selectedGate || 'AND';
+    const rawGateType = selectedGate || 'AND';
+    const normalizedGate = rawGateType.toUpperCase();
+    let gateType = normalizedGate;
+    if (normalizedGate === 'XNOR3' || normalizedGate === 'XNOR_3') {
+        gateType = 'XNOR';
+        forcedInputCount = 3;
+        forceThirdInput = true;
+    }
 
-    const inputA = addGate('INPUT', 140, 160, { label: 'A' });
-    const inputB = addGate('INPUT', 140, 260, { label: 'B' });
-    const logicGate = addGate(gateType, 360, 200);
-    const outputGate = addGate('OUTPUT', 600, 220);
+    const inputStartY = 150;
+    const inputStepY = 90;
+    const inputCount = forceThirdInput ? 3 : 2;
+    const midY = inputStartY + (inputStepY * (inputCount - 1)) / 2;
+    const logicGateY = Math.round(midY - 10);
+    const outputGateY = Math.round(midY + 20);
+
+    const inputA = addGate('INPUT', 140, inputStartY, { label: 'A' });
+    const inputB = addGate('INPUT', 140, inputStartY + inputStepY, { label: 'B' });
+    const inputC = forceThirdInput
+        ? addGate('INPUT', 140, inputStartY + inputStepY * 2, { label: 'C' })
+        : null;
+
+    const logicGate = addGate(gateType, 360, logicGateY);
+    if (forcedInputCount) {
+        changeInputCount(logicGate.id, forcedInputCount);
+    }
+    const outputGate = addGate('OUTPUT', 600, outputGateY);
 
     addWire(inputA.id, logicGate.id, 0);
     if (gateType !== 'NOT') {
         addWire(inputB.id, logicGate.id, 1);
     }
+    if (inputC && gateType !== 'NOT') {
+        addWire(inputC.id, logicGate.id, 2);
+    }
     addWire(logicGate.id, outputGate.id, 0);
 }
 
+// Inicializa os eventos e o estado inicial do editor.
 function init() {
     document.querySelectorAll('[data-add]').forEach((btn) => {
         btn.addEventListener('click', handleAddClick);
@@ -734,12 +804,14 @@ function init() {
 init();
 
 /* --- Tabs: Truth Table view --- */
+// Cria uma cópia leve do estado para cálculos temporários.
 function cloneStateForCompute() {
     const gates = state.gates.map((g) => ({ id: g.id, type: g.type, inputs: Array.from(g.inputs), output: g.output, label: g.label }));
     const wires = state.wires.map((w) => ({ id: w.id, fromId: w.fromId, toId: w.toId, inputIndex: w.inputIndex }));
     return { gates, wires };
 }
 
+// Gera a tabela verdade do circuito atual.
 function generateTruthTable() {
     const inputs = state.gates.filter((g) => g.type === 'INPUT');
     const outputs = state.gates.filter((g) => g.type === 'OUTPUT');
@@ -803,6 +875,7 @@ function generateTruthTable() {
     container.innerHTML = html;
 }
 
+// Aguarda a importação do simulador e alterna a área exibida.
 function awaitImportSimulator() {
     // utility to access recompute if imported differently; here we just return the existing recompute
     return { recompute };
@@ -811,20 +884,39 @@ function awaitImportSimulator() {
 // Tab toggles
 const tabSim = document.getElementById('tab-simulator');
 const tabTT = document.getElementById('tab-truthtable');
+const tabSwitch = document.getElementById('tab-switching');
 const simSection = document.getElementById('simulator-workspace');
 const ttSection = document.getElementById('truth-table-view');
-if (tabSim && tabTT && simSection && ttSection) {
-    tabSim.addEventListener('click', () => {
-        tabSim.classList.add('active');
-        tabTT.classList.remove('active');
-        simSection.style.display = '';
-        ttSection.style.display = 'none';
-    });
-    tabTT.addEventListener('click', () => {
-        tabTT.classList.add('active');
-        tabSim.classList.remove('active');
+const switchingSection = document.getElementById('switching-shell');
+if (tabSim && tabTT && tabSwitch && simSection && ttSection && switchingSection) {
+    // Oculta as três áreas principais antes de mostrar a selecionada.
+    const hideAll = () => {
         simSection.style.display = 'none';
+        ttSection.style.display = 'none';
+        switchingSection.style.display = 'none';
+        tabSim.classList.remove('active');
+        tabTT.classList.remove('active');
+        tabSwitch.classList.remove('active');
+    };
+
+    tabSim.addEventListener('click', () => {
+        hideAll();
+        tabSim.classList.add('active');
+        simSection.style.display = '';
+    });
+
+    tabTT.addEventListener('click', () => {
+        hideAll();
+        tabTT.classList.add('active');
         ttSection.style.display = '';
         generateTruthTable();
+    });
+
+    tabSwitch.addEventListener('click', () => {
+        hideAll();
+        tabSwitch.classList.add('active');
+        switchingSection.style.display = '';
+        // update electrical view immediately when switching panel opens
+        try { updateElectricalView(state); } catch (e) { /* ignore */ }
     });
 }

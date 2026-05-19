@@ -5,6 +5,7 @@ const imagem = document.getElementById('imagem');
 const main = document.getElementById('porta-bg') || document.getElementById('simulador-bg');
 const lista = document.getElementById('porta-logicas-listas');
 
+// Alterna a imagem e o estado visual da lâmpada.
 function trocaImage(){
     if (!imagem) {
         return;

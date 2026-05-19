@@ -58,6 +58,7 @@ const SVG_GATES = {
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+// Cria um elemento SVG já preenchido com atributos básicos.
 function createSvgElement(tag, attributes = {}) {
     const element = document.createElementNS(SVG_NS, tag);
     Object.entries(attributes).forEach(([key, value]) => {
@@ -66,19 +67,23 @@ function createSvgElement(tag, attributes = {}) {
     return element;
 }
 
+// Desenha uma linha simples dentro do grupo da porta.
 function appendGateLine(group, x1, y1, x2, y2) {
     group.appendChild(createSvgElement('line', { x1, y1, x2, y2 }));
 }
 
+// Desenha um caminho SVG para o contorno da porta.
 function appendGatePath(group, d) {
     group.appendChild(createSvgElement('path', { d }));
 }
 
+// Desenha a bolha de inversão usada em portas negadas.
 function appendInversionBubble(group, cx, cy, outputEndX) {
     group.appendChild(createSvgElement('circle', { cx, cy, r: 10 }));
     appendGateLine(group, cx + 10, cy, outputEndX, cy);
 }
 
+// Monta o desenho SVG base da porta lógica.
 function createLogicGateSvg(type, viewBox, inputCount) {
     const svg = createSvgElement('svg', {
         class: `logic-gate-svg logic-gate-svg--${type.toLowerCase()}`,
@@ -136,6 +141,7 @@ function createLogicGateSvg(type, viewBox, inputCount) {
     return svg;
 }
 
+// Cria o pin de entrada ou saída da porta.
 function createPin({ x, y }, viewBox, type, gateId, index) {
     const pin = document.createElement('div');
     pin.className = `pin ${type}`;
@@ -147,6 +153,7 @@ function createPin({ x, y }, viewBox, type, gateId, index) {
     return pin;
 }
 
+// Adiciona o botão de remoção no nó da porta.
 function addDeleteButton(node, gateId) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -157,6 +164,7 @@ function addDeleteButton(node, gateId) {
     node.appendChild(button);
 }
 
+// Renderiza uma porta no DOM e prepara suas interações.
 export function renderGate(gate, nodeLayer) {
     const node = document.createElement('div');
     node.className = 'node';
@@ -325,11 +333,13 @@ export function renderGate(gate, nodeLayer) {
     return node;
 }
 
+// Atualiza a posição visual de uma porta na tela.
 export function updateGatePosition(node, gate) {
     node.style.left = `${gate.x}px`;
     node.style.top = `${gate.y}px`;
 }
 
+// Sincroniza o estado visual da porta com sua saída lógica.
 export function updateGateValues(gate, node) {
     const outputPin = node.querySelector('.pin.output');
     if (outputPin) {
@@ -361,6 +371,7 @@ export function updateGateValues(gate, node) {
     }
 }
 
+// Recalcula a curva do fio entre dois pontos.
 export function updateWirePath(path, from, to) {
     const dx = Math.max(40, Math.abs(to.x - from.x) * 0.4);
     const c1x = from.x + dx;
@@ -368,6 +379,7 @@ export function updateWirePath(path, from, to) {
     path.setAttribute('d', `M ${from.x} ${from.y} C ${c1x} ${from.y}, ${c2x} ${to.y}, ${to.x} ${to.y}`);
 }
 
+// Obtém o centro absoluto de um pin considerando zoom e pan.
 export function getPinCenter(pin, workspace, zoomLevel = 1, panOffset = { x: 0, y: 0 }) {
     const pinRect = pin.getBoundingClientRect();
     const workspaceRect = workspace.getBoundingClientRect();
