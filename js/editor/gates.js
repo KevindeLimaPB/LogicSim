@@ -10,6 +10,7 @@ const GATE_INPUTS = {
     XNOR: 2
 };
 
+// Cria um objeto de porta com estado inicial para o editor.
 export function createGate(type, x, y) {
     return {
         id: crypto.randomUUID(),
@@ -22,10 +23,12 @@ export function createGate(type, x, y) {
     };
 }
 
+// Retorna quantas entradas cada tipo de porta deve ter.
 export function getInputCount(type) {
     return GATE_INPUTS[type] || 0;
 }
 
+// Calcula a saída da porta com base no tipo e nos sinais de entrada.
 export function evaluateGate(gate) {
     const inputs = gate.inputs;
 

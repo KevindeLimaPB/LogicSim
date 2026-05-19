@@ -1,5 +1,6 @@
 import { evaluateGate } from './gates.js';
 
+// Recalcula os sinais do circuito até estabilizar o resultado.
 export function recompute(state) {
     const { gates, wires } = state;
     const gateMap = new Map(gates.map((gate) => [gate.id, gate]));

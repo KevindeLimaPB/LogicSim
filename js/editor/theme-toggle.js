@@ -1,6 +1,7 @@
 const STORAGE_KEY = 'logicSimTheme';
 const mudarCor = document.getElementById('mudarCor')
 
+// Lê o tema inicial salvo ou a preferência do sistema.
 function getInitialTheme() {
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -15,6 +16,7 @@ function getInitialTheme() {
 
 
 //recebe a cor atual
+// Aplica o tema escolhido na interface e salva a preferência.
 function applyTheme(theme) {
     const body = document.body;
     if (!body) return;
@@ -56,6 +58,7 @@ function applyTheme(theme) {
 }
     
 
+// Configura o botão de alternância de tema e sincroniza o estado.
 function initThemeToggle() {
     const toggleBtn = document.getElementById('theme-toggle');
     if (!toggleBtn) return;
