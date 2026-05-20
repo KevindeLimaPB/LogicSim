@@ -5,19 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="./favicon.svg" title="image/svg+xml">
     <link rel="stylesheet" href="./css/style.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>LogicSim - Sobre</title>
 </head>
-<body>
-    <header class="simulator-page theme-ligth">
-        <a href="./simulador.html">
-            <svg width="200" height="60" viewBox="0 0 200 60"           xmlns="http://www.w3.org/2000/svg">
-                <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold">
-                <tspan fill="#007BFF">Logic</tspan><tspan fill="#000000">Sim</tspan>
-                 </text>
-            </svg>
-        </a>
+<body class="simulator-page">
+    <div class="simulator-page__shell">
+        <nav class="top-navbar">
+            <div class="top-navbar__left">
+                <a class="hero-brand" href="./simulador.html" aria-label="LogicSim">
+                    <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold">
+                            <tspan fill="#007BFF">Logic</tspan><tspan id="mudarCor" fill="#000000">Sim</tspan>
+                        </text>
+                    </svg>
+                </a>
+                <a href="./simulador.html">Simulador</a>
+                <a href="./sobre.html">Sobre</a>
+            </div>
 
-        <div class="top-navbar__right">
+            <div class="top-navbar__right">
                 <button
                     id="theme-toggle"
                     type="button"
@@ -29,7 +35,7 @@
                     <i class="fa-solid fa-moon" aria-hidden="true" data-theme-icon="moon"></i>
                 </button>
             </div>
-    </header>
+        </nav>
 
     <section class="sobre-bg">
         <div class="sobre-contexto">
@@ -41,8 +47,10 @@
         </div>
     </section>
 
+    </div>
+
     <script src="./js/config/menu.js"></script>
-    <script src="./js/editor/theme-toggle.js"></script>
+    <script type="module" src="./js/editor/theme-toggle.js"></script>
     
 </body>
 </html>
