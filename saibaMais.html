@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./favicon.svg" title="image/svg+xml">
+    <link rel="stylesheet" href="./css/style.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>LogicSim - Saiba Mais</title>
+</head>
+<body class="simulator-page">
+    <div class="simulator-page__shell">
+        <nav class="top-navbar">
+            <div class="top-navbar__left">
+                <a class="hero-brand" href="./simulador.html" aria-label="LogicSim">
+                    <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold">
+                            <tspan fill="#007BFF">Logic</tspan><tspan id="mudarCor" fill="#000000">Sim</tspan>
+                        </text>
+                    </svg>
+                </a>
+            </div>
+                <!--ICONE DA LAMPADA-->
+            <div class="top-navbar__right">
+                <button
+                    id="theme-toggle"
+                    type="button"
+                    class="toolbar-btn theme-toggle-btn"
+                    aria-label="Alternar tema"
+                    title="Alternar tema"
+                >
+                    <i class="fa-solid fa-sun" aria-hidden="true" data-theme-icon="sun"></i>
+                    <i class="fa-solid fa-moon" aria-hidden="true" data-theme-icon="moon"></i>
+                </button>
+            </div>
+        </nav>
+    </div>
+        <!--CONTEUDO PRINCIPAL-->
+    <section class="exemplos-bg">
+        <div class="exemplos-conteudo">
+            <h1>Entendendo as Portas Lógicas</h1>
+            <dl>
+                <div class="exemplo-lista" id="exemplo-lista">
+                    <dt><strong>Porta AND</strong></dt>
+                    <dd>
+
+                        <img src="./img/exemplos/exemplo-and.svg" alt="porta and">
+
+                    A porta AND só retorna 1 quando todas as entradas são verdadeiras.
+                    </dd>
+                </div>
+
+                <div class="exemplo-lista" id="exemplo-lista">
+                <dt><strong>Porta OR</strong></dt>
+                <dd>
+                    <img src="./img/exemplos/exemplo-or.svg" alt="porta or">
+                    A porta OR só retorna 1 quando uma das entradas são verdadeiras
+                </dd>
+                </div>
+
+                <div class="exemplo-lista" id="exemplo-lista">
+                <dt><strong>Porta NOT</strong></dt>
+                <dd>
+                        <img src="./img/exemplos/exemplo-not.svg" alt="">
+                    A porta NOT inverte o valor, quando a entrada for 1 ela inverte para a saída ser 0.
+                </dd>
+                </div>
+
+                <div class="exemplo-lista" id="exemplo-lista">
+                <dt><strong>Porta NAND</strong></dt>
+                    <dd>
+
+                       A porta NAND é a negação da porta AND, quando as entradas forem 0 saíra 1, quando tiver <strong>uma</strong> entrada 1 ela saíra 1, em demais casos saíra zero.
+                    </dd>
+                    </div>
+
+                    <div class="exemplo-lista" id="exemplo-lista">
+                 <dt><strong>Porta NOR</strong></dt>
+                 <dd>
+
+                    A porta NOR só retorna 1 quando as portas são 0, caso contrário retorna 0.
+                </dd>
+                </div>
+                
+                <div class="exemplo-lista" id="exemplo-lista">
+                    <dt><strong>Porta XOR</strong></dt>
+                    <dd>
+
+                       A porta XOR retorna 1 apenas quando a quantidade de entradas com valor 1 é ímpar. Ou seja, se houver um número ímpar de sinais ligados, a saída será 1; se for par, a saída será 0.
+                    </dd>
+                    </div>
+
+                    <div class="exemplo-lista" id="exemplo-lista">
+                    <dt><strong>Porta XNOR</strong></dt>
+                    <dd>
+
+                       A porta XNOR é o inverso da porta XOR. Ela retorna 1 quando as entradas possuem o mesmo valor lógico. Também pode ser entendida como uma porta que retorna 1 quando a quantidade de valores 1 nas entradas é par. Caso contrário, a saída será 0.
+                    </dd>
+                    </div>
+            </dl>
+        </div>
+    </section>
+
+    
+
+    <script src="./js/config/menu.js"></script>
+    <script type="module" src="./js/editor/theme-toggle.js"></script>
+    
+</body>
+</html>
