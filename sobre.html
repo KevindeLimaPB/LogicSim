@@ -1,50 +1,161 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="icon" href="./favicon.svg" title="image/svg+xml">
     <link rel="stylesheet" href="./css/style.css">
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer" />
+
     <title>LogicSim - Sobre</title>
 </head>
+
 <body class="simulator-page">
+
     <div class="simulator-page__shell">
+
+        <!-- NAVBAR -->
         <nav class="top-navbar">
+
             <div class="top-navbar__left">
+
+                <a class="back-btn" href="./simulador.html">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+
                 <a class="hero-brand" href="./simulador.html" aria-label="LogicSim">
-                    <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold">
-                            <tspan fill="#007BFF">Logic</tspan><tspan id="mudarCor" fill="#000000">Sim</tspan>
+                    <svg width="200" height="60" viewBox="0 0 200 60"
+                        xmlns="http://www.w3.org/2000/svg">
+
+                        <text x="50%" y="50%"
+                            dominant-baseline="middle"
+                            text-anchor="middle"
+                            font-family="Arial, sans-serif"
+                            font-size="32"
+                            font-weight="bold">
+
+                            <tspan fill="#007BFF">Logic</tspan>
+                            <tspan id="mudarCor" fill="#FFFFFF">Sim</tspan>
+
                         </text>
                     </svg>
                 </a>
+
             </div>
-                <!--ICONE DA LAMPADA-->
+
             <div class="top-navbar__right">
+
                 <button
                     id="theme-toggle"
                     type="button"
                     class="toolbar-btn theme-toggle-btn"
-                    aria-label="Alternar tema"
-                    title="Alternar tema"
-                >
-                    <i class="fa-solid fa-sun" aria-hidden="true" data-theme-icon="sun"></i>
-                    <i class="fa-solid fa-moon" aria-hidden="true" data-theme-icon="moon"></i>
-                </button>
-            </div>
-        </nav>
-    </div>
-        <!--CONTEUDO PRINCIPAL-->
-    <section class="sobre-bg">
-        <div class="sobre-contexto">
-            
-    </section>
+                    aria-label="Alternar tema">
 
-    
+                    <i class="fa-solid fa-sun" data-theme-icon="sun"></i>
+                    <i class="fa-solid fa-moon" data-theme-icon="moon"></i>
+
+                </button>
+
+            </div>
+
+        </nav>
+
+        <!-- CONTEÚDO -->
+        <main class="sobre-page">
+
+            <section class="sobre-hero">
+
+                <span class="sobre-tag">
+                    Sistema • Transparência • Informações Legais
+                </span>
+
+                <h1>Sobre o LogicSim</h1>
+
+                <p>
+                    Plataforma interativa para simulação de circuitos
+                    lógicos digitais desenvolvida para fins acadêmicos,
+                    educacionais e experimentação em lógica computacional.
+                </p>
+
+            </section>
+
+
+            <!-- EQUIPE -->
+            <section class="team-section">
+                <div class="team-inner">
+                    <h2 class="team-title">Quem está por trás do LogicSim</h2>
+                    <p class="team-subtitle">Equipe responsável pelo desenvolvimento do projeto.</p>
+
+                    <div class="team-grid" aria-label="Equipe LogicSim">
+                        <article class="team-card">
+                            <div class="avatar-wrapper">
+                                <!-- precisamos de fotos reais ou podemos usar avatares genéricos? -->
+                                <img class="avatar" src="./img/team/avatar1.jpg" alt="ERIKA SOUZA">
+                            </div>
+                            <h3 class="team-name">ERIKA SOUZA</h3>
+                            <p class="team-role">cargo</p>
+                            <a class="team-link" href="#" aria-label="LinkedIn Nome Completo 1"><i class="fa-brands fa-linkedin-in"></i></a>
+                        </article>
+
+                        <article class="team-card">
+                            <div class="avatar-wrapper">
+                                <img class="avatar" src="./img/team/avatar2.jpg" alt="KEVIN DE LIMA">
+                            </div>
+                            <h3 class="team-name">KEVIN DE LIMA</h3>
+                            <p class="team-role">Cargo</p>
+                            <a class="team-link" href="#" aria-label="LinkedIn Nome Completo 2"><i class="fa-brands fa-linkedin-in"></i></a>
+                        </article>
+
+                        <article class="team-card">
+                            <div class="avatar-wrapper">
+                                <img class="avatar" src="./img/team/avatar3.jpg" alt="MATEUS MENDES">
+                            </div>
+                            <h3 class="team-name">MATEUS MENDES</h3>
+                            <p class="team-role">Cargo</p>
+                            <a class="team-link" href="#" aria-label="LinkedIn Nome Completo 3"><i class="fa-brands fa-linkedin-in"></i></a>
+                        </article>
+
+                        <article class="team-card">
+                            <div class="avatar-wrapper">
+                                <img class="avatar" src="./img/team/avatar4.jpg" alt="MIGUEL CAVALCANTE">
+                            </div>
+                            <h3 class="team-name">MIGUEL CAVALCANTE</h3>
+                            <p class="team-role">Cargo</p>
+                            <a class="team-link" href="#" aria-label="LinkedIn Nome Completo 4"><i class="fa-brands fa-linkedin-in"></i></a>
+                        </article>
+
+                        <article class="team-card">
+                            <div class="avatar-wrapper">
+                                <img class="avatar" src="./img/team/avatar5.jpg" alt="ISMAEL FERREIRA">
+                            </div>
+                            <h3 class="team-name">ISMAEL FERREIRA</h3>
+                            <p class="team-role">Cargo</p>
+                            <a class="team-link" href="#" aria-label="LinkedIn Nome Completo 5"><i class="fa-brands fa-linkedin-in"></i></a>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="sobre-footer">
+
+                <p>
+                    © 2026 LogicSim — Todos os direitos reservados.
+                </p>
+
+            </footer>
+
+        </main>
+
+    </div>
 
     <script src="./js/config/menu.js"></script>
     <script type="module" src="./js/editor/theme-toggle.js"></script>
     
+
 </body>
 </html>
