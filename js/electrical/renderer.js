@@ -17,6 +17,290 @@ function createSvgElement(tag, attrs = {}) {
     return el;
 }
 
+// Monta a trilha ativa diretamente a partir da árvore do circuito.
+function renderActiveTrails(svg, layout, originX, originY, activeIn, leadingPoints = [], trailingPoints = []) {
+    if (!layout || !activeIn) {
+        return;
+    }
+
+    if (svg.__energyAnimFrame) {
+        cancelAnimationFrame(svg.__energyAnimFrame);
+        svg.__energyAnimFrame = null;
+    }
+
+    const appendPoint = (points, point) => {
+        if (!point) {
+            return;
+        }
+
+        const last = points[points.length - 1];
+        if (!last || last.x !== point.x || last.y !== point.y) {
+            points.push({ x: point.x, y: point.y });
+        }
+    };
+
+    const appendPath = (points, path) => {
+        path.forEach((point) => appendPoint(points, point));
+    };
+
+    const appendRoute = (points, from, to) => {
+        if (!from || !to) {
+            return;
+        }
+
+        appendPoint(points, from);
+
+        if (from.x === to.x || from.y === to.y) {
+            appendPoint(points, to);
+            return;
+        }
+
+        appendPoint(points, { x: to.x, y: from.y });
+        appendPoint(points, to);
+    };
+
+    const collectPaths = (nodeLayout, nodeOriginX, nodeOriginY) => {
+        if (!nodeLayout) {
+            return [];
+        }
+
+        if (nodeLayout.type === 'OUTPUT') {
+            return collectPaths(nodeLayout.child, nodeOriginX, nodeOriginY);
+        }
+
+        if (nodeLayout.type === 'SWITCH') {
+            return [[
+                { x: nodeOriginX + nodeLayout.in.x, y: nodeOriginY + nodeLayout.in.y },
+                { x: nodeOriginX + nodeLayout.out.x, y: nodeOriginY + nodeLayout.out.y }
+            ]];
+        }
+
+        if (nodeLayout.type === 'SERIES') {
+            let paths = [[]];
+            nodeLayout.children.forEach((child, index) => {
+                const childOriginX = nodeOriginX + child.x;
+                const childOriginY = nodeOriginY + child.y;
+                const childPaths = collectPaths(child, childOriginX, childOriginY);
+                const nextPaths = [];
+
+                paths.forEach((basePath) => {
+                    childPaths.forEach((childPath) => {
+                        if (!childPath.length) {
+                            return;
+                        }
+
+                        const mergedPath = basePath.slice();
+                        if (mergedPath.length === 0) {
+                            appendPath(mergedPath, childPath);
+                        } else {
+                            appendRoute(mergedPath, mergedPath[mergedPath.length - 1], childPath[0]);
+                            appendPath(mergedPath, childPath.slice(1));
+                        }
+                        nextPaths.push(mergedPath);
+                    });
+                });
+
+                paths = nextPaths;
+
+                if (index < nodeLayout.children.length - 1) {
+                    const next = nodeLayout.children[index + 1];
+                    const connectorStart = {
+                        x: childOriginX + child.out.x,
+                        y: childOriginY + child.out.y
+                    };
+                    const connectorEnd = {
+                        x: nodeOriginX + next.x + next.in.x,
+                        y: nodeOriginY + next.y + next.in.y
+                    };
+
+                    paths = paths.map((path) => {
+                        const routed = path.slice();
+                        appendRoute(routed, connectorStart, connectorEnd);
+                        return routed;
+                    });
+                }
+            });
+            return paths;
+        }
+
+        if (nodeLayout.type === 'PARALLEL') {
+            const activeChildren = nodeLayout.children.filter((child) => child.node && child.node._conduct);
+            const branchChildren = activeChildren.length ? activeChildren : nodeLayout.children.slice(0, 1);
+
+            if (!branchChildren.length) {
+                return [];
+            }
+
+            return branchChildren.flatMap((activeChild) => {
+                const childOriginX = nodeOriginX + activeChild.x;
+                const childOriginY = nodeOriginY + activeChild.y;
+                const entry = {
+                    x: childOriginX + activeChild.in.x,
+                    y: childOriginY + activeChild.in.y
+                };
+                const exit = {
+                    x: childOriginX + activeChild.out.x,
+                    y: childOriginY + activeChild.out.y
+                };
+
+                const childPaths = collectPaths(activeChild, childOriginX, childOriginY);
+                return childPaths.map((childPath) => {
+                    const points = [];
+                    appendRoute(points, { x: nodeOriginX + nodeLayout.in.x, y: nodeOriginY + nodeLayout.in.y }, entry);
+                    appendPath(points, childPath);
+                    appendRoute(points, childPath[childPath.length - 1] || entry, exit);
+                    appendRoute(points, exit, { x: nodeOriginX + nodeLayout.out.x, y: nodeOriginY + nodeLayout.out.y });
+                    return points;
+                });
+            }).filter((path) => path.length >= 2);
+        }
+
+        if (nodeLayout.type === 'INVERT') {
+            const childOriginX = nodeOriginX;
+            const childOriginY = nodeOriginY + (nodeLayout.height - nodeLayout.child.height) / 2;
+            const childPaths = collectPaths(nodeLayout.child, childOriginX, childOriginY);
+            if (!childPaths.length) {
+                return [];
+            }
+
+            const switchOriginX = nodeOriginX + nodeLayout.child.width + LAYOUT.invertGap;
+            const switchOriginY = nodeOriginY + (nodeLayout.height - LAYOUT.switchHeight) / 2;
+            return childPaths.map((childPath) => {
+                const points = [];
+                appendPath(points, childPath);
+                appendRoute(points, childPath[childPath.length - 1], { x: switchOriginX, y: nodeOriginY + nodeLayout.in.y });
+                appendRoute(points, { x: switchOriginX, y: nodeOriginY + nodeLayout.in.y }, { x: switchOriginX + LAYOUT.switchWidth, y: nodeOriginY + nodeLayout.out.y });
+                return points;
+            });
+        }
+
+        return [];
+    };
+
+    const trailVariants = collectPaths(layout, originX, originY)
+        .map((points) => {
+            const fullPath = [];
+            appendPath(fullPath, leadingPoints);
+            appendPath(fullPath, points);
+            appendPath(fullPath, trailingPoints);
+            return fullPath;
+        })
+        .filter((points) => points.length >= 2);
+
+    if (!trailVariants.length) {
+        return;
+    }
+
+    const speed = 100; // px/s
+    const dotRadius = 3;
+    const glowBaseRadius = 10;
+    const glowPulseAmplitude = 0.25;
+    const glowPulseSpeed = 0.006;
+
+    const dotGroup = createSvgElement('g', { class: 'switching-energy-dots' });
+    const trailRenderers = [];
+
+    if (!svg.__trailCounter) svg.__trailCounter = 0;
+
+    trailVariants.forEach((pathPoints, pathIndex) => {
+        const trailId = `switching-trail-${Date.now()}-${svg.__trailCounter++}-${pathIndex}`;
+        const d = pathPoints.map((point, index) => (index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`)).join(' ');
+        const trailPath = createSvgElement('path', {
+            id: trailId,
+            d,
+            class: 'switching-trail'
+        });
+        svg.appendChild(trailPath);
+
+        let trailLen = 0;
+        try {
+            trailLen = trailPath.getTotalLength();
+        } catch (e) {
+            trailLen = 0;
+        }
+
+        if (trailLen <= 0) {
+            return;
+        }
+
+        const dotCount = Math.max(3, Math.min(6, Math.round(trailLen / 220)));
+        const dotSpacing = trailLen / dotCount;
+        const energyDots = [];
+
+        for (let i = 0; i < dotCount; i += 1) {
+            const glow = createSvgElement('circle', {
+                r: glowBaseRadius,
+                class: 'switching-energy-glow'
+            });
+            const dot = createSvgElement('circle', {
+                r: dotRadius,
+                class: 'switching-energy-dot'
+            });
+            dotGroup.appendChild(glow);
+            dotGroup.appendChild(dot);
+            energyDots.push({ glow, dot, offset: dotSpacing * i });
+        }
+
+        trailRenderers.push({ trailPath, trailLen, energyDots });
+    });
+
+    if (!trailRenderers.length) {
+        return;
+    }
+
+    svg.appendChild(dotGroup);
+
+    const state = trailRenderers.map(() => ({
+        distance: 0,
+        lastTime: null
+    }));
+
+    const advanceDot = (timestamp) => {
+        if (!svg.isConnected) {
+            return;
+        }
+
+        trailRenderers.forEach((renderer, rendererIndex) => {
+            const rendererState = state[rendererIndex];
+            if (rendererState.lastTime === null) {
+                rendererState.lastTime = timestamp;
+            }
+
+            const delta = Math.max(0, timestamp - rendererState.lastTime);
+            rendererState.lastTime = timestamp;
+            rendererState.distance = (rendererState.distance + (delta / 1000) * speed) % renderer.trailLen;
+
+            renderer.energyDots.forEach((energyDot, index) => {
+                const dotDistance = (rendererState.distance + energyDot.offset) % renderer.trailLen;
+                let point = null;
+                try {
+                    point = renderer.trailPath.getPointAtLength(dotDistance);
+                } catch (e) {
+                    point = null;
+                }
+
+                if (!point) {
+                    return;
+                }
+
+                energyDot.dot.setAttribute('cx', point.x);
+                energyDot.dot.setAttribute('cy', point.y);
+                energyDot.glow.setAttribute('cx', point.x);
+                energyDot.glow.setAttribute('cy', point.y);
+
+                const pulsePhase = timestamp * glowPulseSpeed + index * 0.9 + rendererIndex * 0.3;
+                const pulse = 1 + Math.sin(pulsePhase) * glowPulseAmplitude;
+                energyDot.glow.setAttribute('r', (glowBaseRadius * pulse).toFixed(2));
+                energyDot.glow.setAttribute('opacity', (0.12 + Math.sin(pulsePhase) * 0.04).toFixed(2));
+            });
+        });
+
+        svg.__energyAnimFrame = requestAnimationFrame(advanceDot);
+    };
+
+    svg.__energyAnimFrame = requestAnimationFrame(advanceDot);
+}
+
 // Marca recursivamente quais ramos conduzem energia.
 function annotateConduct(node) {
     if (!node) {
@@ -165,63 +449,213 @@ function layoutNode(node) {
 function drawWire(svg, from, to, isActive) {
     if (!svg.__wireCounter) svg.__wireCounter = 0;
     const pathId = `switching-path-${Date.now()}-${svg.__wireCounter++}`;
+    const d = `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
     const path = createSvgElement('path', {
         id: pathId,
-        d: `M ${from.x} ${from.y} L ${to.x} ${to.y}`,
+        d,
         class: `switching-wire${isActive ? ' is-active' : ''}`
     });
     svg.appendChild(path);
+    // se ativo, registre o segmento para criação da trilha global
+    if (isActive) {
+        if (!svg.__activeSegments) svg.__activeSegments = [];
+        svg.__activeSegments.push({ from, to, d });
+    }
 }
 
 
-// Desenha a fonte de energia do circuito.
+// Desenha a fonte de energia do circuito como um ícone de bateria (vertical).
 function drawSource(svg, x, y) {
     const group = createSvgElement('g', { class: 'switching-source' });
 
-    const body = createSvgElement('circle', { cx: x, cy: y, r: 16 });
-    const plusV = createSvgElement('line', { x1: x, y1: y - 8, x2: x, y2: y + 8 });
-    const plusH = createSvgElement('line', { x1: x - 6, y1: y, x2: x + 6, y2: y });
+    // Dimensões da pilha baseadas no SVG de referencia
+    const scale = 0.52;
+    const bodyW = 60 * scale;
+    const bodyH = 90 * scale;
+    const termW = 28 * scale;
+    const termH = 10 * scale;
+    const bodyX = x - bodyW / 2;
+    const bodyY = y - bodyH / 2;
+    const termX = x - termW / 2;
 
+    // Terminal superior
+    const posTerm = createSvgElement('rect', {
+        class: 'switching-source-terminal',
+        x: termX,
+        y: bodyY - termH,
+        width: termW,
+        height: termH,
+        rx: 2
+    });
+
+    // Corpo
+    const body = createSvgElement('rect', {
+        class: 'switching-source-body',
+        x: bodyX,
+        y: bodyY,
+        width: bodyW,
+        height: bodyH,
+        rx: 4
+    });
+
+    // Sinal +
+    const markShiftY = 2.5;
+    const plusCenterY = bodyY + 26 * scale + markShiftY;
+    const plusV = createSvgElement('line', {
+        class: 'switching-source-mark',
+        x1: x,
+        y1: plusCenterY - 6 * scale,
+        x2: x,
+        y2: plusCenterY + 6 * scale
+    });
+    const plusH = createSvgElement('line', {
+        class: 'switching-source-mark',
+        x1: x - 6 * scale,
+        y1: plusCenterY,
+        x2: x + 6 * scale,
+        y2: plusCenterY
+    });
+
+    // Sinal -
+    const minusY = bodyY + 56 * scale + markShiftY;
+    const minus = createSvgElement('line', {
+        class: 'switching-source-mark',
+        x1: x - 6 * scale,
+        y1: minusY,
+        x2: x + 6 * scale,
+        y2: minusY
+    });
+
+    // Terminal inferior
+    const negTerm = createSvgElement('rect', {
+        class: 'switching-source-terminal',
+        x: termX,
+        y: bodyY + bodyH,
+        width: termW,
+        height: termH,
+        rx: 2
+    });
+
+    group.appendChild(posTerm);
     group.appendChild(body);
     group.appendChild(plusV);
     group.appendChild(plusH);
+    group.appendChild(minus);
+    group.appendChild(negTerm);
     svg.appendChild(group);
 }
 
 // Desenha a lâmpada com estado ligado ou desligado.
 function drawLamp(svg, x, y, isOn, label) {
-    const group = createSvgElement('g', { class: 'switching-lamp' });
+    const scale = 0.42;
+    const lampWidth = 120 * scale;
+    const lampHeight = 160 * scale;
+    const leftPinX = x - 8 * scale;
+    const rightPinX = x + 8 * scale;
+    const topY = y - lampHeight;
+
+    const group = createSvgElement('g', {
+        class: `switching-lamp${isOn ? ' is-on' : ''}`,
+        transform: `translate(${x - lampWidth / 2} ${topY}) scale(${scale})`
+    });
+
     const glow = createSvgElement('circle', {
-        cx: x,
-        cy: y,
-        r: 26,
+        cx: 60,
+        cy: 60,
+        r: 42,
         class: `switching-lamp-glow${isOn ? ' is-on' : ''}`
     });
-    const circle = createSvgElement('circle', {
-        cx: x,
-        cy: y,
-        r: 18,
-        class: `switching-lamp${isOn ? ' is-on' : ''}`
+
+    const bulb = createSvgElement('path', {
+        d: 'M60 20 C38 20, 20 38, 20 60 C20 78, 30 92, 42 102 C48 107, 50 114, 50 120 H70 C70 114, 72 107, 78 102 C90 92, 100 78, 100 60 C100 38, 82 20, 60 20 Z',
+        class: 'switching-lamp-body'
     });
+
     const filament = createSvgElement('path', {
-        d: `M ${x - 8} ${y} Q ${x} ${y + 6} ${x + 8} ${y}`
+        d: 'M48 70 Q60 82 72 70',
+        class: 'switching-lamp-filament'
+    });
+
+    const supportLeft = createSvgElement('line', {
+        x1: 52,
+        y1: 70,
+        x2: 52,
+        y2: 95,
+        class: 'switching-lamp-support'
+    });
+
+    const supportRight = createSvgElement('line', {
+        x1: 68,
+        y1: 70,
+        x2: 68,
+        y2: 95,
+        class: 'switching-lamp-support'
+    });
+
+    const base = createSvgElement('rect', {
+        x: 45,
+        y: 120,
+        width: 30,
+        height: 20,
+        rx: 4,
+        class: 'switching-lamp-base'
+    });
+
+    const groove1 = createSvgElement('line', {
+        x1: 48,
+        y1: 126,
+        x2: 72,
+        y2: 126,
+        class: 'switching-lamp-groove'
+    });
+
+    const groove2 = createSvgElement('line', {
+        x1: 48,
+        y1: 133,
+        x2: 72,
+        y2: 133,
+        class: 'switching-lamp-groove'
+    });
+
+    const pinLeft = createSvgElement('path', {
+        d: 'M52 140 V160',
+        class: 'switching-lamp-pin'
+    });
+
+    const pinRight = createSvgElement('path', {
+        d: 'M68 140 V160',
+        class: 'switching-lamp-pin'
     });
 
     group.appendChild(glow);
-    group.appendChild(circle);
+    group.appendChild(bulb);
     group.appendChild(filament);
+    group.appendChild(supportLeft);
+    group.appendChild(supportRight);
+    group.appendChild(base);
+    group.appendChild(groove1);
+    group.appendChild(groove2);
+    group.appendChild(pinLeft);
+    group.appendChild(pinRight);
     svg.appendChild(group);
 
     if (label) {
         const text = createSvgElement('text', {
             x: x,
-            y: y - 28,
+            y: topY - 8,
             class: 'switching-label',
             'text-anchor': 'middle'
         });
         text.textContent = label;
         svg.appendChild(text);
     }
+
+    return {
+        leftTerminal: { x: leftPinX, y },
+        rightTerminal: { x: rightPinX, y },
+        bodyTopY: topY,
+        bodyBottomY: y
+    };
 }
 
 // Desenha a chave elétrica com base no estado de entrada.
@@ -248,10 +682,10 @@ function drawSwitch(svg, x, y, node, activeIn) {
         class: 'switching-contact'
     });
 
-    const armEndX = isClosed ? endX - 6 : startX + width * 0.62;
-    const armEndY = isClosed ? midY : midY - 10;
+    const armEndX = isClosed ? endX - 6 : startX + width * 0.90;
+    const armEndY = isClosed ? midY : midY - 16;
     const arm = createSvgElement('line', {
-        x1: startX + 6,
+        x1: startX + 8,
         y1: midY,
         x2: armEndX,
         y2: armEndY,
@@ -390,7 +824,13 @@ export function renderElectrical(svg, tree) {
         return;
     }
 
+    if (svg.__energyAnimFrame) {
+        cancelAnimationFrame(svg.__energyAnimFrame);
+        svg.__energyAnimFrame = null;
+    }
+
     svg.innerHTML = '';
+    svg.__activeSegments = [];
 
     if (!tree) {
         return;
@@ -413,18 +853,50 @@ export function renderElectrical(svg, tree) {
 
     const entry = { x: originX + layout.in.x, y: originY + layout.in.y };
     const exit = { x: originX + layout.out.x, y: originY + layout.out.y };
+    const batteryX = padX - 10;
+    const sourceStart = { x: batteryX, y: entry.y };
 
-    drawSource(svg, padX - 10, entry.y);
-    drawWire(svg, { x: padX + 8, y: entry.y }, entry, circuitActive);
+    // Coloca a bateria no fio vertical da esquerda, entre o fio superior e o retorno.
+    const batteryBodyH = 44;
+    const batteryOffsetY = 36;
+    const batteryCenterY = entry.y + batteryOffsetY;
+    const batteryBodyTopY = batteryCenterY - Math.round(batteryBodyH / 2) - 1.5;
+    const batteryBodyBottomY = batteryCenterY + Math.round(batteryBodyH / 2) - 1.5;
+    const batteryTopWireY = batteryBodyTopY - 5;
+    const batteryBottomWireY = batteryBodyBottomY + 10;
+    const batteryTopJoin = { x: batteryX, y: batteryTopWireY };
+    const batteryBottomJoin = { x: batteryX, y: batteryBottomWireY };
+
+    // fio saindo da bateria (por cima) até a entrada do circuito
+    drawWire(svg, batteryTopJoin, sourceStart, circuitActive);
+    drawWire(svg, sourceStart, entry, circuitActive);
+    // desenha a bateria centralizada na coluna do fio
+    drawSource(svg, batteryX, batteryCenterY);
 
     renderNode(svg, layout, originX, originY, circuitActive);
 
     const lampX = exit.x + 90;
-    drawWire(svg, exit, { x: lampX - 24, y: exit.y }, circuitActive);
-    drawLamp(svg, lampX, exit.y, circuitActive, tree.name || 'OUT');
-
     const returnY = exit.y + 90;
-    drawWire(svg, { x: lampX + 24, y: exit.y }, { x: lampX + 24, y: returnY }, circuitActive);
-    drawWire(svg, { x: lampX + 24, y: returnY }, { x: padX - 10, y: returnY }, circuitActive);
-    drawWire(svg, { x: padX - 10, y: returnY }, { x: padX - 10, y: entry.y + 18 }, circuitActive);
+    const lampTerminals = drawLamp(svg, lampX, exit.y, circuitActive, tree.name || 'OUT');
+    const lampEntry = lampTerminals.leftTerminal;
+    const lampExit = lampTerminals.rightTerminal;
+    const returnDown = { x: lampExit.x, y: returnY };
+    const returnLeft = { x: batteryX, y: returnY };
+    const returnUp = { x: batteryX, y: batteryBottomWireY };
+
+    drawWire(svg, exit, lampEntry, circuitActive);
+
+    drawWire(svg, lampExit, returnDown, circuitActive);
+    drawWire(svg, returnDown, returnLeft, circuitActive);
+    drawWire(svg, returnLeft, returnUp, circuitActive);
+
+        renderActiveTrails(
+            svg,
+            layout,
+            originX,
+            originY,
+            circuitActive,
+            [batteryTopJoin, sourceStart, entry],
+            [exit, lampEntry, lampExit, returnDown, returnLeft, returnUp]
+        );
 }

@@ -24,6 +24,158 @@ body.simulator-page {
     scroll-behavior: smooth;
 }
 
+.logic-tutorial {
+    --tutorial-cut-left: 0px;
+    --tutorial-cut-top: 0px;
+    --tutorial-cut-width: 0px;
+    --tutorial-cut-height: 0px;
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    pointer-events: none;
+}
+
+.logic-tutorial__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(4, 7, 14, 0.42);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    -webkit-mask-size: 100% 100%, var(--tutorial-cut-width) var(--tutorial-cut-height);
+    -webkit-mask-position: 0 0, var(--tutorial-cut-left) var(--tutorial-cut-top);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-composite: xor;
+    mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    mask-size: 100% 100%, var(--tutorial-cut-width) var(--tutorial-cut-height);
+    mask-position: 0 0, var(--tutorial-cut-left) var(--tutorial-cut-top);
+    mask-repeat: no-repeat;
+    mask-composite: exclude;
+    pointer-events: auto;
+}
+
+body.simulator-page.theme-light .logic-tutorial__backdrop {
+    background: rgba(18, 26, 38, 0.3);
+}
+
+.logic-tutorial__highlight {
+    position: fixed;
+    border-radius: 14px;
+    border: 2px solid #39d5ff;
+    box-shadow:
+        0 0 0 4px rgba(57, 213, 255, 0.18),
+        0 0 26px rgba(57, 213, 255, 0.45);
+    transition: left 0.28s ease, top 0.28s ease, width 0.28s ease, height 0.28s ease;
+}
+
+.logic-tutorial__panel {
+    position: fixed;
+    width: min(360px, calc(100vw - 24px));
+    border-radius: 16px;
+    border: 1px solid rgba(97, 213, 255, 0.35);
+    background:
+        linear-gradient(160deg, rgba(10, 18, 34, 0.96), rgba(8, 14, 28, 0.94)),
+        radial-gradient(circle at top right, rgba(57, 213, 255, 0.2), transparent 52%);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.42);
+    padding: 16px 18px 14px;
+    pointer-events: auto;
+}
+
+body.simulator-page.theme-light .logic-tutorial__panel {
+    border-color: rgba(32, 143, 187, 0.28);
+    background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.97), rgba(244, 252, 255, 0.95)),
+        radial-gradient(circle at top right, rgba(76, 201, 255, 0.2), transparent 52%);
+}
+
+.logic-tutorial__progress {
+    margin: 0;
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #95dfff;
+    font-weight: 700;
+}
+
+body.simulator-page.theme-light .logic-tutorial__progress {
+    color: #0f87af;
+}
+
+.logic-tutorial__title {
+    margin: 8px 0 6px;
+    font-size: 1.08rem;
+}
+
+.logic-tutorial__text {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.42;
+    font-size: 0.94rem;
+}
+
+.logic-tutorial__controls {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logic-tutorial__btn {
+    border: 1px solid rgba(148, 163, 184, 0.26);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    border-radius: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.logic-tutorial__btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.logic-tutorial__btn--primary {
+    border-color: rgba(57, 213, 255, 0.48);
+    background: linear-gradient(135deg, #1f9bd0, #2dd4bf);
+    color: #f8fdff;
+}
+
+.logic-tutorial__btn--ghost {
+    margin-left: auto;
+}
+
+.logic-tutorial__close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+@media (max-width: 700px) {
+    .logic-tutorial__panel {
+        width: calc(100vw - 18px);
+        border-radius: 14px;
+        padding: 14px;
+    }
+
+    .logic-tutorial__controls {
+        gap: 6px;
+    }
+
+    .logic-tutorial__btn {
+        padding: 8px 10px;
+        font-size: 0.86rem;
+    }
+}
+
 body.simulator-page.theme-light {
     --bg-primary: #f6fbff;
     --bg-secondary: #ffffff;
@@ -659,11 +811,6 @@ body.simulator-page.theme-light .theme-toggle-btn {
     box-shadow: var(--shadow-soft);
 }
 
-body.simulator-page.theme-light .simulator-hero,
-body.simulator-page.theme-light .editor-toolbar,
-body.simulator-page.theme-light .editor-workspace,
-body.simulator-page.theme-light .about-card,
-
 .switching-shell {
     display: grid;
     gap: 14px;
@@ -772,77 +919,174 @@ body.simulator-page.theme-light .about-card,
 
 .switching-svg .switching-wire {
     fill: none;
-    stroke: rgba(100, 116, 139, 0.7);
-    stroke-width: 3.5;
+    stroke: #6b7280; /* cinza neutro */
+    stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
 .switching-svg .switching-wire.is-active {
-    stroke: #3ecf79 !important;
-    filter: drop-shadow(0 0 12px rgba(62, 207, 121, 0.85));
+    stroke: #2b6cb0; /* azul educativo */
 }
 
-.switching-svg .switching-energy-dots,
-.switching-svg .switching-energy-dots.active,
+.switching-svg .switching-energy-dots {
+    pointer-events: none;
+}
+
 .switching-svg .switching-energy-dot {
-    display: none;
+    fill: #f59e0b; /* amarelo educacional */
+    stroke: none;
 }
 
 .switching-svg .switching-contact {
-    fill: rgba(12, 20, 32, 0.95);
-    stroke: rgba(148, 163, 184, 0.45);
-    stroke-width: 2;
+    fill: #ffffff;
+    stroke: #374151;
+    stroke-width: 1.2;
 }
 
 .switching-svg .switching-switch {
-    stroke: rgba(148, 163, 184, 0.6);
-    stroke-width: 3.5;
+    stroke: #374151;
+    stroke-width: 2;
     stroke-linecap: round;
 }
 
 .switching-svg .switching-switch.is-closed {
-    stroke: var(--accent-cyan);
-    filter: drop-shadow(0 0 6px rgba(104, 245, 193, 0.45));
+    stroke: #2b6cb0;
 }
 
 .switching-svg .switching-switch.is-open {
-    stroke: rgba(148, 163, 184, 0.55);
+    stroke: #9ca3af;
 }
 
 .switching-svg .switching-label {
-    fill: #dfe7f5;
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    fill: #111827;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: normal;
 }
 
-.switching-svg .switching-source,
+/* bateria com contorno claro e corpo sutil */
+.switching-svg .switching-source {
+    stroke: #e5e5e5;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.switching-svg .switching-source-body {
+    fill: none;
+}
+
+.switching-svg .switching-source-terminal {
+    fill: none;
+}
+
+.switching-svg .switching-source-mark {
+    stroke: #e5e5e5;
+    stroke-width: 2;
+}
+
 .switching-svg .switching-lamp {
-    stroke: rgba(148, 163, 184, 0.65);
-    stroke-width: 3;
+    stroke: #374151;
+    stroke-width: 1.5;
     fill: none;
 }
 
 .switching-svg .switching-lamp.is-on {
-    stroke: var(--accent-green);
-    filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.6));
+    stroke: #2b6cb0;
+}
+
+.switching-svg .switching-lamp-body {
+    fill: rgba(10, 18, 32, 0.32);
+    stroke: #e5e5e5;
+    stroke-width: 4;
+}
+
+.switching-svg .switching-lamp.is-on .switching-lamp-body {
+    fill: rgba(43, 108, 176, 0.18);
+    stroke: #8fc1ff;
+}
+
+.switching-svg .switching-lamp-filament,
+.switching-svg .switching-lamp-support,
+.switching-svg .switching-lamp-base,
+.switching-svg .switching-lamp-groove,
+.switching-svg .switching-lamp-pin {
+    stroke: #e5e5e5;
+    stroke-width: 4;
+    fill: none;
+}
+
+.switching-svg .switching-lamp-base {
+    fill: rgba(10, 18, 32, 0.42);
+}
+
+.switching-svg .switching-lamp-groove,
+.switching-svg .switching-lamp-pin {
+    stroke-width: 3;
 }
 
 .switching-svg .switching-lamp-glow {
-    fill: rgba(74, 222, 128, 0.2);
+    fill: #2b6cb0;
     opacity: 0;
 }
 
 .switching-svg .switching-lamp-glow.is-on {
-    opacity: 1;
+    opacity: 0.3;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: switching-lamp-glow-pulse 1.8s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px rgba(43, 108, 176, 0.6))
+        drop-shadow(0 0 18px rgba(43, 108, 176, 0.3));
+}
+
+@keyframes switching-lamp-glow-pulse {
+    0%,
+    100% {
+        transform: scale(0.94);
+        opacity: 0.24;
+    }
+
+    50% {
+        transform: scale(1.14);
+        opacity: 0.48;
+    }
 }
 
 .switching-svg .switching-invert {
-    fill: rgba(6, 12, 20, 0.9);
-    stroke: rgba(148, 163, 184, 0.6);
-    stroke-width: 2;
+    fill: #ffffff;
+    stroke: #374151;
+    stroke-width: 1.5;
+}
+
+/* trilha azul unificada por onde a energia passa */
+.switching-svg .switching-trail {
+    fill: none;
+    stroke: #2b6cb0;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.18;
+}
+
+/* bolinhas animadas de energia */
+.switching-svg .switching-energy-dot {
+    fill: #f59e0b;
+    stroke: none;
+}
+
+.switching-svg .switching-energy-glow {
+    fill: #f59e0b;
+    stroke: none;
+    opacity: 0.24;
+    filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.55))
+        drop-shadow(0 0 8px rgba(245, 158, 11, 0.28));
+}
+
+.switching-svg .switching-energy-dots {
+    pointer-events: none;
 }
 
 body.simulator-page.theme-light .logic-drawer,

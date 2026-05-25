@@ -10,7 +10,10 @@ const wireLayer = document.getElementById('wire-layer');
 const handleLayer = document.getElementById('wire-handles');
 const expressionLabel = document.getElementById('expression-label');
 const deleteToggleBtn = document.querySelector('[data-action="toggle-delete"]');
+const tutorialStartBtns = document.querySelectorAll('[data-action="start-tutorial"]');
+const switchingTabBtn = document.getElementById('tab-switching');
 const zoomLabel = document.getElementById('zoom-label');
+const expressionCopyBtn = document.querySelector('[data-action="copy-expression"]');
 
 const state = {
     gates: [],
@@ -32,6 +35,77 @@ let previewPath = null;
 let deleteMode = false;
 let zoomLevel = 1;
 const panOffset = { x: 0, y: 0 };
+
+const tutorialState = {
+    active: false,
+    index: 0,
+    steps: [],
+    overlay: null,
+    highlight: null,
+    panel: null,
+    title: null,
+    text: null,
+    progress: null,
+    prevBtn: null,
+    nextBtn: null,
+    closeBtn: null,
+    skipBtn: null,
+    arrowLine: null,
+    startedFromAuto: false,
+    deleteModeBeforeStart: false,
+    rafId: 0,
+    stepUnlockTimeoutId: 0
+};
+
+const tutorialStorageKey = 'logicsim:tutorial:v1';
+const switchingGlowInactivityMs = 2600;
+let switchingGlowTimeoutId = 0;
+
+// Exibe o glow do botão de comutação por um período após alterações do circuito.
+function signalCircuitChange() {
+    if (!switchingTabBtn) {
+        return;
+    }
+
+    switchingTabBtn.classList.add('tab-circuit-dirty');
+    if (switchingGlowTimeoutId) {
+        clearTimeout(switchingGlowTimeoutId);
+    }
+
+    switchingGlowTimeoutId = window.setTimeout(() => {
+        switchingTabBtn.classList.remove('tab-circuit-dirty');
+        switchingGlowTimeoutId = 0;
+    }, switchingGlowInactivityMs);
+}
+
+// Copia a expressão booleana exibida no toolbar.
+async function copyExpression() {
+    if (!expressionLabel || !expressionCopyBtn) {
+        return;
+    }
+
+    const expressionText = expressionLabel.innerText.trim();
+    if (!expressionText || expressionText === '-') {
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(expressionText);
+    } catch (error) {
+        const textarea = document.createElement('textarea');
+        textarea.value = expressionText;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+    }
+
+    expressionCopyBtn.classList.add('is-copied');
+    window.setTimeout(() => expressionCopyBtn.classList.remove('is-copied'), 900);
+}
 
 // Converte a posição do mouse para as coordenadas do simulador.
 function screenToWorld(event) {
@@ -74,6 +148,411 @@ function setDeleteMode(enabled) {
     if (deleteToggleBtn) {
         deleteToggleBtn.classList.toggle('is-active', deleteMode);
     }
+}
+
+// Retorna o elemento alvo de um passo do tutorial.
+function resolveTutorialTarget(step) {
+    if (!step) {
+        return null;
+    }
+
+    if (typeof step.getTarget === 'function') {
+        return step.getTarget();
+    }
+
+    if (step.selector) {
+        return document.querySelector(step.selector);
+    }
+
+    return null;
+}
+
+// Mantém um valor dentro dos limites mínimo e máximo.
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+// Posiciona a caixa de destaque e o cartão do tutorial.
+function positionTutorialElements() {
+    if (!tutorialState.active || !tutorialState.overlay) {
+        return;
+    }
+
+    const step = tutorialState.steps[tutorialState.index];
+    if (!step) {
+        return;
+    }
+
+    const fallbackRect = {
+        left: window.innerWidth * 0.2,
+        top: window.innerHeight * 0.25,
+        width: window.innerWidth * 0.6,
+        height: window.innerHeight * 0.4
+    };
+    const target = resolveTutorialTarget(step);
+    const targetRect = target ? target.getBoundingClientRect() : fallbackRect;
+
+    const pad = 8;
+    const hLeft = clamp(targetRect.left - pad, 6, window.innerWidth - 40);
+    const hTop = clamp(targetRect.top - pad, 6, window.innerHeight - 40);
+    const hWidth = clamp(targetRect.width + pad * 2, 28, window.innerWidth - hLeft - 6);
+    const hHeight = clamp(targetRect.height + pad * 2, 28, window.innerHeight - hTop - 6);
+
+    tutorialState.highlight.style.left = `${hLeft}px`;
+    tutorialState.highlight.style.top = `${hTop}px`;
+    tutorialState.highlight.style.width = `${hWidth}px`;
+    tutorialState.highlight.style.height = `${hHeight}px`;
+    tutorialState.overlay.style.setProperty('--tutorial-cut-left', `${hLeft}px`);
+    tutorialState.overlay.style.setProperty('--tutorial-cut-top', `${hTop}px`);
+    tutorialState.overlay.style.setProperty('--tutorial-cut-width', `${hWidth}px`);
+    tutorialState.overlay.style.setProperty('--tutorial-cut-height', `${hHeight}px`);
+
+    const panel = tutorialState.panel;
+    panel.style.left = '12px';
+    panel.style.top = '12px';
+
+    const panelRect = panel.getBoundingClientRect();
+    const targetCenterX = targetRect.left + targetRect.width / 2;
+    const targetCenterY = targetRect.top + targetRect.height / 2;
+    const wantsRight = targetCenterX < window.innerWidth / 2;
+    const panelX = wantsRight
+        ? targetRect.right + 20
+        : targetRect.left - panelRect.width - 20;
+    const panelY = targetCenterY - panelRect.height / 2;
+
+    const finalX = clamp(panelX, 12, window.innerWidth - panelRect.width - 12);
+    const finalY = clamp(panelY, 12, window.innerHeight - panelRect.height - 12);
+    panel.style.left = `${finalX}px`;
+    panel.style.top = `${finalY}px`;
+}
+
+// Reposiciona o tutorial no próximo frame para evitar jitter visual.
+function queueTutorialReposition() {
+    if (!tutorialState.active) {
+        return;
+    }
+
+    if (tutorialState.rafId) {
+        cancelAnimationFrame(tutorialState.rafId);
+    }
+
+    tutorialState.rafId = requestAnimationFrame(() => {
+        tutorialState.rafId = 0;
+        positionTutorialElements();
+    });
+}
+
+// Reinicia timers do contador entre passos do tutorial.
+function clearTutorialStepTimers() {
+    if (tutorialState.stepUnlockTimeoutId) {
+        clearTimeout(tutorialState.stepUnlockTimeoutId);
+        tutorialState.stepUnlockTimeoutId = 0;
+    }
+}
+
+// Bloqueia o botão de avanço por alguns segundos para incentivar leitura.
+function startTutorialStepCountdown(seconds = 2) {
+    if (!tutorialState.nextBtn) {
+        return;
+    }
+
+    clearTutorialStepTimers();
+
+    const baseLabel = tutorialState.index === tutorialState.steps.length - 1 ? 'Concluir' : 'Proximo';
+    tutorialState.nextBtn.disabled = true;
+    tutorialState.nextBtn.textContent = baseLabel;
+    tutorialState.stepUnlockTimeoutId = window.setTimeout(() => {
+        clearTutorialStepTimers();
+        if (!tutorialState.active || !tutorialState.nextBtn) {
+            return;
+        }
+        tutorialState.nextBtn.disabled = false;
+        tutorialState.nextBtn.textContent = baseLabel;
+    }, seconds * 1000);
+}
+
+// Fecha o tutorial e restaura estado da interface quando necessário.
+function closeTutorial(markAsSeen = true) {
+    if (!tutorialState.active) {
+        return;
+    }
+
+    tutorialState.active = false;
+    if (tutorialState.overlay) {
+        tutorialState.overlay.remove();
+    }
+    tutorialState.overlay = null;
+    tutorialState.highlight = null;
+    tutorialState.panel = null;
+    tutorialState.title = null;
+    tutorialState.text = null;
+    tutorialState.progress = null;
+    tutorialState.prevBtn = null;
+    tutorialState.nextBtn = null;
+    tutorialState.closeBtn = null;
+    tutorialState.skipBtn = null;
+    tutorialState.arrowLine = null;
+    clearTutorialStepTimers();
+
+    if (tutorialState.startedFromAuto) {
+        try {
+            localStorage.setItem(tutorialStorageKey, 'seen');
+        } catch (error) {
+            // Ignora falha de armazenamento.
+        }
+    } else if (markAsSeen) {
+        try {
+            localStorage.setItem(tutorialStorageKey, 'seen');
+        } catch (error) {
+            // Ignora falha de armazenamento.
+        }
+    }
+
+    if (!tutorialState.deleteModeBeforeStart) {
+        setDeleteMode(false);
+    }
+
+    window.removeEventListener('resize', queueTutorialReposition);
+    window.removeEventListener('scroll', queueTutorialReposition, true);
+}
+
+// Centraliza o alvo do passo atual para melhorar a leitura do tutorial.
+function scrollTutorialTargetIntoView(step) {
+    const target = resolveTutorialTarget(step);
+    if (!target || typeof target.scrollIntoView !== 'function') {
+        return;
+    }
+
+    target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
+    });
+}
+
+// Atualiza conteúdo e destino visual do passo corrente.
+function renderTutorialStep(shouldScroll = false) {
+    const step = tutorialState.steps[tutorialState.index];
+    if (!step) {
+        closeTutorial(true);
+        return;
+    }
+
+    if (typeof step.beforeStep === 'function') {
+        step.beforeStep();
+    }
+
+    tutorialState.title.textContent = step.title;
+    tutorialState.text.textContent = step.description;
+    tutorialState.progress.textContent = `Missao ${tutorialState.index + 1}/${tutorialState.steps.length}`;
+    tutorialState.prevBtn.disabled = tutorialState.index === 0;
+    startTutorialStepCountdown(2);
+
+    if (shouldScroll) {
+        requestAnimationFrame(() => {
+            scrollTutorialTargetIntoView(step);
+            requestAnimationFrame(() => {
+                queueTutorialReposition();
+            });
+        });
+        return;
+    }
+
+    queueTutorialReposition();
+}
+
+// Avança ou retrocede no fluxo do tutorial.
+function changeTutorialStep(direction) {
+    if (!tutorialState.active) {
+        return;
+    }
+
+    const next = tutorialState.index + direction;
+    if (next < 0) {
+        return;
+    }
+
+    if (next >= tutorialState.steps.length) {
+        closeTutorial(true);
+        return;
+    }
+
+    tutorialState.index = next;
+    renderTutorialStep(direction > 0);
+}
+
+// Define os passos com foco nas ações principais do simulador.
+function buildTutorialSteps() {
+    return [
+        {
+            title: 'Mapa da fase',
+            description: 'Aqui e a tela principal. Monte o circuito no editor e navegue nas abas para ver tabela verdade e comutacao.',
+            selector: '.page-tabs',
+            beforeStep: () => tabSim?.click()
+        },
+        {
+            title: 'Spawn de portas',
+            description: 'Use esses botoes para adicionar portas. Comece com Input, Input e uma porta logica como AND.',
+            selector: '.editor-toolbar [data-add="AND"]',
+            beforeStep: () => tabSim?.click()
+        },
+        {
+            title: 'Arena de montagem',
+            description: 'Arraste as portas para organizar. Clique e arraste no fundo para mover a camera quando o circuito crescer.',
+            selector: '#workspace',
+            beforeStep: () => tabSim?.click()
+        },
+        {
+            title: 'Ligando os fios',
+            description: 'Clique no pino de saida de uma porta e arraste ate o pino de entrada da proxima para criar a conexao.',
+            selector: '#workspace .pin.output',
+            beforeStep: () => tabSim?.click()
+        },
+        {
+            title: 'Tabela verdade',
+            description: 'Quando o circuito estiver montado, abra esta aba para gerar automaticamente todas as combinacoes de entrada e saida.',
+            selector: '#tab-truthtable'
+        },
+        {
+            title: 'Circuito de comutacao',
+            description: 'Nesta aba voce ve a representacao eletrica equivalente, com trilhas de energia animadas em tempo real.',
+            selector: '#tab-switching'
+        },
+        {
+            title: 'Modo deletar',
+            description: 'Ative o modo Deletar para remover conexoes e portas com rapidez durante os ajustes do circuito.',
+            selector: '[data-action="toggle-delete"]',
+            beforeStep: () => {
+                tabSim?.click();
+                setDeleteMode(true);
+            }
+        },
+        {
+            title: 'Apagar fio ou porta',
+            description: 'Com o modo deletar ativo, clique no x do fio ou no x da porta. Use Limpar para resetar tudo de uma vez.',
+            selector: '#workspace .wire-delete, #workspace .node-delete',
+            beforeStep: () => {
+                tabSim?.click();
+                setDeleteMode(true);
+            }
+        }
+    ];
+}
+
+// Inicia o overlay do tutorial com navegação por etapas.
+function startTutorial(isAuto = false) {
+    if (tutorialState.active) {
+        return;
+    }
+
+    tutorialState.active = true;
+    tutorialState.index = 0;
+    tutorialState.startedFromAuto = isAuto;
+    tutorialState.deleteModeBeforeStart = deleteMode;
+    tutorialState.steps = buildTutorialSteps();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'logic-tutorial';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.tabIndex = -1;
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'logic-tutorial__backdrop';
+
+    const highlight = document.createElement('div');
+    highlight.className = 'logic-tutorial__highlight';
+
+    const panel = document.createElement('section');
+    panel.className = 'logic-tutorial__panel';
+
+    const progress = document.createElement('p');
+    progress.className = 'logic-tutorial__progress';
+
+    const title = document.createElement('h3');
+    title.className = 'logic-tutorial__title';
+
+    const text = document.createElement('p');
+    text.className = 'logic-tutorial__text';
+
+    const controls = document.createElement('div');
+    controls.className = 'logic-tutorial__controls';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.type = 'button';
+    prevBtn.className = 'logic-tutorial__btn';
+    prevBtn.textContent = 'Voltar';
+
+    const nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.className = 'logic-tutorial__btn logic-tutorial__btn--primary';
+    nextBtn.textContent = 'Proximo';
+
+    const skipBtn = document.createElement('button');
+    skipBtn.type = 'button';
+    skipBtn.className = 'logic-tutorial__btn logic-tutorial__btn--ghost';
+    skipBtn.textContent = 'Finalizar';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'logic-tutorial__close';
+    closeBtn.setAttribute('aria-label', 'Fechar tutorial');
+    closeBtn.textContent = 'x';
+
+    prevBtn.addEventListener('click', () => changeTutorialStep(-1));
+    nextBtn.addEventListener('click', () => changeTutorialStep(1));
+    skipBtn.addEventListener('click', () => closeTutorial(true));
+    closeBtn.addEventListener('click', () => closeTutorial(true));
+    backdrop.addEventListener('click', () => closeTutorial(true));
+
+    overlay.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeTutorial(true);
+        } else if (event.key === 'ArrowRight' || event.key === 'Enter') {
+            if (tutorialState.nextBtn?.disabled) {
+                return;
+            }
+            event.preventDefault();
+            changeTutorialStep(1);
+        } else if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+            changeTutorialStep(-1);
+        }
+    });
+
+    controls.appendChild(prevBtn);
+    controls.appendChild(nextBtn);
+    controls.appendChild(skipBtn);
+
+    panel.appendChild(closeBtn);
+    panel.appendChild(progress);
+    panel.appendChild(title);
+    panel.appendChild(text);
+    panel.appendChild(controls);
+
+    overlay.appendChild(backdrop);
+    overlay.appendChild(highlight);
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+
+    tutorialState.overlay = overlay;
+    tutorialState.highlight = highlight;
+    tutorialState.panel = panel;
+    tutorialState.title = title;
+    tutorialState.text = text;
+    tutorialState.progress = progress;
+    tutorialState.prevBtn = prevBtn;
+    tutorialState.nextBtn = nextBtn;
+    tutorialState.closeBtn = closeBtn;
+    tutorialState.skipBtn = skipBtn;
+    tutorialState.arrowLine = null;
+
+    window.addEventListener('resize', queueTutorialReposition);
+    window.addEventListener('scroll', queueTutorialReposition, true);
+
+    renderTutorialStep();
+    queueTutorialReposition();
+    overlay.focus();
 }
 
 // Cria e renderiza uma nova porta no editor.
@@ -260,6 +739,7 @@ function handleAddClick(event) {
     const type = btn.dataset.add;
     addGate(type, 140 + Math.random() * 180, 140 + Math.random() * 120);
     updateSimulation();
+    signalCircuitChange();
 }
 
 // Alterna o modo de exclusão ao clicar no botão correspondente.
@@ -285,6 +765,7 @@ function handleClearSimulator(event) {
     }
 
     clearSimulator();
+    signalCircuitChange();
 }
 
 // Inicia arraste, pan ou criação de fio conforme o alvo clicado.
@@ -356,6 +837,7 @@ function handleWorkspacePointerMove(event) {
         gate.y = pointer.y - dragOffset.y;
         updateGatePosition(dragTarget, gate);
         updateAllWires();
+        signalCircuitChange();
     }
 
     if (previewPath && wiring) {
@@ -387,6 +869,7 @@ function handleWorkspacePointerUp(event) {
             const toId = inputPin.dataset.gateId;
             const inputIndex = Number(inputPin.dataset.pinIndex);
             addWire(wiring.fromId, toId, inputIndex);
+            signalCircuitChange();
         }
         previewPath.remove();
         previewPath = null;
@@ -421,6 +904,7 @@ function handleWireClick(event) {
     wireLayer.querySelector(`.wire[data-wire-id="${wireId}"]`)?.remove();
     wireLayer.querySelector(`.wire-energy-dots[data-wire-id="${wireId}"]`)?.remove();
     updateSimulation();
+    signalCircuitChange();
 }
 
 // Processa o clique em um nó para selecionar, editar ou alternar estado.
@@ -428,6 +912,7 @@ function handleNodeClick(event) {
     const deleteBtn = event.target.closest('[data-action="delete-node"]');
     if (deleteBtn) {
         removeGate(deleteBtn.dataset.gateId);
+        signalCircuitChange();
         return;
     }
 
@@ -444,6 +929,7 @@ function handleNodeClick(event) {
 
     gate.output = gate.output === 1 ? 0 : 1;
     updateSimulation();
+    signalCircuitChange();
 }
 
 // Atualiza o rótulo da porta quando o seletor do nó muda.
@@ -460,6 +946,7 @@ function handleNodeChange(event) {
 
     gate.label = labelSelect.value;
     computeExpression();
+    signalCircuitChange();
 }
 
 // Ajusta a quantidade de entradas de uma porta e limpa conexões inválidas.
@@ -511,7 +998,10 @@ function handleNodeControls(event) {
     if (inc) {
         const gateId = inc.dataset.gateId;
         const gate = state.gates.find((g) => g.id === gateId);
-        if (gate) changeInputCount(gateId, gate.inputs.length + 1);
+        if (gate) {
+            changeInputCount(gateId, gate.inputs.length + 1);
+            signalCircuitChange();
+        }
         return;
     }
 
@@ -519,7 +1009,10 @@ function handleNodeControls(event) {
     if (dec) {
         const gateId = dec.dataset.gateId;
         const gate = state.gates.find((g) => g.id === gateId);
-        if (gate) changeInputCount(gateId, gate.inputs.length - 1);
+        if (gate) {
+            changeInputCount(gateId, gate.inputs.length - 1);
+            signalCircuitChange();
+        }
         return;
     }
 }
@@ -782,6 +1275,12 @@ function init() {
     if (deleteToggleBtn) {
         deleteToggleBtn.addEventListener('click', handleDeleteToggle);
     }
+    tutorialStartBtns.forEach((btn) => {
+        btn.addEventListener('click', () => startTutorial(false));
+    });
+    if (expressionCopyBtn) {
+        expressionCopyBtn.addEventListener('click', copyExpression);
+    }
     document.addEventListener('click', handleClearSimulator);
     document.addEventListener('click', handleZoomClick);
 
@@ -799,6 +1298,21 @@ function init() {
     updateSimulation();
     applyViewport();
     setDeleteMode(false);
+
+    let shouldAutoStartTutorial = false;
+    try {
+        shouldAutoStartTutorial = !localStorage.getItem(tutorialStorageKey);
+    } catch (error) {
+        shouldAutoStartTutorial = true;
+    }
+
+    if (shouldAutoStartTutorial) {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                startTutorial(true);
+            });
+        });
+    }
 }
 
 init();

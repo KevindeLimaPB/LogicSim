@@ -244,8 +244,14 @@ export function renderGate(gate, nodeLayer) {
         const toggle = document.createElement('button');
         toggle.type = 'button';
         toggle.className = 'input-toggle';
-        toggle.textContent = gate.output ? '1' : '0';
         toggle.dataset.action = 'toggle-input';
+        toggle.setAttribute('aria-label', 'Alternar entrada entre 0 e 1');
+        toggle.setAttribute('aria-pressed', gate.output ? 'true' : 'false');
+        toggle.innerHTML = `
+            <span class="input-toggle__text input-toggle__text--off">OFF</span>
+            <span class="input-toggle__knob"></span>
+            <span class="input-toggle__text input-toggle__text--on">ON</span>
+        `;
 
         const outputPin = document.createElement('div');
         outputPin.className = 'pin output';
@@ -359,7 +365,8 @@ export function updateGateValues(gate, node) {
     const toggle = node.querySelector('[data-action="toggle-input"]');
     if (toggle) {
         const isOn = gate.output ? '1' : '0';
-        toggle.textContent = isOn;
+        toggle.setAttribute('aria-pressed', isOn === '1' ? 'true' : 'false');
+        toggle.setAttribute('aria-label', `Entrada ${isOn === '1' ? 'ligada, valor 1' : 'desligada, valor 0'}`);
         toggle.classList.toggle('active', isOn === '1');
         toggle.classList.toggle('is-on', isOn === '1');
         toggle.classList.toggle('is-off', isOn !== '1');
