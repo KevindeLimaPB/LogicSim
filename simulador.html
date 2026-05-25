@@ -39,6 +39,16 @@
 
             <div class="top-navbar__right">
                 <button
+                    type="button"
+                    class="toolbar-btn"
+                    data-action="start-tutorial"
+                    aria-label="Ver tutorial"
+                    title="Ver tutorial"
+                >
+                    <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+                    Ver tutorial
+                </button>
+                <button
                     id="theme-toggle"
                     type="button"
                     class="toolbar-btn theme-toggle-btn"
@@ -250,111 +260,135 @@
 
         <main class="simulator-page__main" id="simulador-bg">
             <div class="page-tabs">
-                <button id="tab-simulator" class="tab active">SIMULADOR</button>
-                <button id="tab-truthtable" class="tab">TABELA VERDADE</button>
-                <button id="tab-switching" class="tab">CIRCUITO DE COMUTAÇÃO</button>
+                <button id="tab-simulator" class="tab active">
+                    <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+                    SIMULADOR
+                </button>
+                <button id="tab-truthtable" class="tab">
+                    <i class="fa-solid fa-table" aria-hidden="true"></i>
+                    TABELA VERDADE
+                </button>
+                <button id="tab-switching" class="tab">
+                    <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                    CIRCUITO DE COMUTAÇÃO
+                </button>
             </div>
 
 
             <section class="simulator-shell" id="simulator-workspace">
                 <div class="editor-toolbar">
-                    <div class="toolbar-group toolbar-group--actions">
-                        <button class="toolbar-btn" data-add="INPUT">
-                            <i class="fa-solid fa-circle-dot" aria-hidden="true"></i>
-                            Input
-                        </button>
-                        <button class="toolbar-btn" data-add="OUTPUT">
-                            <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
-                            Output
-                        </button>
-                        <button class="toolbar-btn" data-action="toggle-delete">
-                            <i class="fa-solid fa-eraser" aria-hidden="true"></i>
-                            Deletar
-                        </button>
-                        <button class="toolbar-btn toolbar-btn--danger" data-action="clear-simulator">
-                            <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
-                            Limpar
-                        </button>
-                        <button class="toolbar-btn" data-add="AND">
-                            <svg class="drawer-gate-icon drawer-gate-icon--and" viewBox="0 0 160 100" aria-hidden="true" focusable="false">
-                                <line x1="15" y1="35" x2="50" y2="35" />
-                                <line x1="15" y1="65" x2="50" y2="65" />
-                                <path d="M 50 20 L 50 80 L 75 80 A 30 30 0 0 0 75 20 Z" />
-                                <line x1="105" y1="50" x2="145" y2="50" />
-                            </svg>
-                            AND
-                        </button>
-                        <button class="toolbar-btn" data-add="OR">
-                            <svg class="drawer-gate-icon drawer-gate-icon--or" viewBox="0 0 200 120" aria-hidden="true" focusable="false">
-                                <line x1="15" y1="40" x2="68" y2="40" />
-                                <line x1="15" y1="80" x2="68" y2="80" />
-                                <path d="M 60 20 Q 75 60 60 100 Q 105 100 135 77 C 148 67 155 64 155 60 C 155 56 148 53 135 43 Q 105 20 60 20 Z" />
-                                <line x1="155" y1="60" x2="185" y2="60" />
-                            </svg>
-                            OR
-                        </button>
-                        <button class="toolbar-btn" data-add="NOT">
-                            <svg class="drawer-gate-icon drawer-gate-icon--not" viewBox="0 0 100 60" aria-hidden="true" focusable="false">
-                                <line x1="0" y1="30" x2="20" y2="30" />
-                                <path d="M 20 10 L 60 30 L 20 50 Z" />
-                                <circle cx="70" cy="30" r="10" />
-                                <line x1="80" y1="30" x2="100" y2="30" />
-                            </svg>
-                            NOT
-                        </button>
-                        <button class="toolbar-btn" data-add="NAND">
-                            <svg class="drawer-gate-icon drawer-gate-icon--nand" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
-                                <line x1="50" y1="70" x2="100" y2="70" />
-                                <line x1="50" y1="130" x2="100" y2="130" />
-                                <path d="M 100 50 L 160 50 A 50 50 0 0 1 160 150 L 100 150 Z" />
-                                <circle cx="220" cy="100" r="10" />
-                                <line x1="230" y1="100" x2="270" y2="100" />
-                            </svg>
-                            NAND
-                        </button>
-                        <button class="toolbar-btn" data-add="NOR">
-                            <svg class="drawer-gate-icon drawer-gate-icon--nor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
-                                <line x1="50" y1="70" x2="100" y2="70" />
-                                <line x1="50" y1="130" x2="100" y2="130" />
-                                <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
-                                <circle cx="215" cy="100" r="10" />
-                                <line x1="225" y1="100" x2="270" y2="100" />
-                            </svg>
-                            NOR
-                        </button>
-                        <button class="toolbar-btn" data-add="XOR">
-                            <svg class="drawer-gate-icon drawer-gate-icon--xor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
-                                <line x1="50" y1="70" x2="100" y2="70" />
-                                <line x1="50" y1="130" x2="100" y2="130" />
-                                <path d="M 85 50 A 120 120 0 0 1 85 150" />
-                                <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
-                                <line x1="200" y1="100" x2="270" y2="100" />
-                            </svg>
-                            XOR
-                        </button>
-                        <button class="toolbar-btn" data-add="XNOR">
-                            <svg class="drawer-gate-icon drawer-gate-icon--xnor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
-                                <line x1="50" y1="70" x2="100" y2="70" />
-                                <line x1="50" y1="130" x2="100" y2="130" />
-                                <path d="M 85 50 A 120 120 0 0 1 85 150" />
-                                <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
-                                <circle cx="215" cy="100" r="10" />
-                                <line x1="225" y1="100" x2="270" y2="100" />
-                            </svg>
-                            XNOR
-                        </button>
+                    <div class="toolbar-section toolbar-section--components">
+                        <span class="toolbar-section__label">Componentes</span>
+                        <div class="toolbar-group">
+                            <button class="toolbar-btn" data-add="INPUT">
+                                <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+                                Input
+                            </button>
+                            <button class="toolbar-btn" data-add="OUTPUT">
+                                <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+                                Output
+                            </button>
+                            <button class="toolbar-btn" data-add="AND">
+                                <svg class="drawer-gate-icon drawer-gate-icon--and" viewBox="0 0 160 100" aria-hidden="true" focusable="false">
+                                    <line x1="15" y1="35" x2="50" y2="35" />
+                                    <line x1="15" y1="65" x2="50" y2="65" />
+                                    <path d="M 50 20 L 50 80 L 75 80 A 30 30 0 0 0 75 20 Z" />
+                                    <line x1="105" y1="50" x2="145" y2="50" />
+                                </svg>
+                                AND
+                            </button>
+                            <button class="toolbar-btn" data-add="OR">
+                                <svg class="drawer-gate-icon drawer-gate-icon--or" viewBox="0 0 200 120" aria-hidden="true" focusable="false">
+                                    <line x1="15" y1="40" x2="68" y2="40" />
+                                    <line x1="15" y1="80" x2="68" y2="80" />
+                                    <path d="M 60 20 Q 75 60 60 100 Q 105 100 135 77 C 148 67 155 64 155 60 C 155 56 148 53 135 43 Q 105 20 60 20 Z" />
+                                    <line x1="155" y1="60" x2="185" y2="60" />
+                                </svg>
+                                OR
+                            </button>
+                            <button class="toolbar-btn" data-add="NOT">
+                                <svg class="drawer-gate-icon drawer-gate-icon--not" viewBox="0 0 100 60" aria-hidden="true" focusable="false">
+                                    <line x1="0" y1="30" x2="20" y2="30" />
+                                    <path d="M 20 10 L 60 30 L 20 50 Z" />
+                                    <circle cx="70" cy="30" r="10" />
+                                    <line x1="80" y1="30" x2="100" y2="30" />
+                                </svg>
+                                NOT
+                            </button>
+                            <button class="toolbar-btn" data-add="NAND">
+                                <svg class="drawer-gate-icon drawer-gate-icon--nand" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                    <line x1="50" y1="70" x2="100" y2="70" />
+                                    <line x1="50" y1="130" x2="100" y2="130" />
+                                    <path d="M 100 50 L 160 50 A 50 50 0 0 1 160 150 L 100 150 Z" />
+                                    <circle cx="220" cy="100" r="10" />
+                                    <line x1="230" y1="100" x2="270" y2="100" />
+                                </svg>
+                                NAND
+                            </button>
+                            <button class="toolbar-btn" data-add="NOR">
+                                <svg class="drawer-gate-icon drawer-gate-icon--nor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                    <line x1="50" y1="70" x2="100" y2="70" />
+                                    <line x1="50" y1="130" x2="100" y2="130" />
+                                    <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
+                                    <circle cx="215" cy="100" r="10" />
+                                    <line x1="225" y1="100" x2="270" y2="100" />
+                                </svg>
+                                NOR
+                            </button>
+                            <button class="toolbar-btn" data-add="XOR">
+                                <svg class="drawer-gate-icon drawer-gate-icon--xor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                    <line x1="50" y1="70" x2="100" y2="70" />
+                                    <line x1="50" y1="130" x2="100" y2="130" />
+                                    <path d="M 85 50 A 120 120 0 0 1 85 150" />
+                                    <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
+                                    <line x1="200" y1="100" x2="270" y2="100" />
+                                </svg>
+                                XOR
+                            </button>
+                            <button class="toolbar-btn" data-add="XNOR">
+                                <svg class="drawer-gate-icon drawer-gate-icon--xnor" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+                                    <line x1="50" y1="70" x2="100" y2="70" />
+                                    <line x1="50" y1="130" x2="100" y2="130" />
+                                    <path d="M 85 50 A 120 120 0 0 1 85 150" />
+                                    <path d="M 100 50 A 120 120 0 0 1 100 150 Q 180 150 200 100 Q 180 50 100 50 Z" />
+                                    <circle cx="215" cy="100" r="10" />
+                                    <line x1="225" y1="100" x2="270" y2="100" />
+                                </svg>
+                                XNOR
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="toolbar-group toolbar-group--zoom" aria-label="Controles de zoom">
-                        <button class="toolbar-btn toolbar-btn--zoom" data-action="zoom-out" type="button" aria-label="Diminuir zoom">-</button>
-                        <span class="zoom-label" id="zoom-label">100%</span>
-                        <button class="toolbar-btn toolbar-btn--zoom" data-action="zoom-in" type="button" aria-label="Aumentar zoom">+</button>
+                    <div class="toolbar-section toolbar-section--actions">
+                        <span class="toolbar-section__label">Ações</span>
+                        <div class="toolbar-group">
+                            <button class="toolbar-btn toolbar-btn--danger" data-action="toggle-delete">
+                                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                Deletar
+                            </button>
+                            <button class="toolbar-btn" data-action="clear-simulator">
+                                <i class="fa-solid fa-eraser" aria-hidden="true"></i>
+                                Limpar
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="toolbar-group toolbar-group--expression">
+                    <div class="toolbar-section toolbar-section--zoom" aria-label="Controles de zoom">
+                        <span class="toolbar-section__label">Zoom</span>
+                        <div class="toolbar-group toolbar-group--zoom">
+                            <button class="toolbar-btn toolbar-btn--zoom" data-action="zoom-out" type="button" aria-label="Diminuir zoom">-</button>
+                            <span class="zoom-label" id="zoom-label">100%</span>
+                            <button class="toolbar-btn toolbar-btn--zoom" data-action="zoom-in" type="button" aria-label="Aumentar zoom">+</button>
+                        </div>
+                    </div>
+
+                    <div class="toolbar-section toolbar-section--expression">
+                        <span class="toolbar-section__label">Expressão Booleana</span>
                         <div class="toolbar-expression">
-                            <span>Expressão Booleana</span>
                             <div id="expression-label" class="expression-list">-</div>
+                            <button class="expression-copy-btn" data-action="copy-expression" type="button" aria-label="Copiar expressão" title="Copiar expressão">
+                                <i class="fa-regular fa-copy" aria-hidden="true"></i>
+                            </button>
                         </div>
                     </div>
                 </div>

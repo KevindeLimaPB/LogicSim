@@ -2,6 +2,13 @@ body {
     background: rgb(0, 0, 0);
 }
 
+body:has(.sobre-page) .simulator-page__shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0;
+}
+
 .sobre-bg {
     max-width: 550px;
     max-height: 400px;
@@ -67,7 +74,28 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    height: 280px;
     transition: transform .28s ease, box-shadow .28s ease;
+}
+
+body.simulator-page.theme-light .team-card {
+    background: #ffffff;
+    border-color: rgba(60, 64, 67, 0.14);
+    box-shadow: 0 8px 22px rgba(20, 25, 35, 0.08);
+}
+
+body.simulator-page.theme-light .team-card:hover {
+    box-shadow: 0 14px 34px rgba(20, 25, 35, 0.14), 0 6px 16px rgba(26, 115, 232, 0.08);
+}
+
+body.simulator-page.theme-light .team-link {
+    background: rgba(26, 115, 232, 0.08);
+    color: #1a73e8;
+}
+
+body.simulator-page.theme-light .avatar {
+    border-color: rgba(60, 64, 67, 0.12);
+    background: #f1f3f4;
 }
 .team-card:hover{
     transform: translateY(-8px);
@@ -139,7 +167,10 @@ body {
     width: 100%;
     max-width: 1300px;
     margin: 0 auto;
-    padding: 40px 24px 80px;
+    padding: 40px 24px 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* HERO */
@@ -263,13 +294,15 @@ body {
 
 .sobre-footer{
     margin-top: 60px;
-    padding-top: 24px;
+    padding: 24px 0;
     border-top: 1px solid rgba(255,255,255,.08);
+    text-align: center;
 }
 
 .sobre-footer p{
     color: var(--text-secondary);
     font-size: .9rem;
+    text-align: center;
 }
 
 /* BOTÃO VOLTAR */

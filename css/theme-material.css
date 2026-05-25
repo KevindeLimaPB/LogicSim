@@ -433,7 +433,6 @@ body.simulator-page.theme-dark .hero-floating-card {
     top: 12px;
     border-radius: 28px;
     background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(12px);
 }
 
 .toolbar-btn {
@@ -533,7 +532,7 @@ body.simulator-page.theme-dark .hero-floating-card {
 }
 
 .input-toggle {
-    border: none;
+    border: 1px solid rgba(179, 38, 30, 0.24);
     background: #fce8e6;
     color: var(--md-error);
 }
@@ -541,8 +540,18 @@ body.simulator-page.theme-dark .hero-floating-card {
 .input-toggle.active,
 .input-toggle.is-on {
     background: #e6f4ea;
+    border-color: rgba(24, 128, 56, 0.34);
     color: var(--md-success);
     box-shadow: none;
+}
+
+.input-toggle .input-toggle__knob {
+    background: #ffffff;
+    box-shadow: 0 3px 8px rgba(60, 64, 67, 0.24);
+}
+
+.input-toggle.is-on .input-toggle__knob {
+    background: #ffffff;
 }
 
 .input-label {
@@ -691,3 +700,433 @@ body.simulator-page.theme-dark .wire.preview {
     .editor-workspace {
         border-radius: 24px;
     }
+
+/* Simulator toolbar: compact segmented surface */
+.simulator-page .editor-toolbar {
+    top: 18px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content max-content minmax(220px, 0.78fr);
+    align-items: stretch;
+    gap: 0;
+    max-width: 100%;
+    padding: 14px 16px;
+    border-radius: 22px;
+    border: 1px solid rgba(70, 86, 112, 0.34);
+    background:
+        linear-gradient(180deg, rgba(10, 17, 31, 0.96), rgba(6, 11, 21, 0.96)) !important;
+    box-shadow: none;
+    backdrop-filter: blur(16px);
+}
+
+.simulator-page .editor-toolbar .toolbar-section {
+    display: grid;
+    align-content: start;
+    gap: 9px;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0 16px;
+    border-left: 1px solid rgba(88, 101, 126, 0.2);
+}
+
+.simulator-page .editor-toolbar .toolbar-section:first-child {
+    padding-left: 0;
+    border-left: 0;
+}
+
+.simulator-page .editor-toolbar .toolbar-section--expression {
+    padding-right: 0;
+}
+
+.simulator-page .editor-toolbar .toolbar-section__label {
+    color: #8d98ad;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.simulator-page .editor-toolbar .toolbar-group {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.simulator-page .editor-toolbar .toolbar-section--components .toolbar-group {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(115, 170, 255, 0.42) transparent;
+}
+
+.simulator-page .editor-toolbar .toolbar-section--components .toolbar-group::-webkit-scrollbar {
+    height: 6px;
+}
+
+.simulator-page .editor-toolbar .toolbar-section--components .toolbar-group::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.simulator-page .editor-toolbar .toolbar-section--components .toolbar-group::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(115, 170, 255, 0.38);
+}
+
+.simulator-page .editor-toolbar .toolbar-section--actions .toolbar-group,
+.simulator-page .editor-toolbar .toolbar-section--zoom .toolbar-group {
+    flex-wrap: nowrap;
+}
+
+.simulator-page .editor-toolbar .toolbar-btn {
+    min-width: 64px;
+    min-height: 42px;
+    padding: 0 13px;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid rgba(89, 102, 126, 0.22) !important;
+    border-radius: 10px;
+    background:
+        linear-gradient(180deg, rgba(20, 29, 45, 0.92), rgba(12, 19, 32, 0.94)) !important;
+    color: #eef4ff !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    font-size: 0.83rem;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.simulator-page .editor-toolbar .toolbar-btn i {
+    font-size: 0.95rem;
+}
+
+.simulator-page .editor-toolbar .toolbar-btn svg {
+    width: 21px;
+    height: 21px;
+    flex: 0 0 21px;
+}
+
+.simulator-page .editor-toolbar .toolbar-section--components .toolbar-btn {
+    flex: 0 0 auto;
+    min-width: 96px;
+    white-space: nowrap;
+}
+
+.simulator-page .editor-toolbar .toolbar-btn[data-add="INPUT"] i,
+.simulator-page .editor-toolbar .toolbar-btn[data-add="OUTPUT"] i,
+.simulator-page .editor-toolbar .toolbar-btn[data-action="clear-simulator"] i {
+    color: #73aaff;
+}
+
+.simulator-page .editor-toolbar .toolbar-btn[data-add="AND"] svg,
+.simulator-page .editor-toolbar .toolbar-btn[data-add="OUTPUT"] i {
+    color: #65dc83;
+    stroke: #65dc83 !important;
+}
+
+.simulator-page .editor-toolbar .toolbar-btn[data-add="OR"] svg,
+.simulator-page .editor-toolbar .toolbar-btn[data-action="toggle-delete"] i {
+    color: #ff6666;
+    stroke: #ff6666 !important;
+}
+
+.simulator-page .editor-toolbar .toolbar-btn[data-add="NOT"] svg {
+    color: #ff4040;
+    stroke: #ff4040 !important;
+}
+
+.simulator-page .editor-toolbar .toolbar-btn[data-add="NAND"] svg,
+.simulator-page .editor-toolbar .toolbar-btn[data-add="NOR"] svg,
+.simulator-page .editor-toolbar .toolbar-btn[data-add="XOR"] svg,
+.simulator-page .editor-toolbar .toolbar-btn[data-add="XNOR"] svg {
+    color: #ff6666;
+    stroke: #ff6666 !important;
+}
+
+.simulator-page .editor-toolbar .toolbar-btn:hover,
+.simulator-page .editor-toolbar .toolbar-btn.is-active {
+    transform: none;
+    border-color: rgba(101, 220, 131, 0.8) !important;
+    background:
+        linear-gradient(180deg, rgba(24, 36, 55, 0.98), rgba(13, 22, 36, 0.98)) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 1px rgba(101, 220, 131, 0.25), 0 0 18px rgba(101, 220, 131, 0.16);
+}
+
+.simulator-page .editor-toolbar .toolbar-btn--danger:hover,
+.simulator-page .editor-toolbar .toolbar-btn--danger.is-active {
+    border-color: rgba(255, 102, 102, 0.74) !important;
+    box-shadow: 0 0 0 1px rgba(255, 102, 102, 0.2), 0 0 18px rgba(255, 102, 102, 0.12);
+}
+
+.simulator-page .editor-toolbar .toolbar-btn--zoom {
+    min-width: 42px;
+    width: 42px;
+    padding: 0;
+    border-radius: 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.simulator-page .zoom-label {
+    min-width: 56px;
+    color: #cfd8e7;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-align: center;
+}
+
+.simulator-page .editor-toolbar .toolbar-expression {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 26px;
+    align-items: center;
+    gap: 10px;
+    min-height: 42px;
+    padding: 8px 12px 8px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(89, 102, 126, 0.22) !important;
+    background:
+        linear-gradient(180deg, rgba(20, 29, 45, 0.92), rgba(12, 19, 32, 0.94)) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.simulator-page .expression-list {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+    color: #f4f8ff;
+    font-size: 1.24rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1.2;
+}
+
+.simulator-page .expression-item {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.simulator-page .expression-copy-btn {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #9aa7bc;
+    cursor: pointer;
+}
+
+.simulator-page .expression-copy-btn:hover {
+    color: #eef4ff;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.simulator-page .expression-copy-btn.is-copied {
+    color: #65dc83;
+}
+
+body.simulator-page.theme-light .editor-toolbar {
+    background:
+        linear-gradient(180deg, rgba(246, 249, 253, 0.98), rgba(232, 238, 248, 0.96)) !important;
+    border-color: rgba(148, 163, 184, 0.34) !important;
+}
+
+body.simulator-page.theme-light .editor-toolbar .toolbar-section {
+    border-left-color: rgba(100, 116, 139, 0.22);
+}
+
+body.simulator-page.theme-light .editor-toolbar .toolbar-section__label,
+body.simulator-page.theme-light .zoom-label {
+    color: #617089;
+}
+
+body.simulator-page.theme-light .editor-toolbar .toolbar-btn,
+body.simulator-page.theme-light .editor-toolbar .toolbar-expression {
+    background: #ffffff !important;
+    border-color: rgba(148, 163, 184, 0.32) !important;
+    color: #172033 !important;
+}
+
+body.simulator-page.theme-light .expression-list {
+    color: #172033;
+}
+
+/* Theme sync for simulator surfaces that use fixed colors in base CSS */
+body.simulator-page.theme-light .switching-shell,
+body.simulator-page.theme-light .truth-table-container,
+body.simulator-page.theme-light .page-tabs,
+body.simulator-page.theme-light .about-card {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border-color: rgba(60, 64, 67, 0.16) !important;
+    color: var(--md-text) !important;
+    box-shadow: var(--md-elevation-1);
+}
+
+body.simulator-page.theme-light .switching-canvas,
+body.simulator-page.theme-light .switching-status,
+body.simulator-page.theme-light .switching-selector {
+    background: rgba(248, 250, 253, 0.96) !important;
+    border-color: rgba(60, 64, 67, 0.14) !important;
+    color: var(--md-text-secondary) !important;
+}
+
+body.simulator-page.theme-light .switching-selector select,
+body.simulator-page.theme-light .switching-head h3,
+body.simulator-page.theme-light .about-card h2 {
+    color: var(--md-text) !important;
+}
+
+body.simulator-page.theme-light .switching-head p,
+body.simulator-page.theme-light .about-card p,
+body.simulator-page.theme-light .about-card span {
+    color: var(--md-text-secondary) !important;
+}
+
+body.simulator-page.theme-light .switching-empty {
+    color: var(--md-text-secondary) !important;
+}
+
+body.simulator-page.theme-light .truth-table th {
+    background: #f1f3f4 !important;
+    color: var(--md-text-secondary) !important;
+}
+
+body.simulator-page.theme-light .truth-table td {
+    background: #ffffff !important;
+    color: var(--md-text) !important;
+}
+
+body.simulator-page.theme-light .switching-svg .switching-label {
+    fill: #202124;
+}
+
+body.simulator-page.theme-light .switching-svg .switching-contact,
+body.simulator-page.theme-light .switching-svg .switching-invert {
+    fill: #ffffff;
+    stroke: #3c4043;
+}
+
+body.simulator-page.theme-light .switching-svg .switching-source,
+body.simulator-page.theme-light .switching-svg .switching-source-mark,
+body.simulator-page.theme-light .switching-svg .switching-lamp-filament,
+body.simulator-page.theme-light .switching-svg .switching-lamp-support,
+body.simulator-page.theme-light .switching-svg .switching-lamp-base,
+body.simulator-page.theme-light .switching-svg .switching-lamp-groove,
+body.simulator-page.theme-light .switching-svg .switching-lamp-pin {
+    stroke: #3c4043;
+}
+
+body.simulator-page.theme-light .switching-svg .switching-lamp-body {
+    fill: rgba(255, 255, 255, 0.74);
+    stroke: #3c4043;
+}
+
+body.simulator-page.theme-dark .switching-shell,
+body.simulator-page.theme-dark .switching-canvas,
+body.simulator-page.theme-dark .switching-status,
+body.simulator-page.theme-dark .switching-selector {
+    background: rgba(8, 14, 24, 0.95) !important;
+    border-color: rgba(148, 163, 184, 0.12) !important;
+    color: #f4f7fb !important;
+}
+
+body.simulator-page.theme-dark .switching-selector select,
+body.simulator-page.theme-dark .switching-head h3 {
+    color: #f4f7fb !important;
+}
+
+body.simulator-page.theme-dark .switching-head p,
+body.simulator-page.theme-dark .switching-empty {
+    color: #9fb1c7 !important;
+}
+
+body.simulator-page.theme-dark .switching-svg .switching-label {
+    fill: #e5edf7;
+}
+
+body.simulator-page.theme-dark .switching-svg .switching-contact,
+body.simulator-page.theme-dark .switching-svg .switching-invert {
+    fill: #111827;
+    stroke: #cbd5e1;
+}
+
+body.simulator-page.theme-dark .switching-svg .switching-source,
+body.simulator-page.theme-dark .switching-svg .switching-source-mark,
+body.simulator-page.theme-dark .switching-svg .switching-lamp-filament,
+body.simulator-page.theme-dark .switching-svg .switching-lamp-support,
+body.simulator-page.theme-dark .switching-svg .switching-lamp-base,
+body.simulator-page.theme-dark .switching-svg .switching-lamp-groove,
+body.simulator-page.theme-dark .switching-svg .switching-lamp-pin {
+    stroke: #e5edf7;
+}
+
+body.simulator-page.theme-dark .switching-svg .switching-lamp-body {
+    fill: rgba(10, 18, 32, 0.42);
+    stroke: #e5edf7;
+}
+
+@media (max-width: 1120px) {
+    .simulator-page .editor-toolbar {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px 0;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-btn {
+        flex: 0 1 auto;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--components .toolbar-btn {
+        flex: 0 0 auto;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--zoom {
+        border-left: 0;
+        padding-left: 0;
+    }
+}
+
+@media (max-width: 720px) {
+    .simulator-page .editor-toolbar {
+        position: relative;
+        top: 0;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 14px;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section {
+        padding: 0;
+        border-left: 0;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-group {
+        flex-wrap: wrap;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--components .toolbar-group {
+        flex-wrap: nowrap;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-btn {
+        flex: 1 1 92px;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--components .toolbar-btn {
+        flex: 0 0 auto;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-btn--zoom {
+        flex: 0 0 42px;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--zoom .toolbar-group {
+        justify-content: flex-start;
+    }
+}
+
