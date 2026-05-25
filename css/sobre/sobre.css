@@ -9,33 +9,6 @@ body:has(.sobre-page) .simulator-page__shell {
     padding-bottom: 0;
 }
 
-.sobre-bg {
-    max-width: 550px;
-    max-height: 400px;
-    display: flex;
-    flex-wrap: wrap;
-    flex:  1 2 250px;
-    background-color: var(--cor-11);
-    margin: 0 auto;
-    margin-top: 80px;
-    border-radius: 50px;
-    padding: 60px;
-}
-
-.sobre-contexto img {
-    margin: 0 auto;
-    max-width: 100%;
-}
-
-.sobre-contexto p {
-    color: var(--cor-4);
-}
-
-@media (max-width: 500px) {
-    .sobre-bg {
-        max-height: 650px;
-    }
-}
 
 /* seção dos desenvolvedores */
 .team-section{
@@ -49,14 +22,12 @@ body:has(.sobre-page) .simulator-page__shell {
 }
 .team-title{
     font-size: 1.6rem;
-    margin-bottom: 6px;
+    margin-bottom: 2rem;
+    padding-bottom: 30px;
     color: var(--text-primary);
     font-weight: 600;
 }
-.team-subtitle{
-    color: var(--text-secondary);
-    margin-bottom: 22px;
-}
+
 .team-grid{
     display: grid;
     grid-template-columns: repeat(5, minmax(160px, 1fr));
@@ -294,17 +265,34 @@ body.simulator-page.theme-light .avatar {
 
 .sobre-footer{
     margin-top: 60px;
-    padding: 24px 0;
-    border-top: 1px solid rgba(255,255,255,.08);
+    padding: 24px auto;
     text-align: center;
 }
 
-.sobre-footer p{
+.sobre-direitos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    text-align: center;
+    padding: 1.550rem;
+}
+
+.sobre-direitos p {
+    margin: 0;
     color: var(--text-secondary);
-    font-size: .9rem;
-    text-align: center;
 }
 
+/* LINHA */
+
+.linha {
+    display: block;
+    width: 1200px;
+    border-top: 1px solid var(--cor-8);
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    padding-bottom: 50px;
+}
 /* BOTÃO VOLTAR */
 
 .back-btn{
