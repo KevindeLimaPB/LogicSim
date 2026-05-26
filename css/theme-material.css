@@ -221,7 +221,7 @@ a {
     border-radius: 2px;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 600px) {
     .top-navbar__left a:not(.hero-brand):not(.back-btn) {
         display: none;
     }
@@ -230,10 +230,33 @@ a {
         display: flex;
         align-items: center;
     }
-
+    .hero-copy h1 {
+        font-size: 40px;
+    }
+    .hero-btn {
+        display: none;
+    }
     /* Ajuste de espaçamento para ícone e botão */
     .top-navbar__left {
         gap: 8px;
+    }
+}
+
+@media (max-width: 500px) {
+    .hero-copy h1 {
+        font-size: 25px;
+    }
+    .hero-description {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 450px) {
+    .top-navbar {
+        gap: 0px;
+    }
+    .sair {
+        display: none;
     }
 }
 
@@ -535,6 +558,12 @@ body.simulator-page.theme-dark .hero-floating-card {
     padding: 100px;
     border-radius: 28px;
     background: var(--md-surface);
+}
+
+@media (max-width: 500px){
+    .simulator-hero {
+        padding: 20px;
+    }
 }
 
 .simulator-hero::before,
