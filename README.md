@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-	<a href="#introducao">Introdução</a> &middot; <a href="#recursos">Recursos</a> &middot; <a href="#tecnologias">Tecnologias</a>
+	<a href="#introducao">Introdução</a> &middot; <a href="#recursos">Recursos</a> &middot; <a href="#tecnologias">Tecnologias</a> &middot;
 	<a href="#estrutura-do-projeto">Estrutura</a> &middot; <a href="#como-usar">Como usar</a> &middot; <a href="#exemplos-em-gif">Exemplos</a> &middot; <a href="#objetivo-academico">Objetivo</a>
 </p>
 
