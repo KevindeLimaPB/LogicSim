@@ -753,6 +753,21 @@
 .page-tabs .tab.active { background: rgba(255,60,60,0.08); border-color: rgba(255,60,60,0.18); color:#ffb7b7; }
 .page-tabs .tab i { font-size: 0.92rem; opacity: 0.9; }
 
+@media (max-width: 780px) {
+    .page-tabs {
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .page-tabs .tab {
+        flex: 1 1 160px;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
 #tab-switching {
     position: relative;
     isolation: isolate;

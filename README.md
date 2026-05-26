@@ -1,6 +1,17 @@
 # LogicSim
 
-LogicSim e um simulador web de circuitos logicos digitais feito para estudo, experimentacao e apoio academico. A aplicacao permite montar circuitos com portas logicas, conectar componentes, alternar entradas, visualizar expressoes booleanas, gerar tabela verdade e acompanhar uma representacao de circuito de comutacao.
+<p align="center">
+	<img src="img/LogicSim-Marca.svg" alt="LogicSim logo" width="320">
+</p>
+
+<p align="center">
+	<a href="#introducao">Introdução</a> &middot; <a href="#recursos">Recursos</a> &middot; <a href="#tecnologias">Tecnologias</a> &middot;
+ <a href="#exemplos-em-gif">Exemplos</a> &middot; <a href="#objetivo-academico">Objetivo</a>
+</p>
+
+## Introdução
+
+LogicSim é um simulador web de circuitos lógicos digitais feito para estudo, experimentação e apoio acadêmico. A aplicação permite montar circuitos com portas lógicas, conectar componentes, alternar entradas, visualizar expressões booleanas, gerar tabela verdade e acompanhar uma representação de circuito de comutação.
 
 ## Recursos
 
@@ -26,37 +37,22 @@ LogicSim e um simulador web de circuitos logicos digitais feito para estudo, exp
 - SVG para portas, fios e elementos visuais
 - Font Awesome para icones
 
-## Estrutura do projeto
 
-```text
-.
-|-- simulador.html          # Pagina principal do simulador
-|-- sobre.html              # Pagina sobre o projeto
-|-- saibaMais.html          # Pagina com conteudo educativo
-|-- css/
-|   |-- style.css           # Arquivo agregador dos estilos
-|   |-- editor/             # Estilos do editor visual
-|   |-- simulador/          # Estilos da pagina do simulador
-|   |-- sobre/              # Estilos da pagina sobre
-|   |-- saibaMais/          # Estilos da pagina saiba mais
-|   `-- theme-material.css  # Ajustes de tema claro/escuro
-|-- js/
-|   |-- editor/             # Logica do editor e simulacao
-|   |-- electrical/         # Conversao/renderizacao do circuito eletrico
-|   |-- config/             # Scripts de configuracao de interface
-|   `-- animacao/           # Scripts de animacao
-`-- img/                    # Assets, SVGs e imagens do projeto
-```
+## Exemplos em GIF
 
-## Como usar
+Abaixo seguem dois exemplos animados mostrando como usar o simulador.
 
-1. Abra `simulador.html`.
-2. Use o toolbar para adicionar entradas, saidas e portas logicas.
-3. Conecte o pino de saida de um componente ao pino de entrada de outro.
-4. Alterne os Inputs pelo switch ON/OFF.
-5. Veja a expressao booleana atualizada automaticamente.
-6. Abra a aba de Tabela Verdade para gerar as combinacoes.
-7. Abra a aba Circuito de Comutacao para visualizar a conversao eletrica.
+- Exemplo: montagem e acionamento de um circuito simples
+
+<p align="center">
+	<img src="img/gifs/circuito.gif" alt="Circuito exemplo" style="max-width:80%;height:auto">
+</p>
+
+- Exemplo: fluxo de sinais no editor do simulador
+
+<p align="center">
+	<img src="img/gifs/simulador.gif" alt="Uso do simulador" style="max-width:80%;height:auto">
+</p>
 
 ## Objetivo academico
 
