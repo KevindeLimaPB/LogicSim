@@ -133,6 +133,24 @@ a {
     transition: background 0.18s ease, box-shadow 0.18s ease;
 }
 
+/* Remover borda/preto e contorno indesejado dos botões principais */
+.header-btn,
+.top-navbar__left .header-btn,
+.toolbar-btn,
+.back-btn {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background-clip: padding-box;
+}
+
+.header-btn:focus,
+.toolbar-btn:focus,
+.back-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 .header-btn:hover {
     background: var(--md-surface-container);
 }
@@ -142,11 +160,81 @@ a {
     background: var(--md-text-secondary);
 }
 
+.top-navbar__left a:not(.hero-brand):not(.back-btn) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 6px 8px;
+    border-radius: 4px;
+    color: inherit;
+    text-decoration: none;
+    position: relative;
+    transition: color 180ms ease;
+}
+
+.top-navbar__left a:not(.hero-brand):not(.back-btn)::after {
+    content: '';
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    height: 3px;
+    bottom: -6px;
+    background: #1a73e8; /* linha azul fixa */
+    border-radius: 2px;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 220ms cubic-bezier(.2,.9,.2,1);
+}
+.top-navbar__left a:not(.hero-brand):not(.back-btn):hover::after,
+.top-navbar__left a:not(.hero-brand):not(.back-btn):focus::after,
+.top-navbar__left a:not(.hero-brand):not(.back-btn):focus-visible::after {
+    transform: scaleX(1);
+}
+.top-navbar__left a:not(.hero-brand):not(.back-btn):focus-visible {
+    outline: none;
+}
+
 .header-nav {
     max-width: 320px;
     background: var(--md-surface);
     color: var(--md-text);
     box-shadow: var(--md-elevation-3);
+}
+
+/* Mostrar o botão hamburguer apenas em mobile; barras seguem a cor do tema */
+.top-navbar__left .header-menu {
+    display: none;
+    align-items: center;
+    margin-right: 8px; /* espaço à esquerda da logo quando visível */
+}
+
+.header-btn {
+    color: var(--md-text);
+    background: transparent;
+}
+
+.header-btn span {
+    height: 3px;
+    width: 20px;
+    display: block;
+    background: currentColor;
+    border-radius: 2px;
+}
+
+@media (max-width: 800px) {
+    .top-navbar__left a:not(.hero-brand):not(.back-btn) {
+        display: none;
+    }
+
+    .top-navbar__left .header-menu {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Ajuste de espaçamento para ícone e botão */
+    .top-navbar__left {
+        gap: 8px;
+    }
 }
 
 .header-nav li:first-child a,
@@ -182,6 +270,117 @@ a {
 
 .lampada {
     top: 14px;
+}
+
+/* Footer responsivo */
+.site-footer {
+    border-top: 1px solid var(--md-outline);
+    background: var(--md-surface);
+    color: var(--md-text);
+    padding: 18px 14px 14px; /* mais espaçamento superior e inferior */
+    font-size: 13px;
+}
+
+.footer-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    align-items: start;
+}
+
+/* Footer center layout when only logo is present */
+.footer-inner.footer-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 6px 0 0;
+}
+
+.footer-col h4 {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.footer-desc {
+    color: var(--md-text-secondary);
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.3;
+    max-width: 200px;
+}
+
+.footer-links ul,
+.footer-resources ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li,
+.footer-resources li {
+    margin-bottom: 8px;
+}
+
+.footer-links a,
+.footer-resources a {
+    color: var(--md-text);
+    text-decoration: none;
+    transition: color 160ms ease;
+}
+
+.footer-links a:hover,
+.footer-resources a:hover {
+    color: var(--md-primary);
+}
+
+.footer-social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-right: 6px;
+    border-radius: 6px;
+    color: var(--md-text);
+    background: transparent;
+    text-decoration: none;
+    transition: background 120ms ease, color 120ms ease;
+}
+
+.footer-social a:hover {
+    background: rgba(0,0,0,0.06);
+    color: var(--md-primary);
+}
+
+.footer-bottom {
+    margin-top: 6px;
+    text-align: center;
+    color: var(--md-text-secondary);
+    font-size: 18px; /* aumentado */
+    line-height: 1.4;
+    padding-bottom: 6px;
+}
+
+@media (max-width: 900px) {
+    .footer-inner {
+        grid-template-columns: 1fr;
+    }
+    .site-footer {
+        padding: 16px 12px 12px;
+    }
+}
+
+@media (max-width: 520px) {
+    .footer-inner {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .footer-desc {
+        max-width: 100%;
+    }
 }
 
 .luz {
@@ -327,9 +526,9 @@ body.simulator-page.theme-dark .hero-floating-card {
     line-height: 1.65;
 }
 
-.simulator-page__shell {
-    width: min(1280px, calc(100% - 32px));
-}
+/* .simulator-page__shell {
+    width: min(1280px, calc(100% - 32px)); // Isso tava bugando a xancrolha toda 
+} */
 
 .simulator-hero {
     padding: 100px;
