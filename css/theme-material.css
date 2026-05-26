@@ -531,6 +531,7 @@ body.simulator-page.theme-dark .hero-floating-card {
 } */
 
 .simulator-hero {
+    margin-top: 20px;
     padding: 100px;
     border-radius: 28px;
     background: var(--md-surface);
