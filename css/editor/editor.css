@@ -387,10 +387,20 @@
     background: rgba(76, 201, 255, 0.14);
     border-color: rgba(76, 201, 255, 0.46);
 }
+.logic-gate-svg--not .logic-gate-shape { stroke-width: 2.1; }
 
 .node-svg .pin {
     position: absolute;
     transform: translate(-50%, -50%);
+}
+
+.node-svg .pin {
+    width: 10px;
+    height: 10px;
+    flex: 0 0 10px;
+    border-radius: 50%;
+    border-width: 1px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.02);
 }
 
 .node-svg .pin.input {

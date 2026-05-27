@@ -120,6 +120,78 @@ body.simulator-page.theme-light .logic-tutorial__progress {
     gap: 8px;
 }
 
+.logic-tutorial__media {
+    margin-top: 12px;
+    display: block;
+    max-width: 320px;
+}
+
+.logic-tutorial__media img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+
+/* Progress bar shown at bottom of tutorial panel to indicate time until next step */
+.logic-tutorial__progressbar {
+    height: 6px;
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+    margin-top: 12px;
+    overflow: hidden;
+}
+.logic-tutorial__progressbar__fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #4cc9ff, #68f5c1);
+    border-radius: 6px;
+    transition: width 0.2s linear;
+}
+
+/* Modal styles for tutorial media */
+.tutorial-media-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 220ms ease;
+}
+.tutorial-media-modal.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.tutorial-media-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+}
+.tutorial-media-modal__content {
+    position: relative;
+    max-width: min(92vw, 1100px);
+    max-height: 92vh;
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.5);
+    background: rgba(255,255,255,0.02);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+.tutorial-media-modal__img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+}
+
 .logic-tutorial__btn {
     border: 1px solid rgba(148, 163, 184, 0.26);
     background: rgba(255, 255, 255, 0.08);

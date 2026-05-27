@@ -248,27 +248,48 @@ function clearTutorialStepTimers() {
         clearTimeout(tutorialState.stepUnlockTimeoutId);
         tutorialState.stepUnlockTimeoutId = 0;
     }
+    // reset visual progress when timers cleared
+    try { resetProgressBar(); } catch (e) { /* ignore */ }
 }
 
 // Bloqueia o botão de avanço por alguns segundos para incentivar leitura.
 function startTutorialStepCountdown(seconds = 2) {
-    if (!tutorialState.nextBtn) {
-        return;
-    }
+    if (!tutorialState.nextBtn) return;
 
     clearTutorialStepTimers();
 
     const baseLabel = tutorialState.index === tutorialState.steps.length - 1 ? 'Concluir' : 'Proximo';
     tutorialState.nextBtn.disabled = true;
     tutorialState.nextBtn.textContent = baseLabel;
+
+    // inicia barra de progresso visual
+    startProgressBar(seconds);
+
     tutorialState.stepUnlockTimeoutId = window.setTimeout(() => {
         clearTutorialStepTimers();
-        if (!tutorialState.active || !tutorialState.nextBtn) {
-            return;
-        }
+        if (!tutorialState.active || !tutorialState.nextBtn) return;
         tutorialState.nextBtn.disabled = false;
         tutorialState.nextBtn.textContent = baseLabel;
+        resetProgressBar();
     }, seconds * 1000);
+}
+
+function startProgressBar(seconds = 2) {
+    if (!tutorialState.progressFill) return;
+    const fill = tutorialState.progressFill;
+    fill.style.transition = 'none';
+    fill.style.width = '0%';
+    // forçar reflow
+    void fill.offsetWidth;
+    fill.style.transition = `width ${seconds}s linear`;
+    fill.style.width = '100%';
+}
+
+function resetProgressBar() {
+    if (!tutorialState.progressFill) return;
+    const fill = tutorialState.progressFill;
+    fill.style.transition = 'none';
+    fill.style.width = '0%';
 }
 
 // Fecha o tutorial e restaura estado da interface quando necessário.
@@ -348,6 +369,14 @@ function renderTutorialStep(shouldScroll = false) {
     tutorialState.prevBtn.disabled = tutorialState.index === 0;
     startTutorialStepCountdown(2);
 
+    // show media GIF if step defines one
+    const mediaPath = step.media;
+    if (mediaPath) {
+        showTutorialMedia(mediaPath);
+    } else {
+        hideTutorialMedia();
+    }
+
     if (shouldScroll) {
         requestAnimationFrame(() => {
             scrollTutorialTargetIntoView(step);
@@ -359,6 +388,95 @@ function renderTutorialStep(shouldScroll = false) {
     }
 
     queueTutorialReposition();
+}
+
+// Cria e exibe um elemento de mídia (gif) dentro do painel do tutorial.
+function showTutorialMedia(src) {
+    if (!tutorialState.panel) return;
+    let container = tutorialState.panel.querySelector('.logic-tutorial__media');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'logic-tutorial__media';
+        tutorialState.panel.appendChild(container);
+    }
+
+    // sempre garante que o container esteja visível
+    container.style.display = '';
+    const existing = container.querySelector('img');
+    if (existing) {
+        if (existing.getAttribute('src') !== src) {
+            existing.removeAttribute('loading');
+            existing.src = src;
+        }
+        return;
+    }
+
+    container.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = 'Demonstração';
+    img.removeAttribute('loading');
+    img.style.maxWidth = '280px';
+    img.style.width = '100%';
+    img.style.height = 'auto';
+    img.style.borderRadius = '12px';
+    img.style.cursor = 'pointer';
+    img.addEventListener('click', () => openTutorialMediaModal(src));
+    // show image once it starts loading to avoid flicker
+    img.addEventListener('load', () => {
+        img.style.opacity = '';
+    });
+    container.appendChild(img);
+}
+
+function hideTutorialMedia() {
+    if (!tutorialState.panel) return;
+    const container = tutorialState.panel.querySelector('.logic-tutorial__media');
+    if (container) {
+        container.style.display = 'none';
+    }
+}
+
+// Modal para exibir GIF em tamanho maior
+function openTutorialMediaModal(src) {
+    let modal = document.querySelector('.tutorial-media-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'tutorial-media-modal';
+
+        const backdrop = document.createElement('div');
+        backdrop.className = 'tutorial-media-modal__backdrop';
+        modal.appendChild(backdrop);
+
+        const content = document.createElement('div');
+        content.className = 'tutorial-media-modal__content';
+        modal.appendChild(content);
+
+        const img = document.createElement('img');
+        img.className = 'tutorial-media-modal__img';
+        content.appendChild(img);
+
+        backdrop.addEventListener('click', closeTutorialMediaModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeTutorialMediaModal();
+        });
+
+        document.body.appendChild(modal);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeTutorialMediaModal();
+        });
+    }
+
+    const modalImg = modal.querySelector('.tutorial-media-modal__img');
+    modalImg.src = src;
+    modal.classList.add('is-open');
+}
+
+function closeTutorialMediaModal() {
+    const modal = document.querySelector('.tutorial-media-modal');
+    if (!modal) return;
+    modal.classList.remove('is-open');
 }
 
 // Avança ou retrocede no fluxo do tutorial.
@@ -400,7 +518,8 @@ function buildTutorialSteps() {
             title: 'Arena de montagem',
             description: 'Arraste as portas para organizar. Clique e arraste no fundo para mover a camera quando o circuito crescer.',
             selector: '#workspace',
-            beforeStep: () => tabSim?.click()
+            beforeStep: () => tabSim?.click(),
+            media: 'img/gifs/simulador.gif'
         },
         {
             title: 'Ligando os fios',
@@ -416,7 +535,8 @@ function buildTutorialSteps() {
         {
             title: 'Circuito de comutacao',
             description: 'Nesta aba voce ve a representacao eletrica equivalente, com trilhas de energia animadas em tempo real.',
-            selector: '#tab-switching'
+            selector: '#tab-switching',
+            media: 'img/gifs/circuito.gif'
         },
         {
             title: 'Modo deletar',
@@ -524,11 +644,19 @@ function startTutorial(isAuto = false) {
     controls.appendChild(nextBtn);
     controls.appendChild(skipBtn);
 
+    // progress bar container (visual countdown until next step unlock)
+    const progressBar = document.createElement('div');
+    progressBar.className = 'logic-tutorial__progressbar';
+    const progressFill = document.createElement('div');
+    progressFill.className = 'logic-tutorial__progressbar__fill';
+    progressBar.appendChild(progressFill);
+
     panel.appendChild(closeBtn);
     panel.appendChild(progress);
     panel.appendChild(title);
     panel.appendChild(text);
     panel.appendChild(controls);
+    panel.appendChild(progressBar);
 
     overlay.appendChild(backdrop);
     overlay.appendChild(highlight);
@@ -546,6 +674,8 @@ function startTutorial(isAuto = false) {
     tutorialState.closeBtn = closeBtn;
     tutorialState.skipBtn = skipBtn;
     tutorialState.arrowLine = null;
+    tutorialState.progressBar = progressBar;
+    tutorialState.progressFill = progressFill;
 
     window.addEventListener('resize', queueTutorialReposition);
     window.addEventListener('scroll', queueTutorialReposition, true);
@@ -864,7 +994,8 @@ function handleWorkspacePointerUp(event) {
     }
 
     if (previewPath && wiring) {
-        const inputPin = event.target.closest('.pin.input');
+        const hitTarget = document.elementFromPoint(event.clientX, event.clientY);
+        const inputPin = hitTarget?.closest('.pin.input');
         if (inputPin) {
             const toId = inputPin.dataset.gateId;
             const inputIndex = Number(inputPin.dataset.pinIndex);
