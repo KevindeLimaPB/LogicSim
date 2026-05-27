@@ -19,7 +19,8 @@ const SVG_GATES = {
     },
     NOT: {
         viewBox: { width: 100, height: 60 },
-        inputs: [{ x: 20, y: 30 }],
+        // coloque o pino de entrada rente à borda para alinhar com o traço
+        inputs: [{ x: 0, y: 30 }],
         output: { x: 100, y: 30 }
     },
     NAND: {
