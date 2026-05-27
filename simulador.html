@@ -418,10 +418,13 @@
                         <p>Conversão automática de circuito lógico para comutação elétrica em tempo real.</p>
                     </div>
                     <div class="switching-head__controls">
-                        <label class="switching-selector" for="switching-circuit-select">
+                        <div class="truth-table-select switching-select" id="switching-circuit-select-wrap">
                             <span>Ver circuito</span>
-                            <select id="switching-circuit-select"></select>
-                        </label>
+                            <button type="button" class="truth-table-select__button" id="switching-circuit-button" aria-haspopup="listbox" aria-expanded="false">
+                                <span id="switching-circuit-button-label">Selecione um circuito</span>
+                            </button>
+                            <div class="truth-table-select__menu" id="switching-circuit-menu" role="listbox" hidden></div>
+                        </div>
                         <div class="switching-status" id="switching-status">Sem saída</div>
                     </div>
                 </div>
@@ -437,6 +440,19 @@
             <section id="truth-table-view" class="truth-table-view" style="display:none;">
                 <div class="truth-table-container">
                     <h3>Tabela Verdade</h3>
+                    <div class="truth-table-controls">
+                        <div class="truth-table-controls__info">
+                            <span>Circuito atual</span>
+                            <strong id="truth-table-circuit-label">-</strong>
+                        </div>
+                        <div class="truth-table-select" id="truth-table-circuit-select-wrap">
+                            <span>Selecionar circuito</span>
+                            <button type="button" class="truth-table-select__button" id="truth-table-circuit-button" aria-haspopup="listbox" aria-expanded="false">
+                                <span id="truth-table-circuit-button-label">Selecione um circuito</span>
+                            </button>
+                            <div class="truth-table-select__menu" id="truth-table-circuit-menu" role="listbox" hidden></div>
+                        </div>
+                    </div>
                     <div id="truth-table-placeholder">Nenhuma tabela gerada.</div>
                 </div>
             </section>
