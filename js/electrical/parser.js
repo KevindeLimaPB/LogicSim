@@ -42,13 +42,13 @@ export function buildLogicTrees(state) {
 
         switch (gate.type) {
             case 'INPUT':
-                node = { type: 'INPUT', name: gate.label || 'A', value: gate.output ? 1 : 0 };
+                node = { type: 'INPUT', id: gate.id, name: gate.label || 'A', value: gate.output ? 1 : 0 };
                 break;
             case 'OUTPUT':
-                node = { type: 'OUTPUT', input: getInput(0) };
+                node = { type: 'OUTPUT', id: gate.id, input: getInput(0) };
                 break;
             case 'NOT':
-                node = { type: 'NOT', inputs: [getInput(0)] };
+                node = { type: 'NOT', id: gate.id, inputs: [getInput(0)] };
                 break;
             case 'AND':
             case 'OR':
@@ -61,11 +61,11 @@ export function buildLogicTrees(state) {
                 for (let i = 0; i < count; i += 1) {
                     inputs.push(getInput(i));
                 }
-                node = { type: gate.type, inputs };
+                node = { type: gate.type, id: gate.id, inputs };
                 break;
             }
             default:
-                node = { type: 'MISSING' };
+                node = { type: 'MISSING', id: gate.id };
         }
 
         visiting.delete(gateId);
@@ -79,6 +79,7 @@ export function buildLogicTrees(state) {
             gateId: gate.id,
             type: 'OUTPUT',
             name: `Y${index + 1}`,
+            id: gate.id,
             input: logicNode.input || logicNode
         };
     });

@@ -5,52 +5,60 @@ import { renderElectrical } from './renderer.js';
 const svg = document.getElementById('switching-svg');
 const emptyState = document.getElementById('switching-empty');
 const status = document.getElementById('switching-status');
-const circuitSelect = document.getElementById('switching-circuit-select');
-const circuitSelector = circuitSelect?.closest('.switching-selector');
+const circuitSelectWrap = document.getElementById('switching-circuit-select-wrap');
+const circuitButton = document.getElementById('switching-circuit-button');
+const circuitButtonLabel = document.getElementById('switching-circuit-button-label');
+const circuitMenu = document.getElementById('switching-circuit-menu');
 
 let currentState = null;
 let selectedCircuitId = null;
 
 // Atualiza o texto e as opções do seletor de circuitos.
 function syncCircuitSelector(roots) {
-    if (!circuitSelect) {
+    if (!circuitButton || !circuitButtonLabel || !circuitMenu) {
         return;
     }
 
-    circuitSelect.innerHTML = '';
+    circuitMenu.innerHTML = '';
 
-    if (roots.length <= 1) {
-        if (circuitSelector) {
-            circuitSelector.hidden = true;
-        }
-        selectedCircuitId = roots[0]?.gateId || null;
-        return;
-    }
-
-    const hasSelection = roots.some((root) => root.gateId === selectedCircuitId);
-    if (!hasSelection) {
+    if (roots.length === 0) {
         selectedCircuitId = null;
+        circuitButton.disabled = true;
+        circuitButtonLabel.textContent = 'Nenhum circuito disponível';
+        circuitMenu.hidden = true;
+        circuitButton.setAttribute('aria-expanded', 'false');
+        return;
     }
 
-    const placeholder = document.createElement('option');
-    placeholder.value = '';
-    placeholder.textContent = 'Clique aqui para selecionar';
-    placeholder.disabled = true;
-    placeholder.selected = !selectedCircuitId;
-    circuitSelect.appendChild(placeholder);
+    if (!roots.some((root) => root.gateId === selectedCircuitId)) {
+        selectedCircuitId = roots[0].gateId;
+    }
+
+    circuitButton.disabled = false;
 
     roots.forEach((root, index) => {
-        const option = document.createElement('option');
-        option.value = root.gateId;
-        option.textContent = `${root.name || `Y${index + 1}`} (${index + 1}/${roots.length})`;
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'truth-table-select__option';
+        option.setAttribute('role', 'option');
+        option.dataset.circuitId = root.gateId;
+        option.textContent = root.name || `Circuito ${index + 1}`;
         if (root.gateId === selectedCircuitId) {
-            option.selected = true;
+            option.classList.add('is-selected');
+            option.setAttribute('aria-selected', 'true');
+        } else {
+            option.setAttribute('aria-selected', 'false');
         }
-        circuitSelect.appendChild(option);
+        circuitMenu.appendChild(option);
     });
 
-    if (circuitSelector) {
-        circuitSelector.hidden = false;
+    const selectedRoot = roots.find((root) => root.gateId === selectedCircuitId) || roots[0];
+    selectedCircuitId = selectedRoot.gateId;
+    circuitButtonLabel.textContent = selectedRoot.name || 'Circuito 1';
+    circuitMenu.hidden = true;
+    circuitButton.setAttribute('aria-expanded', 'false');
+    if (circuitSelectWrap) {
+        circuitSelectWrap.classList.remove('is-open');
     }
 }
 
@@ -77,14 +85,6 @@ function renderSelectedCircuit(roots, inputs) {
     }
 
     syncCircuitSelector(roots);
-
-    if (roots.length > 1 && !selectedCircuitId) {
-        if (status) {
-            status.textContent = 'Selecione um circuito';
-        }
-        setEmpty('Clique aqui para selecionar um circuito.');
-        return;
-    }
 
     const selectedRoot = roots.find((root) => root.gateId === selectedCircuitId) || roots[0];
     selectedCircuitId = selectedRoot.gateId;
@@ -114,9 +114,33 @@ export function updateElectricalView(state) {
     renderSelectedCircuit(roots, inputs);
 }
 
-if (circuitSelect) {
-    circuitSelect.addEventListener('change', () => {
-        selectedCircuitId = circuitSelect.value || null;
+if (circuitButton && circuitMenu && circuitSelectWrap) {
+    circuitButton.addEventListener('click', () => {
+        if (circuitButton.disabled) {
+            return;
+        }
+
+        const willOpen = circuitMenu.hidden;
+        circuitMenu.hidden = !willOpen;
+        circuitSelectWrap.classList.toggle('is-open', willOpen);
+        circuitButton.setAttribute('aria-expanded', String(willOpen));
+    });
+
+    circuitMenu.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+            return;
+        }
+
+        const option = target.closest('.truth-table-select__option');
+        if (!option) {
+            return;
+        }
+
+        selectedCircuitId = option.dataset.circuitId || null;
+        circuitMenu.hidden = true;
+        circuitSelectWrap.classList.remove('is-open');
+        circuitButton.setAttribute('aria-expanded', 'false');
 
         if (!currentState) {
             return;
@@ -124,5 +148,17 @@ if (circuitSelect) {
 
         const { roots, inputs } = buildLogicTrees(currentState);
         renderSelectedCircuit(roots, inputs);
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!(event.target instanceof Node)) {
+            return;
+        }
+
+        if (!circuitSelectWrap.contains(event.target)) {
+            circuitMenu.hidden = true;
+            circuitSelectWrap.classList.remove('is-open');
+            circuitButton.setAttribute('aria-expanded', 'false');
+        }
     });
 }

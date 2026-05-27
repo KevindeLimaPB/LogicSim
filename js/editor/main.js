@@ -3,6 +3,7 @@ import { createWire } from './wires.js';
 import { renderGate, updateGatePosition, updateGateValues, updateWirePath, getPinCenter } from './renderer.js';
 import { recompute } from './simulator.js';
 import { updateElectricalView } from '../electrical/main.js';
+import { buildLogicTrees } from '../electrical/parser.js';
 
 const workspace = document.getElementById('workspace');
 const nodeLayer = document.getElementById('node-layer');
@@ -60,6 +61,7 @@ const tutorialState = {
 const tutorialStorageKey = 'logicsim:tutorial:v1';
 const switchingGlowInactivityMs = 2600;
 let switchingGlowTimeoutId = 0;
+let truthTableCircuitIndex = 0;
 
 // Exibe o glow do botão de comutação por um período após alterações do circuito.
 function signalCircuitChange() {
@@ -1456,16 +1458,39 @@ function cloneStateForCompute() {
     return { gates, wires };
 }
 
-// Gera a tabela verdade do circuito atual.
-function generateTruthTable() {
-    const inputs = state.gates.filter((g) => g.type === 'INPUT');
-    const outputs = state.gates.filter((g) => g.type === 'OUTPUT');
+// Gera a tabela verdade para um circuito específico.
+function collectCircuitInputs(node, collected = [], visited = new Set()) {
+    if (!node) {
+        return collected;
+    }
 
-    const container = document.getElementById('truth-table-placeholder');
-    if (!container) return;
+    if (node.type === 'INPUT' && node.id && !visited.has(node.id)) {
+        visited.add(node.id);
+        collected.push(node);
+        return collected;
+    }
 
-    if (inputs.length === 0 || outputs.length === 0) {
-        container.innerHTML = '<div>Nenhuma entrada ou saída presente no circuito.</div>';
+    if (node.input) {
+        collectCircuitInputs(node.input, collected, visited);
+    }
+
+    if (Array.isArray(node.inputs)) {
+        node.inputs.forEach((child) => {
+            collectCircuitInputs(child, collected, visited);
+        });
+    }
+
+    return collected;
+}
+
+// Gera a tabela verdade para um circuito específico.
+function renderTruthTableCircuit(root, inputs, container, circuitLabel) {
+    if (!root || !container) {
+        return;
+    }
+
+    if (inputs.length === 0) {
+        container.innerHTML = '<div>Nenhuma entrada presente no circuito.</div>';
         return;
     }
 
@@ -1474,56 +1499,123 @@ function generateTruthTable() {
         return;
     }
 
-    const headerCols = inputs.map((i) => i.label || 'IN').concat(outputs.map((o) => o.label || 'OUT'));
-
+    const headerCols = inputs.map((input) => input.name || input.label || 'A').concat([circuitLabel]);
     const rows = [];
     const combos = 1 << inputs.length;
+
     for (let mask = 0; mask < combos; mask += 1) {
         const temp = cloneStateForCompute();
-        // set input outputs
-        inputs.forEach((inp, idx) => {
-            const val = (mask >> (inputs.length - 1 - idx)) & 1;
-            const tg = temp.gates.find((g) => g.id === inp.id);
-            if (tg) tg.output = val;
-        });
-        // ensure outputs reset
-        temp.gates.forEach((g) => { if (g.type !== 'INPUT') g.output = 0; });
-        // recompute on temp
-        try {
-            const { recompute: recomputeLocal } = awaitImportSimulator();
-            recomputeLocal(temp);
-        } catch (e) {
-            // fallback: call global recompute with temp by temporarily binding
-            recompute(temp);
-        }
 
-        const outVals = outputs.map((o) => {
-            const tg = temp.gates.find((g) => g.id === o.id);
-            return tg ? tg.output : 0;
+        inputs.forEach((input, index) => {
+            const value = (mask >> (inputs.length - 1 - index)) & 1;
+            const targetGate = temp.gates.find((gate) => gate.id === input.id);
+            if (targetGate) {
+                targetGate.output = value;
+            }
         });
 
-        const inVals = inputs.map((i) => ((mask >> (inputs.length - 1 - inputs.indexOf(i))) & 1));
-        rows.push({ inVals, outVals });
+        temp.gates.forEach((gate) => {
+            if (gate.type !== 'INPUT') {
+                gate.output = 0;
+            }
+        });
+
+        recompute(temp);
+
+        const outGate = temp.gates.find((gate) => gate.id === root.gateId);
+        const outVal = outGate ? outGate.output : 0;
+        const inVals = inputs.map((input, index) => ((mask >> (inputs.length - 1 - index)) & 1));
+        rows.push({ inVals, outVal });
     }
 
-    // build table HTML
     let html = '<table class="truth-table"><thead><tr>';
-    headerCols.forEach((h) => { html += `<th>${h}</th>`; });
+    headerCols.forEach((header) => {
+        html += `<th>${header}</th>`;
+    });
     html += '</tr></thead><tbody>';
-    rows.forEach((r) => {
+
+    rows.forEach((row) => {
         html += '<tr>';
-        r.inVals.forEach((v) => { html += `<td>${v}</td>`; });
-        r.outVals.forEach((v) => { html += `<td>${v}</td>`; });
+        row.inVals.forEach((value) => {
+            html += `<td>${value}</td>`;
+        });
+        html += `<td>${row.outVal}</td>`;
         html += '</tr>';
     });
+
     html += '</tbody></table>';
     container.innerHTML = html;
 }
 
-// Aguarda a importação do simulador e alterna a área exibida.
-function awaitImportSimulator() {
-    // utility to access recompute if imported differently; here we just return the existing recompute
-    return { recompute };
+// Atualiza o dropdown com os circuitos disponíveis.
+function syncTruthTableCircuitSelect(roots, selectElement) {
+    if (!selectElement) {
+        return;
+    }
+
+    selectElement.innerHTML = '';
+
+    roots.forEach((root, index) => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'truth-table-select__option';
+        option.setAttribute('role', 'option');
+        option.dataset.index = String(index);
+        option.textContent = root.name || `Circuito ${index + 1}`;
+        if (index === truthTableCircuitIndex) {
+            option.classList.add('is-selected');
+            option.setAttribute('aria-selected', 'true');
+        } else {
+            option.setAttribute('aria-selected', 'false');
+        }
+        selectElement.appendChild(option);
+    });
+}
+
+// Atualiza o circuito exibido na tabela verdade.
+function generateTruthTable() {
+    const { roots } = buildLogicTrees(state);
+    const container = document.getElementById('truth-table-placeholder');
+    const label = document.getElementById('truth-table-circuit-label');
+    const buttonElement = document.getElementById('truth-table-circuit-button');
+    const buttonLabelElement = document.getElementById('truth-table-circuit-button-label');
+    const menuElement = document.getElementById('truth-table-circuit-menu');
+
+    if (!container || !label || !buttonElement || !buttonLabelElement || !menuElement) {
+        return;
+    }
+
+    if (roots.length === 0) {
+        label.textContent = 'Nenhum circuito disponível';
+        buttonElement.disabled = true;
+        buttonLabelElement.textContent = 'Nenhum circuito disponível';
+        menuElement.innerHTML = '';
+        menuElement.hidden = true;
+        buttonElement.setAttribute('aria-expanded', 'false');
+        container.innerHTML = '<div>Nenhuma entrada ou saída presente no circuito.</div>';
+        return;
+    }
+
+    if (truthTableCircuitIndex >= roots.length) {
+        truthTableCircuitIndex = 0;
+    }
+
+    buttonElement.disabled = false;
+    syncTruthTableCircuitSelect(roots, menuElement);
+
+    const selectedRoot = roots[truthTableCircuitIndex];
+    const circuitInputs = collectCircuitInputs(selectedRoot.input || selectedRoot);
+    label.textContent = roots.length > 1
+        ? `${selectedRoot.name || 'OUT'} (${truthTableCircuitIndex + 1} de ${roots.length})`
+        : `${selectedRoot.name || 'OUT'}`;
+    buttonLabelElement.textContent = selectedRoot.name || `Circuito ${truthTableCircuitIndex + 1}`;
+
+    if (circuitInputs.length === 0) {
+        container.innerHTML = '<div>Nenhuma entrada conectada a este circuito.</div>';
+        return;
+    }
+
+    renderTruthTableCircuit(selectedRoot, circuitInputs, container, selectedRoot.name || 'OUT');
 }
 
 // Tab toggles
@@ -1533,6 +1625,9 @@ const tabSwitch = document.getElementById('tab-switching');
 const simSection = document.getElementById('simulator-workspace');
 const ttSection = document.getElementById('truth-table-view');
 const switchingSection = document.getElementById('switching-shell');
+    const truthTableSelectWrap = document.getElementById('truth-table-circuit-select-wrap');
+    const truthTableCircuitButton = document.getElementById('truth-table-circuit-button');
+    const truthTableCircuitMenu = document.getElementById('truth-table-circuit-menu');
 if (tabSim && tabTT && tabSwitch && simSection && ttSection && switchingSection) {
     // Oculta as três áreas principais antes de mostrar a selecionada.
     const hideAll = () => {
@@ -1556,6 +1651,49 @@ if (tabSim && tabTT && tabSwitch && simSection && ttSection && switchingSection)
         ttSection.style.display = '';
         generateTruthTable();
     });
+
+    if (truthTableSelectWrap && truthTableCircuitButton && truthTableCircuitMenu) {
+        truthTableCircuitButton.addEventListener('click', () => {
+            if (truthTableCircuitButton.disabled) {
+                return;
+            }
+
+            const willOpen = truthTableCircuitMenu.hidden;
+            truthTableCircuitMenu.hidden = !willOpen;
+            truthTableSelectWrap.classList.toggle('is-open', willOpen);
+            truthTableCircuitButton.setAttribute('aria-expanded', String(willOpen));
+        });
+
+        truthTableCircuitMenu.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLElement)) {
+                return;
+            }
+
+            const option = target.closest('.truth-table-select__option');
+            if (!option) {
+                return;
+            }
+
+            truthTableCircuitIndex = Number.parseInt(option.dataset.index || '0', 10) || 0;
+            truthTableCircuitMenu.hidden = true;
+            truthTableSelectWrap.classList.remove('is-open');
+            truthTableCircuitButton.setAttribute('aria-expanded', 'false');
+            generateTruthTable();
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!(event.target instanceof Node)) {
+                return;
+            }
+
+            if (!truthTableSelectWrap.contains(event.target)) {
+                truthTableCircuitMenu.hidden = true;
+                truthTableSelectWrap.classList.remove('is-open');
+                truthTableCircuitButton.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
 
     tabSwitch.addEventListener('click', () => {
         hideAll();

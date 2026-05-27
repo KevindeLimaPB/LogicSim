@@ -834,8 +834,169 @@ body.simulator-page.theme-light #tab-switching::after {
 }
 .truth-table-view { padding: 18px; }
 .truth-table-container { background: rgba(8,12,18,0.92); border-radius: 12px; padding: 12px; border:1px solid rgba(148,163,184,0.04); color:#eef4fb; }
-.truth-table { width:100%; border-collapse: collapse; margin-top:8px; }
-.truth-table th, .truth-table td { padding:8px 10px; border:1px solid rgba(148,163,184,0.04); text-align:center; font-family: inherit; }
-.truth-table th { background: rgba(255,255,255,0.02); color:#9fb1c7; }
-.truth-table td { background: rgba(255,255,255,0.01); }
+.truth-table-controls { display:flex; align-items:center; justify-content:space-between; gap:12px; margin: 10px 0 12px; flex-wrap: wrap; }
+.truth-table-controls__info { display:flex; flex-direction:column; gap:4px; }
+.truth-table-controls__info span { font-size: 0.78rem; color:#9fb1c7; text-transform: uppercase; letter-spacing: 0.08em; }
+.truth-table-controls__info strong { font-size: 1rem; color:#eef4fb; }
+.truth-table-select { position:relative; display:flex; flex-direction:column; gap:6px; min-width: 260px; }
+.truth-table-select span { font-size: 0.78rem; color:#9fb1c7; text-transform: uppercase; letter-spacing: 0.08em; }
+.truth-table-select__button {
+    min-height: 42px;
+    padding: 0 44px 0 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    background:
+        linear-gradient(180deg, rgba(18, 27, 43, 0.92), rgba(11, 18, 32, 0.9));
+    color: #e6edf7;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+    text-align: left;
+    position: relative;
+}
+.truth-table-select__button::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin-top: -6px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    opacity: 0.9;
+    transition: transform 0.18s ease;
+}
+.truth-table-select.is-open .truth-table-select__button::after {
+    transform: rotate(225deg);
+    margin-top: -2px;
+}
+.truth-table-select__button:hover {
+    border-color: rgba(76, 201, 255, 0.4);
+    color:#bcecff;
+}
+.truth-table-select__button:focus {
+    border-color: rgba(76, 201, 255, 0.56);
+    box-shadow: 0 0 0 3px rgba(76, 201, 255, 0.12);
+}
+.truth-table-select__button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+.truth-table-select__menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 40;
+    display: grid;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    background: rgba(8, 13, 22, 0.96);
+    box-shadow: 0 20px 36px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(12px);
+    max-height: 280px;
+    overflow: auto;
+}
+.truth-table-select__menu[hidden] {
+    display: none !important;
+}
+.truth-table-select__option {
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #e6edf7;
+    text-align: left;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.truth-table-select__option:hover,
+.truth-table-select__option.is-selected {
+    background: rgba(76, 201, 255, 0.12);
+    border-color: rgba(76, 201, 255, 0.24);
+    color: #bcecff;
+}
+.truth-table-select__option:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(76, 201, 255, 0.12);
+}
+.truth-table-select__button, .truth-table-select__option {
+    font-family: inherit;
+}
+.truth-table-select__button {
+    min-height: 42px;
+}
+.truth-table { width:100%; border-collapse: collapse; margin-top:8px; color:#eef4fb; }
+.truth-table th, .truth-table td { padding:8px 10px; border:1px solid rgba(148,163,184,0.08); text-align:center; font-family: inherit; }
+.truth-table th { background: rgba(255,255,255,0.03); color:#cfe0f5; }
+.truth-table td { background: rgba(255,255,255,0.015); color:#eef4fb; }
+
+body.simulator-page.theme-light .truth-table-container {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(34, 48, 74, 0.12);
+    color: #13233b;
+    box-shadow: 0 14px 28px rgba(20, 31, 53, 0.08);
+}
+
+body.simulator-page.theme-light .truth-table-controls__info span,
+body.simulator-page.theme-light .truth-table-select span {
+    color: #51657f;
+}
+
+body.simulator-page.theme-light .truth-table-controls__info strong,
+body.simulator-page.theme-light .truth-table {
+    color: #13233b;
+}
+
+body.simulator-page.theme-light .truth-table-select__button {
+    background: linear-gradient(180deg, #ffffff, #edf3fb);
+    color: #15253b;
+    border-color: rgba(34, 48, 74, 0.18);
+    box-shadow: 0 8px 20px rgba(20, 31, 53, 0.08);
+}
+
+body.simulator-page.theme-light .truth-table-select__button:hover {
+    border-color: rgba(56, 104, 160, 0.34);
+    color: #0f2034;
+}
+
+body.simulator-page.theme-light .truth-table-select__button:focus {
+    border-color: rgba(56, 104, 160, 0.56);
+    box-shadow: 0 0 0 3px rgba(56, 104, 160, 0.12);
+}
+
+body.simulator-page.theme-light .truth-table-select__menu {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(34, 48, 74, 0.14);
+    box-shadow: 0 20px 34px rgba(20, 31, 53, 0.12);
+}
+
+body.simulator-page.theme-light .truth-table-select__option {
+    color: #15253b;
+}
+
+body.simulator-page.theme-light .truth-table-select__option:hover,
+body.simulator-page.theme-light .truth-table-select__option.is-selected {
+    background: rgba(56, 104, 160, 0.1);
+    border-color: rgba(56, 104, 160, 0.18);
+    color: #0f2034;
+}
+
+body.simulator-page.theme-light .truth-table th {
+    background: rgba(20, 31, 53, 0.05);
+    color: #243751;
+}
+
+body.simulator-page.theme-light .truth-table td {
+    background: rgba(20, 31, 53, 0.025);
+    color: #13233b;
+}
 
