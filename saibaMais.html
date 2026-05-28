@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="./favicon.svg" title="image/svg+xml">
     <link rel="stylesheet" href="./css/style.css">
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">    
+
     <title>LogicSim - Saiba Mais</title>
 </head>
 <body class="simulator-page">
@@ -39,84 +43,84 @@
     <section aria-label="exemplos">
         <div class="exemplos-conteudo">
             <h1>Entendendo as Portas Lógicas</h1>
+            <p class="exemplo-descricao">Clique na imagem para ir direto ao simulador com o exemplo.</p>
             <dl>
-                <div class="exemplo-lista" id="exemplo-lista">
-                    <dt><strong>Porta AND</strong></dt>
-                    <dd>
+                <div class="exemplo-lista">
+
+                    <dt><button aria-controls="pergunta1" aria-expanded="true"> Porta AND</button></dt>
+                    <dd id="pergunta1" class="ativa">
+
                         <a href="./simulador.html">
-
                         <img src="./img/exemplos/exemplo-and.svg" alt="porta and">
-
                         </a>
-                            A porta AND só retorna 1 quando todas as entradas são verdadeiras.
-
-                            <p>Clique na imagem para ir direto ao simulador com o exemplo.</p>
+            
+                            <p class="exemplo-definicao">A porta AND só retorna 1 quando todas as entradas são verdadeiras.</p>
                     </dd>
                 </div>
 
                 <div class="exemplo-lista" id="exemplo-lista">
-                <dt><strong>Porta OR</strong></dt>
-                <dd>
+                <dt><button aria-controls="pergunta2" aria-expanded="false">Porta OR</button></dt>
+                <dd id="pergunta2">
                     <a href="./simulador.html">
                     <img src="./img/exemplos/exemplo-or.svg" alt="porta or">
                     </a>
-                    A porta OR só retorna 1 quando uma das entradas são verdadeiras
-                    <p>Clique na imagem para ir direto ao simulador com o exemplo.</p>
+                    <p class="exemplo-definicao">A porta OR só retorna 1 quando uma das entradas são verdadeiras</p>
+                    
                 </dd>
                 </div>
 
                 <div class="exemplo-lista" id="exemplo-lista">
-                <dt><strong>Porta NOT</strong></dt>
-                <dd>
+                <dt><button aria-controls="pergunta3" aria-expanded="false">Porta NOT</button></dt>
+                <dd id="pergunta3">
                     <a href="./simulador.html">
                         <img src="./img/exemplos/exemplo-not.svg" alt="">
                     </a>
-                    A porta NOT inverte o valor, quando a entrada for 1 ela inverte para a saída ser 0.
-                    <p>Clique na imagem para ir direto ao simulador com o exemplo.</p>
+                    <p class="exemplo-definicao">A porta NOT inverte o valor, quando a entrada for 1 ela inverte para a saída ser 0.</p>
+                    
                 </dd>
                 </div>
 
                 <div class="exemplo-lista" id="exemplo-lista">
-                <dt><strong>Porta NAND</strong></dt>
-                    <dd>
+                <dt><button aria-controls="pergunta4" aria-expanded="false">Porta NAND</button></dt>
+                    <dd id="pergunta4">
                         <a href="./simulador.html">
                         <img src="./img/exemplos/exemplo-nand.svg" alt="porta nand">
                         </a>
-                       A porta NAND é a negação da porta AND, quando as entradas forem 0 saíra 1, quando tiver <strong>uma</strong> entrada 1 ela saíra 1, em demais casos saíra zero.
-                       <p>Clique na imagem para ir direto ao simulador com o exemplo.</p>
+                       <p class="exemplo-definicao">A porta NAND é a negação da porta AND, quando as entradas forem 0 saíra 1, quando tiver <strong>uma</strong> entrada 1 ela saíra 1, em demais casos saíra zero.</p>
+                       
                     </dd>
                     </div>
 
                     <div class="exemplo-lista" id="exemplo-lista">
-                 <dt><strong>Porta NOR</strong></dt>
-                 <dd>
+                 <dt><button aria-controls="pergunta5" aria-expanded="false">Porta NOR</button></dt>
+                 <dd id="pergunta5">
                     <a href="./simulador.html">
                     <img src="./img/exemplos/exemplo-nor.svg" alt="porta nor">
                     </a>
-                    A porta NOR só retorna 1 quando as portas são 0, caso contrário retorna 0.
-                    <p>Clique na imagem para ir direto ao simulador com o exemplo.</p>
+                    <p class="exemplo-definicao">A porta NOR só retorna 1 quando as portas são 0, caso contrário retorna 0.</p>
+                    
                 </dd>
                 </div>
                 
                 <div class="exemplo-lista" id="exemplo-lista">
-                    <dt><strong>Porta XOR</strong></dt>
-                    <dd>
+                    <dt><button aria-controls="pergunta6" aria-expanded="false">Porta XOR</button></dt>
+                    <dd id="pergunta6">
                         <a href="./simulador.html">
                         <img src="./img/exemplos/exemplo-xor.svg" alt="porta xor">
                         </a>
-                       A porta XOR retorna 1 apenas quando a quantidade de entradas com valor 1 é ímpar. Ou seja, se houver um número ímpar de sinais ligados, a saída será 1; se for par, a saída será 0.
-                       <p>Clique na imagem para ir direto ao simulador com o exemplo.</p>
+                       <p class="exemplo-definicao">A porta XOR retorna 1 quando há uma quantidade ímpar de entradas com valor 1 e retorna 0 quando a quantidade é par.</p>
+                       
                     </dd>
                     </div>
 
                     <div class="exemplo-lista" id="exemplo-lista">
-                    <dt><strong>Porta XNOR</strong></dt>
-                    <dd>
+                    <dt><button aria-controls="pergunta7" aria-expanded="false">Porta XNOR</button></dt>
+                    <dd id="pergunta7">
                         <a href="./simulador.html">
                        <img src="./img/exemplos/exemplo-xnor.svg" alt="porta xnor">
                        </a>
-                       A porta XNOR é o inverso da porta XOR. Ela retorna 1 quando as entradas possuem o mesmo valor lógico. Também pode ser entendida como uma porta que retorna 1 quando a quantidade de valores 1 nas entradas é par. Caso contrário, a saída será 0.
-                       <p>Clique na imagem para ir direto ao simulador com o exemplo.</p>
+                       <p class="exemplo-definicao">A porta XNOR retorna 1 quando as entradas são iguais ou quando há uma quantidade par de valores 1 nas entradas. Caso contrário, a saída será 0.</p>
+                       
                     </dd>
                     </div>
             </dl>
@@ -132,6 +136,7 @@
 
     <script src="./js/config/menu.js"></script>
     <script type="module" src="./js/editor/theme-toggle.js"></script>
+    <script src="./js/config/perguntas.js"></script>
     
 </body>
 </html>

@@ -1,4 +1,3 @@
-# LogicSim
 
 <p align="center">
 	<img src="img/LogicSim-Marca.svg" alt="LogicSim logo" width="320">
