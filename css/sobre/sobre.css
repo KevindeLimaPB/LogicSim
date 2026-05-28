@@ -3,7 +3,6 @@ body {
 }
 
 body:has(.sobre-page) .simulator-page__shell {
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
     padding-bottom: 0;
@@ -316,7 +315,7 @@ body.simulator-page.theme-light .avatar {
 
 /* RESPONSIVO */
 
-@media (max-width: 768px){
+@media (max-width: 800px){
 
     .sobre-hero h1{
         font-size: 2.2rem;
@@ -325,5 +324,7 @@ body.simulator-page.theme-light .avatar {
     .sobre-page{
         padding-inline: 18px;
     }
-
+    .linha {
+        display: none;
+    }
 }
