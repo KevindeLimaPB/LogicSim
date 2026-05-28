@@ -3,12 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/style.css?v=3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="icon" href="./favicon.svg" title="image/svg+xml">
     <title>LogicSim</title>
 </head>
 <body class="simulator-page theme-dark">
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('preset')) {
+                document.body.classList.add('opened-from-example');
+                window.addEventListener('load', function () {
+                    const workspace = document.getElementById('simulator-workspace');
+                    if (workspace) {
+                        workspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
+        }());
+    </script>
     <div class="simulator-page__shell">
         <nav class="top-navbar">
             <div class="top-navbar__left">
@@ -60,8 +74,8 @@
 
         <nav id="header-nav" class="header-nav" aria-label="Navegação">
             <ul>
-                <li><a href="sobre.html">Sobre</a></li>
                 <li><a href="saibaMais.html">Saiba mais</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
             </ul>
             <div class="header-descricao">
                 <p>LogicSim — Navegação</p>
@@ -477,6 +491,14 @@
                 </article>
             </section>
         </main>
+
+        <div class="example-loaded-tip" role="status" aria-live="polite" aria-hidden="true">
+            <i class="fa-solid fa-circle-check example-loaded-tip__icon" aria-hidden="true"></i>
+            <span class="example-loaded-tip__text">Exemplo carregado</span>
+            <span class="example-loaded-tip__progress" aria-hidden="true">
+                <span class="example-loaded-tip__progress-bar"></span>
+            </span>
+        </div>
     </div>
 
     <footer class="site-footer">
@@ -486,10 +508,10 @@
     </footer>
 
 
-    <script src="./js/config/menu.js"></script>
-    <script src="./js/animação/anima.js"></script>
-    <script type="module" src="./js/editor/main.js"></script>
-    <script type="module" src="./js/editor/theme-toggle.js"></script>
+    <script src="./js/config/menu.js?v=3"></script>
+    <script src="./js/animação/anima.js?v=3"></script>
+    <script type="module" src="./js/editor/main.js?v=3"></script>
+    <script type="module" src="./js/editor/theme-toggle.js?v=3"></script>
 
 </body>
 </html>
