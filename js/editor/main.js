@@ -60,8 +60,13 @@ const tutorialState = {
 
 const tutorialStorageKey = 'logicsim:tutorial:v1';
 const switchingGlowInactivityMs = 2600;
+const exampleLoadedTipVisibleMs = 2800;
+const exampleLoadedTipExitMs = 260;
 let switchingGlowTimeoutId = 0;
+let exampleLoadedTipShowTimeoutId = 0;
+let exampleLoadedTipHideTimeoutId = 0;
 let truthTableCircuitIndex = 0;
+let openedFromExample = false;
 
 // Exibe o glow do botão de comutação por um período após alterações do circuito.
 function signalCircuitChange() {
@@ -78,6 +83,62 @@ function signalCircuitChange() {
         switchingTabBtn.classList.remove('tab-circuit-dirty');
         switchingGlowTimeoutId = 0;
     }, switchingGlowInactivityMs);
+}
+
+// Mostra uma mensagem curta no canto da tela quando o simulador abre por exemplo.
+function showExampleLoadedTip() {
+    const tip = document.querySelector('.example-loaded-tip');
+    if (!tip) {
+        return;
+    }
+
+    const progressBar = tip.querySelector('.example-loaded-tip__progress-bar');
+
+    if (exampleLoadedTipShowTimeoutId) {
+        clearTimeout(exampleLoadedTipShowTimeoutId);
+        exampleLoadedTipShowTimeoutId = 0;
+    }
+
+    if (exampleLoadedTipHideTimeoutId) {
+        clearTimeout(exampleLoadedTipHideTimeoutId);
+        exampleLoadedTipHideTimeoutId = 0;
+    }
+
+    tip.setAttribute('aria-hidden', 'false');
+    tip.classList.add('is-visible');
+
+    if (progressBar) {
+        progressBar.style.transform = 'scaleX(1)';
+        progressBar.style.transition = `transform ${exampleLoadedTipVisibleMs}ms linear`;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                progressBar.style.transform = 'scaleX(0)';
+            });
+        });
+    }
+
+    exampleLoadedTipShowTimeoutId = window.setTimeout(() => {
+        tip.classList.remove('is-visible');
+        tip.setAttribute('aria-hidden', 'true');
+        exampleLoadedTipHideTimeoutId = window.setTimeout(() => {
+            if (progressBar) {
+                progressBar.style.transition = '';
+                progressBar.style.transform = '';
+            }
+            exampleLoadedTipHideTimeoutId = 0;
+        }, exampleLoadedTipExitMs);
+        exampleLoadedTipShowTimeoutId = 0;
+    }, exampleLoadedTipVisibleMs);
+}
+
+// Rola a página até a área principal do simulador.
+function scrollToSimulatorWorkspace() {
+    const simulatorWorkspace = document.getElementById('simulator-workspace');
+    if (!simulatorWorkspace) {
+        return;
+    }
+
+    simulatorWorkspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Copia a expressão booleana exibida no toolbar.
@@ -1331,22 +1392,40 @@ function setupPreset() {
 
     const params = new URLSearchParams(window.location.search);
     const preset = (params.get('preset') || '').toLowerCase();
-    if (preset === 'xnor3' || preset === 'xnor-3') {
-        selectedGate = 'XNOR';
-        forcedInputCount = 3;
-        forceThirdInput = true;
-    }
-    try {
-        selectedGate = sessionStorage.getItem('selectedGate');
-    } catch (error) {
-        selectedGate = null;
+    openedFromExample = Boolean(preset);
+    if (preset) {
+        const presetMap = {
+            and: 'AND',
+            or: 'OR',
+            not: 'NOT',
+            nand: 'NAND',
+            nor: 'NOR',
+            xor: 'XOR',
+            xnor: 'XNOR',
+            xnor3: 'XNOR',
+            'xnor-3': 'XNOR',
+        };
+
+        selectedGate = presetMap[preset] || null;
+        if (preset === 'xnor3' || preset === 'xnor-3') {
+            forcedInputCount = 3;
+            forceThirdInput = true;
+        }
     }
 
     if (!selectedGate) {
         try {
-            selectedGate = localStorage.getItem('selectedGate');
+            selectedGate = sessionStorage.getItem('selectedGate');
         } catch (error) {
             selectedGate = null;
+        }
+
+        if (!selectedGate) {
+            try {
+                selectedGate = localStorage.getItem('selectedGate');
+            } catch (error) {
+                selectedGate = null;
+            }
         }
     }
 
@@ -1373,16 +1452,39 @@ function setupPreset() {
 
     const inputStartY = 150;
     const inputStepY = 90;
-    const inputCount = forceThirdInput ? 3 : 2;
+    const inputCount = forceThirdInput ? 3 : (gateType === 'NOT' ? 1 : 2);
     const midY = inputStartY + (inputStepY * (inputCount - 1)) / 2;
     const logicGateY = Math.round(midY - 10);
     const outputGateY = Math.round(midY + 20);
 
     const inputA = addGate('INPUT', 140, inputStartY, { label: 'A' });
-    const inputB = addGate('INPUT', 140, inputStartY + inputStepY, { label: 'B' });
+    const inputB = gateType !== 'NOT'
+        ? addGate('INPUT', 140, inputStartY + inputStepY, { label: 'B' })
+        : null;
     const inputC = forceThirdInput
         ? addGate('INPUT', 140, inputStartY + inputStepY * 2, { label: 'C' })
         : null;
+
+    const initialInputValues = (() => {
+        switch (gateType) {
+            case 'AND':
+                return [1, 1, 1];
+            case 'OR':
+                return [1, 0, 0];
+            case 'NOT':
+                return [0];
+            default:
+                return new Array(inputCount).fill(0);
+        }
+    })();
+
+    inputA.output = initialInputValues[0] ?? 0;
+    if (inputB) {
+        inputB.output = initialInputValues[1] ?? 0;
+    }
+    if (inputC) {
+        inputC.output = initialInputValues[2] ?? 0;
+    }
 
     const logicGate = addGate(gateType, 360, logicGateY);
     if (forcedInputCount) {
@@ -1391,7 +1493,7 @@ function setupPreset() {
     const outputGate = addGate('OUTPUT', 600, outputGateY);
 
     addWire(inputA.id, logicGate.id, 0);
-    if (gateType !== 'NOT') {
+    if (inputB) {
         addWire(inputB.id, logicGate.id, 1);
     }
     if (inputC && gateType !== 'NOT') {
@@ -1431,6 +1533,13 @@ function init() {
     updateSimulation();
     applyViewport();
     setDeleteMode(false);
+
+    if (openedFromExample) {
+        requestAnimationFrame(() => {
+            scrollToSimulatorWorkspace();
+            showExampleLoadedTip();
+        });
+    }
 
     let shouldAutoStartTutorial = false;
     try {

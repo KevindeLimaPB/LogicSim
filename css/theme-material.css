@@ -66,6 +66,10 @@ body.simulator-page {
     --border-strong: var(--md-outline-strong);
     --shadow-strong: var(--md-elevation-2);
     --shadow-soft: var(--md-elevation-1);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center top;
 }
 
 body.simulator-page.theme-dark {
@@ -83,6 +87,10 @@ body.simulator-page.theme-dark {
     --md-primary-container: rgba(255, 107, 107, 0.16);
     --md-on-primary-container: #ffe7e7;
     background: radial-gradient(circle at top left, rgba(255, 107, 107, 0.08), transparent 20%), radial-gradient(circle at 80% 12%, rgba(255, 107, 107, 0.05), transparent 16%), linear-gradient(180deg, #05070f 0%, #03050b 50%, #010307 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center top;
 }
 
 body.simulator-page::before,
@@ -1330,6 +1338,89 @@ body.simulator-page.theme-dark .switching-svg .switching-lamp-body {
     stroke: #e5edf7;
 }
 
+body.simulator-page .example-loaded-tip {
+    position: fixed !important;
+    right: 18px !important;
+    bottom: 18px !important;
+    left: auto !important;
+    top: auto !important;
+    z-index: 9999 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 220px !important;
+    max-width: min(92vw, 320px) !important;
+    padding: 12px 16px 16px !important;
+    border-radius: 16px !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    transform: translateY(14px) scale(0.98) !important;
+    opacity: 0 !important;
+}
+
+body.simulator-page .example-loaded-tip.is-visible {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1) !important;
+}
+
+body.simulator-page .example-loaded-tip,
+body.simulator-page.theme-dark .example-loaded-tip {
+    border: 1px solid rgba(72, 187, 120, 0.28) !important;
+    background: linear-gradient(180deg, rgba(14, 92, 44, 0.98), rgba(8, 63, 30, 0.98)) !important;
+    color: #effaf2 !important;
+    box-shadow:
+        0 18px 42px rgba(0, 0, 0, 0.42),
+        0 0 0 1px rgba(34, 197, 94, 0.08) inset,
+        0 0 28px rgba(34, 197, 94, 0.22) !important;
+}
+
+body.simulator-page .example-loaded-tip__icon,
+body.simulator-page.theme-dark .example-loaded-tip__icon {
+    font-size: 1.05rem !important;
+    color: #9ef0b7 !important;
+    flex: 0 0 auto !important;
+}
+
+body.simulator-page .example-loaded-tip__text {
+    flex: 1 1 auto !important;
+}
+
+body.simulator-page .example-loaded-tip__progress,
+body.simulator-page.theme-dark .example-loaded-tip__progress {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    height: 6px !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    overflow: hidden !important;
+}
+
+body.simulator-page .example-loaded-tip__progress-bar {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, #baf7cc, #22c55e) !important;
+    transform-origin: left center !important;
+    transform: scaleX(1) !important;
+    transition: transform var(--tip-duration, 2000ms) linear !important;
+}
+
+body.simulator-page.theme-light .example-loaded-tip {
+    border-color: rgba(34, 197, 94, 0.18) !important;
+    background: linear-gradient(180deg, rgba(235, 255, 242, 0.98), rgba(215, 248, 226, 0.98)) !important;
+    color: #0f5132 !important;
+    box-shadow: 0 18px 42px rgba(15, 81, 50, 0.18), 0 0 0 1px rgba(34, 197, 94, 0.08) inset !important;
+}
+
+body.simulator-page.theme-light .example-loaded-tip__icon {
+    color: #16a34a !important;
+}
+
+body.simulator-page.theme-light .example-loaded-tip__progress {
+    background: rgba(34, 197, 94, 0.12) !important;
+}
+
 @media (max-width: 1120px) {
     .simulator-page .editor-toolbar {
         grid-template-columns: 1fr 1fr;
@@ -1396,5 +1487,6 @@ body.simulator-page.theme-dark .switching-svg .switching-lamp-body {
         display: inline-flex;
         justify-content: center;
     }
-}
 
+
+}
