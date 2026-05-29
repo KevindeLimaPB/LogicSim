@@ -301,8 +301,7 @@
 
 
             <section class="simulator-shell" id="simulator-workspace">
-                <div class="editor-toolbar">
-                    <div class="toolbar-section toolbar-section--components">
+                <div class="toolbar-section toolbar-section--components">
                         <span class="toolbar-section__label">Componentes</span>
                         <div class="toolbar-group">
                             <button class="toolbar-btn" data-add="INPUT">
@@ -382,8 +381,9 @@
                                 XNOR
                             </button>
                         </div>
-                    </div>
+                </div>
 
+                <div class="editor-toolbar">
                     <div class="toolbar-section toolbar-section--actions">
                         <span class="toolbar-section__label">Ações</span>
                         <div class="toolbar-group">
@@ -394,6 +394,10 @@
                             <button class="toolbar-btn" data-action="clear-simulator">
                                 <i class="fa-solid fa-eraser" aria-hidden="true"></i>
                                 Limpar
+                            </button>
+                            <button class="toolbar-btn" data-action="toggle-expand" type="button" aria-pressed="false">
+                                <i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i>
+                                <span>Expandir</span>
                             </button>
                         </div>
                     </div>
@@ -438,6 +442,14 @@
                                 <span id="switching-circuit-button-label">Selecione um circuito</span>
                             </button>
                             <div class="truth-table-select__menu" id="switching-circuit-menu" role="listbox" hidden></div>
+                        </div>
+                        <div class="switching-zoom-wrap">
+                            <span class="toolbar-section__label switching-zoom-label">Zoom</span>
+                            <div class="toolbar-group toolbar-group--zoom switching-zoom" aria-label="Zoom do circuito de comutação">
+                                <button class="toolbar-btn toolbar-btn--zoom" data-action="switching-zoom-out" type="button" aria-label="Diminuir zoom do circuito">-</button>
+                                <span class="zoom-label" id="switching-zoom-label">175%</span>
+                                <button class="toolbar-btn toolbar-btn--zoom" data-action="switching-zoom-in" type="button" aria-label="Aumentar zoom do circuito">+</button>
+                            </div>
                         </div>
                         <div class="switching-status" id="switching-status">Sem saída</div>
                     </div>

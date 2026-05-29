@@ -1,11 +1,11 @@
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 const LAYOUT = {
-    switchWidth: 90,
+    switchWidth: 68,
     switchHeight: 36,
-    seriesGap: 36,
+    seriesGap: 28,
     parallelGap: 26,
-    invertGap: 24
+    invertGap: 18
 };
 
 // Cria um elemento SVG com os atributos informados.
@@ -191,7 +191,111 @@ function renderActiveTrails(svg, layout, originX, originY, activeIn, leadingPoin
         return;
     }
 
-    const speed = 100; // px/s
+    const getDistance = (from, to) => {
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        return Math.hypot(dx, dy);
+    };
+
+    const getPathLength = (points) => {
+        let total = 0;
+        for (let i = 1; i < points.length; i += 1) {
+            total += getDistance(points[i - 1], points[i]);
+        }
+        return total;
+    };
+
+    const samePoint = (a, b) => Boolean(a && b && a.x === b.x && a.y === b.y);
+
+    const getCommonPrefixCount = (paths) => {
+        const minLength = Math.min(...paths.map((path) => path.length));
+        let count = 0;
+        for (let i = 0; i < minLength; i += 1) {
+            const point = paths[0][i];
+            if (!paths.every((path) => samePoint(path[i], point))) {
+                break;
+            }
+            count += 1;
+        }
+        return Math.max(1, count);
+    };
+
+    const getCommonSuffixCount = (paths, prefixCount) => {
+        const minLength = Math.min(...paths.map((path) => path.length));
+        let count = 0;
+        for (let offset = 1; offset <= minLength - prefixCount; offset += 1) {
+            const point = paths[0][paths[0].length - offset];
+            if (!paths.every((path) => samePoint(path[path.length - offset], point))) {
+                break;
+            }
+            count += 1;
+        }
+        return count;
+    };
+
+    const createVirtualSegments = (points, prefixCount, suffixCount, maxBranchLen) => {
+        const branchStartIndex = Math.max(0, prefixCount - 1);
+        const branchEndIndex = suffixCount > 0
+            ? points.length - suffixCount
+            : points.length - 1;
+        const branchPoints = points.slice(branchStartIndex, branchEndIndex + 1);
+        const branchLen = getPathLength(branchPoints);
+        const branchScale = branchLen > 0 && maxBranchLen > 0 ? maxBranchLen / branchLen : 1;
+        const segments = [];
+        let virtualLen = 0;
+
+        for (let i = 1; i < points.length; i += 1) {
+            const from = points[i - 1];
+            const to = points[i];
+            const physicalLen = getDistance(from, to);
+            const inBranch = (i - 1) >= branchStartIndex && i <= branchEndIndex;
+            const segmentVirtualLen = physicalLen * (inBranch ? branchScale : 1);
+
+            segments.push({
+                from,
+                to,
+                physicalLen,
+                virtualStart: virtualLen,
+                virtualLen: segmentVirtualLen
+            });
+            virtualLen += segmentVirtualLen;
+        }
+
+        return { segments, virtualLen };
+    };
+
+    const getPointAtVirtualLength = (renderer, distance) => {
+        const target = renderer.virtualLen > 0 ? distance % renderer.virtualLen : 0;
+        const segment = renderer.segments.find((item) => target <= item.virtualStart + item.virtualLen)
+            || renderer.segments[renderer.segments.length - 1];
+
+        if (!segment) {
+            return null;
+        }
+
+        if (segment.virtualLen <= 0 || segment.physicalLen <= 0) {
+            return { x: segment.to.x, y: segment.to.y };
+        }
+
+        const ratio = Math.max(0, Math.min(1, (target - segment.virtualStart) / segment.virtualLen));
+        return {
+            x: segment.from.x + (segment.to.x - segment.from.x) * ratio,
+            y: segment.from.y + (segment.to.y - segment.from.y) * ratio
+        };
+    };
+
+    const commonPrefixCount = getCommonPrefixCount(trailVariants);
+    const commonSuffixCount = getCommonSuffixCount(trailVariants, commonPrefixCount);
+    const branchLengths = trailVariants.map((points) => {
+        const branchStartIndex = Math.max(0, commonPrefixCount - 1);
+        const branchEndIndex = commonSuffixCount > 0
+            ? points.length - commonSuffixCount
+            : points.length - 1;
+        return getPathLength(points.slice(branchStartIndex, branchEndIndex + 1));
+    });
+    const maxBranchLen = Math.max(...branchLengths, 0);
+
+    const baseSpeed = 100; // px/s for the longest trail
     const dotRadius = 3;
     const glowBaseRadius = 10;
     const glowPulseAmplitude = 0.25;
@@ -212,12 +316,8 @@ function renderActiveTrails(svg, layout, originX, originY, activeIn, leadingPoin
         });
         svg.appendChild(trailPath);
 
-        let trailLen = 0;
-        try {
-            trailLen = trailPath.getTotalLength();
-        } catch (e) {
-            trailLen = 0;
-        }
+        const virtualPath = createVirtualSegments(pathPoints, commonPrefixCount, commonSuffixCount, maxBranchLen);
+        const trailLen = virtualPath.virtualLen;
 
         if (trailLen <= 0) {
             return;
@@ -241,7 +341,13 @@ function renderActiveTrails(svg, layout, originX, originY, activeIn, leadingPoin
             energyDots.push({ glow, dot, offset: dotSpacing * i });
         }
 
-        trailRenderers.push({ trailPath, trailLen, energyDots });
+        trailRenderers.push({
+            trailPath,
+            trailLen,
+            virtualLen: trailLen,
+            segments: virtualPath.segments,
+            energyDots
+        });
     });
 
     if (!trailRenderers.length) {
@@ -250,43 +356,50 @@ function renderActiveTrails(svg, layout, originX, originY, activeIn, leadingPoin
 
     svg.appendChild(dotGroup);
 
-    const state = trailRenderers.map(() => ({
-        distance: 0,
-        lastTime: null
-    }));
+    const maxTrailLen = trailRenderers.reduce((max, renderer) => Math.max(max, renderer.trailLen), 0);
+    const cycleDuration = Math.max(1800, (maxTrailLen / baseSpeed) * 1000);
+    const state = {
+        startTime: null
+    };
 
     const advanceDot = (timestamp) => {
         if (!svg.isConnected) {
             return;
         }
 
+        const occupiedPositions = new Set();
+        if (state.startTime === null) {
+            state.startTime = timestamp;
+        }
+
+        const elapsed = timestamp - state.startTime;
+        const progress = (elapsed % cycleDuration) / cycleDuration;
+
         trailRenderers.forEach((renderer, rendererIndex) => {
-            const rendererState = state[rendererIndex];
-            if (rendererState.lastTime === null) {
-                rendererState.lastTime = timestamp;
-            }
-
-            const delta = Math.max(0, timestamp - rendererState.lastTime);
-            rendererState.lastTime = timestamp;
-            rendererState.distance = (rendererState.distance + (delta / 1000) * speed) % renderer.trailLen;
-
             renderer.energyDots.forEach((energyDot, index) => {
-                const dotDistance = (rendererState.distance + energyDot.offset) % renderer.trailLen;
-                let point = null;
-                try {
-                    point = renderer.trailPath.getPointAtLength(dotDistance);
-                } catch (e) {
-                    point = null;
-                }
+                const offsetProgress = energyDot.offset / renderer.trailLen;
+                const dotDistance = ((progress + offsetProgress) % 1) * renderer.trailLen;
+                const point = getPointAtVirtualLength(renderer, dotDistance);
 
                 if (!point) {
                     return;
                 }
 
+                const positionKey = `${Math.round(point.x / 3)}:${Math.round(point.y / 3)}`;
+                const isDuplicatePosition = occupiedPositions.has(positionKey);
+                occupiedPositions.add(positionKey);
+
+                energyDot.dot.style.visibility = isDuplicatePosition ? 'hidden' : 'visible';
+                energyDot.glow.style.visibility = isDuplicatePosition ? 'hidden' : 'visible';
+
                 energyDot.dot.setAttribute('cx', point.x);
                 energyDot.dot.setAttribute('cy', point.y);
                 energyDot.glow.setAttribute('cx', point.x);
                 energyDot.glow.setAttribute('cy', point.y);
+
+                if (isDuplicatePosition) {
+                    return;
+                }
 
                 const pulsePhase = timestamp * glowPulseSpeed + index * 0.9 + rendererIndex * 0.3;
                 const pulse = 1 + Math.sin(pulsePhase) * glowPulseAmplitude;
@@ -315,13 +428,15 @@ function annotateConduct(node) {
         }
         case 'SERIES': {
             const children = node.children || [];
-            const allClosed = children.every((child) => annotateConduct(child));
+            const childStates = children.map((child) => annotateConduct(child));
+            const allClosed = childStates.every(Boolean);
             node._conduct = allClosed;
             return allClosed;
         }
         case 'PARALLEL': {
             const children = node.children || [];
-            const anyClosed = children.some((child) => annotateConduct(child));
+            const childStates = children.map((child) => annotateConduct(child));
+            const anyClosed = childStates.some(Boolean);
             node._conduct = anyClosed;
             return anyClosed;
         }
@@ -562,7 +677,7 @@ function drawLamp(svg, x, y, isOn, label) {
     const glow = createSvgElement('circle', {
         cx: 60,
         cy: 60,
-        r: 42,
+        r: 52,
         class: `switching-lamp-glow${isOn ? ' is-on' : ''}`
     });
 
@@ -641,13 +756,22 @@ function drawLamp(svg, x, y, isOn, label) {
 
     if (label) {
         const text = createSvgElement('text', {
-            x: x,
+            x: x - 10,
             y: topY - 8,
-            class: 'switching-label',
+            class: 'switching-label switching-output-label',
             'text-anchor': 'middle'
         });
         text.textContent = label;
         svg.appendChild(text);
+
+        const value = createSvgElement('text', {
+            x: x + 24,
+            y: topY - 8,
+            class: `switching-output-value${isOn ? ' is-on' : ' is-off'}`,
+            'text-anchor': 'middle'
+        });
+        value.textContent = isOn ? '1' : '0';
+        svg.appendChild(value);
     }
 
     return {
@@ -669,23 +793,23 @@ function drawSwitch(svg, x, y, node, activeIn) {
     const isActive = activeIn && node._conduct;
 
     const contactLeft = createSvgElement('circle', {
-        cx: startX + 4,
+        cx: startX + 3.5,
         cy: midY,
-        r: 4,
+        r: 3.5,
         class: 'switching-contact'
     });
 
     const contactRight = createSvgElement('circle', {
-        cx: endX - 4,
+        cx: endX - 3.5,
         cy: midY,
-        r: 4,
+        r: 3.5,
         class: 'switching-contact'
     });
 
-    const armEndX = isClosed ? endX - 6 : startX + width * 0.90;
-    const armEndY = isClosed ? midY : midY - 16;
+    const armEndX = isClosed ? endX - 5 : endX - 8;
+    const armEndY = isClosed ? midY : midY - 12;
     const arm = createSvgElement('line', {
-        x1: startX + 8,
+        x1: startX + 7,
         y1: midY,
         x2: armEndX,
         y2: armEndY,
@@ -698,17 +822,20 @@ function drawSwitch(svg, x, y, node, activeIn) {
         class: 'switching-label',
         'text-anchor': 'middle'
     });
-    label.textContent = node.name || '?';
+    const switchName = node.name || '?';
+    label.textContent = node.inverted && switchName !== '?' && switchName !== 'NOT'
+        ? `¬${switchName}`
+        : switchName;
 
     svg.appendChild(contactLeft);
     svg.appendChild(contactRight);
     svg.appendChild(arm);
     svg.appendChild(label);
 
-    // Inverted contacts are represented by the switch position only.
+    // Inverted input contacts are also marked in the label so De Morgan forms are readable.
 
     if (isActive) {
-        drawWire(svg, { x: startX + 8, y: midY }, { x: endX - 8, y: midY }, true);
+        drawWire(svg, { x: startX + 7, y: midY }, { x: endX - 7, y: midY }, true);
     }
 }
 
@@ -789,11 +916,30 @@ function renderNode(svg, layout, originX, originY, activeIn) {
         const busXIn = originX + layout.in.x;
         const busXOut = originX + layout.out.x;
         const connectorYs = layout.children.map((child) => originY + child.y + child.in.y);
+        const activeConnectorYs = layout.children
+            .filter((child) => child.node && child.node._conduct)
+            .map((child) => originY + child.y + child.in.y);
         const busTop = connectorYs.length ? Math.min(...connectorYs) : originY;
         const busBottom = connectorYs.length ? Math.max(...connectorYs) : originY + layout.height;
+        const busCenterY = originY + layout.in.y;
 
-        drawWire(svg, { x: busXIn, y: busTop }, { x: busXIn, y: busBottom }, busActive);
-        drawWire(svg, { x: busXOut, y: busTop }, { x: busXOut, y: busBottom }, busActive);
+        const drawSplitBus = (x, centerY) => {
+            const splitPoints = [...new Set([busTop, busBottom, centerY, ...connectorYs])].sort((a, b) => a - b);
+
+            for (let index = 0; index < splitPoints.length - 1; index += 1) {
+                const fromY = splitPoints[index];
+                const toY = splitPoints[index + 1];
+                const midY = (fromY + toY) / 2;
+                const segmentActive = busActive && activeConnectorYs.some((activeY) => (
+                    midY >= Math.min(centerY, activeY) && midY <= Math.max(centerY, activeY)
+                ));
+
+                drawWire(svg, { x, y: fromY }, { x, y: toY }, segmentActive);
+            }
+        };
+
+        drawSplitBus(busXIn, busCenterY);
+        drawSplitBus(busXOut, originY + layout.out.y);
 
         layout.children.forEach((child) => {
             const childOriginX = originX + child.x;
@@ -840,16 +986,17 @@ export function renderElectrical(svg, tree) {
     const layout = layoutNode(tree);
 
     const padX = 90;
-    const padY = 40;
+    const padY = 92;
+    const returnGap = 54;
     const circuitActive = Boolean(tree._conduct);
 
     const baseWidth = layout.width + padX * 2 + 200;
-    const baseHeight = Math.max(layout.height + padY * 2, 240);
+    const baseHeight = Math.max(layout.height + padY * 2 + returnGap, 240);
 
     svg.setAttribute('viewBox', `0 0 ${baseWidth} ${baseHeight}`);
 
     const originX = padX + 40;
-    const originY = (baseHeight - layout.height) / 2;
+    const originY = padY;
 
     const entry = { x: originX + layout.in.x, y: originY + layout.in.y };
     const exit = { x: originX + layout.out.x, y: originY + layout.out.y };
@@ -876,7 +1023,7 @@ export function renderElectrical(svg, tree) {
     renderNode(svg, layout, originX, originY, circuitActive);
 
     const lampX = exit.x + 90;
-    const returnY = exit.y + 90;
+    const returnY = Math.max(exit.y + 90, originY + layout.height + returnGap);
     const lampTerminals = drawLamp(svg, lampX, exit.y, circuitActive, tree.name || 'OUT');
     const lampEntry = lampTerminals.leftTerminal;
     const lampExit = lampTerminals.rightTerminal;

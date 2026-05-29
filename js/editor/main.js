@@ -6,11 +6,15 @@ import { updateElectricalView } from '../electrical/main.js';
 import { buildLogicTrees } from '../electrical/parser.js';
 
 const workspace = document.getElementById('workspace');
+const simulatorShell = document.getElementById('simulator-workspace');
+const editorToolbar = document.querySelector('.editor-toolbar');
+const componentsSection = simulatorShell?.querySelector('.toolbar-section--components');
 const nodeLayer = document.getElementById('node-layer');
 const wireLayer = document.getElementById('wire-layer');
 const handleLayer = document.getElementById('wire-handles');
 const expressionLabel = document.getElementById('expression-label');
 const deleteToggleBtn = document.querySelector('[data-action="toggle-delete"]');
+const expandToggleBtn = document.querySelector('[data-action="toggle-expand"]');
 const tutorialStartBtns = document.querySelectorAll('[data-action="start-tutorial"]');
 const switchingTabBtn = document.getElementById('tab-switching');
 const zoomLabel = document.getElementById('zoom-label');
@@ -36,6 +40,7 @@ let previewPath = null;
 let deleteMode = false;
 let zoomLevel = 1;
 const panOffset = { x: 0, y: 0 };
+const mobileLayoutQuery = window.matchMedia('(max-width: 899px)');
 
 const tutorialState = {
     active: false,
@@ -574,7 +579,7 @@ function buildTutorialSteps() {
         {
             title: 'Spawn de portas',
             description: 'Use esses botoes para adicionar portas. Comece com Input, Input e uma porta logica como AND.',
-            selector: '.editor-toolbar [data-add="AND"]',
+            selector: '.simulator-shell [data-add="AND"]',
             beforeStep: () => tabSim?.click()
         },
         {
@@ -753,6 +758,8 @@ function addGate(type, x = 120, y = 120, options = {}) {
     const gate = createGate(type, x, y);
     if (options.label) {
         gate.label = options.label;
+    } else if (type === 'INPUT') {
+        gate.label = getNextInputLabel();
     }
     state.gates.push(gate);
     const node = renderGate(gate, nodeLayer);
@@ -760,6 +767,18 @@ function addGate(type, x = 120, y = 120, options = {}) {
     updateGateValues(gate, node);
     updateAllWires();
     return gate;
+}
+
+function getNextInputLabel() {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const usedLabels = new Set(
+        state.gates
+            .filter((gate) => gate.type === 'INPUT' && gate.label)
+            .map((gate) => gate.label.toUpperCase())
+    );
+
+    const nextLabel = alphabet.split('').find((letter) => !usedLabels.has(letter));
+    return nextLabel || `I${usedLabels.size + 1}`;
 }
 
 // Remove uma porta e apaga os fios ligados a ela.
@@ -1240,6 +1259,61 @@ function handleZoomClick(event) {
     }
 }
 
+function handleWorkspaceWheel(event) {
+    if (!panDrag || !workspace.contains(event.target)) {
+        return;
+    }
+
+    event.preventDefault();
+    changeZoom(event.deltaY < 0 ? 1 : -1);
+}
+
+function setExpandedMode(isExpanded) {
+    if (!simulatorShell || !expandToggleBtn) {
+        return;
+    }
+
+    simulatorShell.classList.toggle('is-expanded', isExpanded);
+    expandToggleBtn.setAttribute('aria-pressed', String(isExpanded));
+    expandToggleBtn.classList.toggle('is-active', isExpanded);
+
+    const label = expandToggleBtn.querySelector('span');
+    if (label) {
+        label.textContent = isExpanded ? 'Normal' : 'Expandir';
+    }
+
+    requestAnimationFrame(() => {
+        updateAllWires();
+    });
+}
+
+function handleExpandToggle(event) {
+    const btn = event.target.closest('[data-action="toggle-expand"]');
+    if (!btn) {
+        return;
+    }
+
+    setExpandedMode(!simulatorShell?.classList.contains('is-expanded'));
+}
+
+function syncComponentsPlacement() {
+    if (!simulatorShell || !editorToolbar || !componentsSection) {
+        return;
+    }
+
+    if (mobileLayoutQuery.matches) {
+        if (componentsSection.parentElement !== editorToolbar) {
+            editorToolbar.insertBefore(componentsSection, editorToolbar.firstElementChild);
+        }
+        setExpandedMode(false);
+        return;
+    }
+
+    if (componentsSection.parentElement !== simulatorShell) {
+        simulatorShell.insertBefore(componentsSection, editorToolbar);
+    }
+}
+
 // Indica se a expressão é simples o bastante para exibição direta.
 function isSimple(expr) {
     return /^[A-Z0-9?]+$/i.test(expr);
@@ -1248,6 +1322,13 @@ function isSimple(expr) {
 // Envolve a expressão com parênteses quando necessário.
 function wrap(expr) {
     return isSimple(expr) ? expr : `(${expr})`;
+}
+
+// Em uma multiplicação lógica, somas precisam de parênteses para preservar a árvore.
+function wrapProductPart(expr) {
+    return expr.includes(' + ') || expr.includes(' ⊕ ') || expr.includes(' ⊙ ')
+        ? wrap(expr)
+        : expr;
 }
 
 // Junta partes simbólicas de uma expressão em uma forma legível.
@@ -1316,7 +1397,7 @@ function computeExpression() {
                 const andParts = [];
                 const gateAnd = gateMap.get(gateId);
                 for (let i = 0; i < (gateAnd.inputs?.length || 2); i += 1) {
-                    andParts.push(inputExpr(i));
+                    andParts.push(wrapProductPart(inputExpr(i)));
                 }
                 expr = combine(andParts.join(' · '), andParts.join(' AND '));
                 break;
@@ -1334,7 +1415,7 @@ function computeExpression() {
                 const nandParts = [];
                 const gateNand = gateMap.get(gateId);
                 for (let i = 0; i < (gateNand.inputs?.length || 2); i += 1) {
-                    nandParts.push(inputExpr(i));
+                    nandParts.push(wrapProductPart(inputExpr(i)));
                 }
                 expr = combine(`¬(${nandParts.join(' · ')})`, nandParts.join(' NAND '));
                 break;
@@ -1504,6 +1585,9 @@ function setupPreset() {
 
 // Inicializa os eventos e o estado inicial do editor.
 function init() {
+    syncComponentsPlacement();
+    mobileLayoutQuery.addEventListener('change', syncComponentsPlacement);
+
     document.querySelectorAll('[data-add]').forEach((btn) => {
         btn.addEventListener('click', handleAddClick);
     });
@@ -1518,9 +1602,11 @@ function init() {
     }
     document.addEventListener('click', handleClearSimulator);
     document.addEventListener('click', handleZoomClick);
+    document.addEventListener('click', handleExpandToggle);
 
     workspace.addEventListener('pointerdown', handleWorkspacePointerDown);
     workspace.addEventListener('click', handleWireClick);
+    workspace.addEventListener('wheel', handleWorkspaceWheel, { passive: false });
     window.addEventListener('pointermove', handleWorkspacePointerMove);
     window.addEventListener('pointerup', handleWorkspacePointerUp);
     nodeLayer.addEventListener('click', handleNodeClick);
