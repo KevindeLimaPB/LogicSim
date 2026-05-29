@@ -1435,7 +1435,11 @@ body.simulator-page.theme-light .example-loaded-tip__progress {
 @media (max-width: 1120px) {
     .simulator-page .editor-toolbar {
         grid-template-columns: 1fr 1fr;
-        gap: 16px 0;
+        gap: 16px;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--expression {
+        grid-column: 1 / -1;
     }
 
     .simulator-page .editor-toolbar .toolbar-btn {
