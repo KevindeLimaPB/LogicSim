@@ -885,6 +885,10 @@ body.simulator-page.theme-light .theme-toggle-btn {
     stroke-linejoin: round;
 }
 
+.drawer-gate-icon--not {
+    stroke-width: 2.1;
+}
+
 .drawer-gate-icon--nand,
 .drawer-gate-icon--nor,
 .drawer-gate-icon--xor,
@@ -976,6 +980,33 @@ body.simulator-page.theme-light .theme-toggle-btn {
     text-transform: uppercase;
 }
 
+.switching-zoom-wrap {
+    display: grid;
+    gap: 8px;
+}
+
+.switching-zoom {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.switching-zoom-label {
+    color: #8d98ad;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.switching-zoom .toolbar-btn--zoom {
+    width: 42px;
+    min-width: 42px;
+    padding: 0;
+    justify-content: center;
+}
+
 .switching-selector {
     display: inline-flex;
     align-items: center;
@@ -1008,17 +1039,31 @@ body.simulator-page.theme-light .theme-toggle-btn {
 
 .switching-canvas {
     position: relative;
-    min-height: 320px;
+    height: 520px;
+    min-height: 520px;
     border-radius: 22px;
     border: 1px solid rgba(148, 163, 184, 0.14);
     background: linear-gradient(180deg, rgba(6, 10, 20, 0.96), rgba(8, 14, 26, 0.92));
+    cursor: grab;
     overflow: hidden;
+    touch-action: none;
+    user-select: none;
+}
+
+.switching-canvas.is-panning {
+    cursor: grabbing;
+    user-select: none;
 }
 
 .switching-svg {
-    width: 100%;
-    height: 360px;
+    position: absolute;
+    left: var(--switching-pan-x, 0);
+    top: var(--switching-pan-y, 0);
+    width: var(--switching-svg-width, 100%);
+    height: var(--switching-svg-height, 360px);
+    min-width: 100%;
     display: block;
+    will-change: left, top;
 }
 
 .switching-empty {
@@ -1032,6 +1077,13 @@ body.simulator-page.theme-light .theme-toggle-btn {
     font-size: 0.95rem;
     padding: 0 18px;
     pointer-events: none;
+}
+
+.switching-svg {
+    /* cor das bolinhas/energia usada também no glow da lâmpada */
+    --switching-energy: #ffd43b;
+    --switching-energy-glow-1: rgba(255, 212, 59, 0.72);
+    --switching-energy-glow-2: rgba(255, 193, 7, 0.42);
 }
 
 .switching-svg .switching-wire {
@@ -1051,7 +1103,7 @@ body.simulator-page.theme-light .theme-toggle-btn {
 }
 
 .switching-svg .switching-energy-dot {
-    fill: #f59e0b; /* amarelo educacional */
+    fill: var(--switching-energy); /* amarelo educacional */
     stroke: none;
 }
 
@@ -1081,6 +1133,16 @@ body.simulator-page.theme-light .theme-toggle-btn {
     font-weight: 600;
     text-transform: none;
     letter-spacing: normal;
+}
+
+.switching-svg .switching-output-value {
+    fill: #ff8181;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.switching-svg .switching-output-value.is-on {
+    fill: #18a957;
 }
 
 /* bateria com contorno claro e corpo sutil */
@@ -1122,8 +1184,9 @@ body.simulator-page.theme-light .theme-toggle-btn {
 }
 
 .switching-svg .switching-lamp.is-on .switching-lamp-body {
-    fill: rgba(43, 108, 176, 0.18);
-    stroke: #8fc1ff;
+    fill: rgba(255, 212, 59, 0.24);
+    stroke: #ffe680;
+    filter: drop-shadow(0 0 6px var(--switching-energy-glow-1));
 }
 
 .switching-svg .switching-lamp-filament,
@@ -1146,29 +1209,50 @@ body.simulator-page.theme-light .theme-toggle-btn {
 }
 
 .switching-svg .switching-lamp-glow {
-    fill: #2b6cb0;
+    fill: var(--switching-energy);
     opacity: 0;
 }
 
 .switching-svg .switching-lamp-glow.is-on {
-    opacity: 0.3;
+    opacity: 1; /* 100% durante a animação */
     transform-box: fill-box;
     transform-origin: center;
-    animation: switching-lamp-glow-pulse 1.8s ease-in-out infinite;
-    filter: drop-shadow(0 0 6px rgba(43, 108, 176, 0.6))
-        drop-shadow(0 0 18px rgba(43, 108, 176, 0.3));
+    animation: switching-lamp-glow-pulse 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px var(--switching-energy))
+        drop-shadow(0 0 8px var(--switching-energy-glow-1));
 }
 
 @keyframes switching-lamp-glow-pulse {
     0%,
     100% {
         transform: scale(0.94);
-        opacity: 0.24;
+        opacity: 1;
     }
 
     50% {
         transform: scale(1.14);
-        opacity: 0.48;
+        opacity: 1;
+    }
+}
+
+.switching-svg .switching-lamp-glow.is-on {
+    opacity: 0.58;
+    animation: switching-lamp-glow-pulse-strong 1.35s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px var(--switching-energy))
+        drop-shadow(0 0 18px var(--switching-energy-glow-1))
+        drop-shadow(0 0 30px var(--switching-energy-glow-2));
+}
+
+@keyframes switching-lamp-glow-pulse-strong {
+    0%,
+    100% {
+        transform: scale(0.96);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.18);
+        opacity: 0.78;
     }
 }
 
@@ -1190,16 +1274,16 @@ body.simulator-page.theme-light .theme-toggle-btn {
 
 /* bolinhas animadas de energia */
 .switching-svg .switching-energy-dot {
-    fill: #f59e0b;
+    fill: var(--switching-energy);
     stroke: none;
 }
 
 .switching-svg .switching-energy-glow {
-    fill: #f59e0b;
+    fill: var(--switching-energy);
     stroke: none;
     opacity: 0.24;
-    filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.55))
-        drop-shadow(0 0 8px rgba(245, 158, 11, 0.28));
+    filter: drop-shadow(0 0 2px var(--switching-energy-glow-1))
+        drop-shadow(0 0 8px var(--switching-energy-glow-2));
 }
 
 .switching-svg .switching-energy-dots {

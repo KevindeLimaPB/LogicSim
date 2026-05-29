@@ -1079,35 +1079,27 @@ body.simulator-page.theme-dark .wire.preview {
     white-space: nowrap;
 }
 
-.simulator-page .editor-toolbar .toolbar-btn[data-add="INPUT"] i,
-.simulator-page .editor-toolbar .toolbar-btn[data-add="OUTPUT"] i,
+.simulator-page .toolbar-section--components .toolbar-btn[data-add] i,
+.simulator-page .toolbar-section--components .toolbar-btn[data-add] svg {
+    color: #73aaff;
+    stroke: #73aaff !important;
+}
+
+.simulator-page .toolbar-section--components .toolbar-btn[data-add="NOT"] svg {
+    stroke-width: 2.1;
+}
+
 .simulator-page .editor-toolbar .toolbar-btn[data-action="clear-simulator"] i {
     color: #73aaff;
 }
 
-.simulator-page .editor-toolbar .toolbar-btn[data-add="AND"] svg,
-.simulator-page .editor-toolbar .toolbar-btn[data-add="OUTPUT"] i {
-    color: #65dc83;
-    stroke: #65dc83 !important;
-}
-
-.simulator-page .editor-toolbar .toolbar-btn[data-add="OR"] svg,
 .simulator-page .editor-toolbar .toolbar-btn[data-action="toggle-delete"] i {
     color: #ff6666;
-    stroke: #ff6666 !important;
 }
 
-.simulator-page .editor-toolbar .toolbar-btn[data-add="NOT"] svg {
-    color: #ff4040;
-    stroke: #ff4040 !important;
-}
-
-.simulator-page .editor-toolbar .toolbar-btn[data-add="NAND"] svg,
-.simulator-page .editor-toolbar .toolbar-btn[data-add="NOR"] svg,
-.simulator-page .editor-toolbar .toolbar-btn[data-add="XOR"] svg,
-.simulator-page .editor-toolbar .toolbar-btn[data-add="XNOR"] svg {
-    color: #ff6666;
-    stroke: #ff6666 !important;
+.simulator-page .editor-toolbar .toolbar-btn[data-add="OUTPUT"] i {
+    color: #73aaff;
+    stroke: #73aaff !important;
 }
 
 .simulator-page .editor-toolbar .toolbar-btn:hover,
@@ -1237,6 +1229,7 @@ body.simulator-page.theme-light .about-card {
 
 body.simulator-page.theme-light .switching-canvas,
 body.simulator-page.theme-light .switching-status,
+body.simulator-page.theme-light .switching-zoom,
 body.simulator-page.theme-light .switching-selector {
     background: rgba(248, 250, 253, 0.96) !important;
     border-color: rgba(60, 64, 67, 0.14) !important;
@@ -1273,6 +1266,23 @@ body.simulator-page.theme-light .switching-svg .switching-label {
     fill: #202124;
 }
 
+body.simulator-page.theme-light .switching-svg .switching-output-label {
+    fill: #000000;
+}
+
+body.simulator-page.theme-light .switching-svg .switching-output-value.is-on {
+    fill: #008a34;
+}
+
+body.simulator-page.theme-light .node-output .pin-row span {
+    color: #000000;
+}
+
+body.simulator-page.theme-light .node-output .node-value.is-on {
+    color: #008a34;
+    text-shadow: 0 0 8px rgba(0, 138, 52, 0.22);
+}
+
 body.simulator-page.theme-light .switching-svg .switching-contact,
 body.simulator-page.theme-light .switching-svg .switching-invert {
     fill: #ffffff;
@@ -1297,6 +1307,7 @@ body.simulator-page.theme-light .switching-svg .switching-lamp-body {
 body.simulator-page.theme-dark .switching-shell,
 body.simulator-page.theme-dark .switching-canvas,
 body.simulator-page.theme-dark .switching-status,
+body.simulator-page.theme-dark .switching-zoom,
 body.simulator-page.theme-dark .switching-selector {
     background: rgba(8, 14, 24, 0.95) !important;
     border-color: rgba(148, 163, 184, 0.12) !important;
@@ -1424,7 +1435,11 @@ body.simulator-page.theme-light .example-loaded-tip__progress {
 @media (max-width: 1120px) {
     .simulator-page .editor-toolbar {
         grid-template-columns: 1fr 1fr;
-        gap: 16px 0;
+        gap: 16px;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--expression {
+        grid-column: 1 / -1;
     }
 
     .simulator-page .editor-toolbar .toolbar-btn {
