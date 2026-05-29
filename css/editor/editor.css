@@ -827,8 +827,9 @@
     }
 
     .toolbar-group--zoom {
-        width: 100%;
-        justify-content: center;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        
     }
 
     .toolbar-group--actions {

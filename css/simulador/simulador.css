@@ -980,6 +980,12 @@ body.simulator-page.theme-light .theme-toggle-btn {
     text-transform: uppercase;
 }
 
+@media (max-width: 600px){
+    .switching-status {
+        display: none;
+    }
+}
+
 .switching-zoom-wrap {
     display: grid;
     gap: 8px;
