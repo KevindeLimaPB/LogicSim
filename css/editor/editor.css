@@ -189,7 +189,9 @@
 
 .toolbar-expression {
     display: grid;
+    grid-template-columns: minmax(0, 1fr) 26px 26px;
     gap: 6px;
+    position: relative;
     width: 100%;
     min-width: 0;
     max-width: 100%;
@@ -208,6 +210,86 @@
     text-transform: uppercase;
 }
 
+.toolbar-expression .expression-list {
+    max-height: 1.45em;
+    overflow: hidden;
+}
+
+/* Garantir que a lista de expressões ocupe apenas a primeira coluna */
+.toolbar-expression > .expression-list {
+    grid-column: 1 / 2;
+    min-width: 0;
+}
+
+/* Contêiner que agrupa os botões de copiar e expandir */
+.toolbar-expression .toolbar-expression-controls {
+    grid-column: 2 / 4;
+    display: inline-flex;
+    gap: 6px;
+    justify-self: end;
+    align-items: center;
+}
+
+/* Quando recolhido, reduzir o contêiner para caber só o botão de copiar */
+.toolbar-expression:not(.is-expanded) .toolbar-expression-controls {
+    grid-column: 3;
+    width: 26px;
+    padding: 0;
+    gap: 0;
+    justify-self: end;
+}
+
+/* Estado expandido: permitir largura automática e espaçamento entre botões */
+.toolbar-expression.is-expanded .toolbar-expression-controls {
+    grid-column: 2 / 4;
+    width: auto;
+    gap: 6px;
+}
+
+.toolbar-expression:not(.is-expanded) .expression-item:nth-child(n+2) {
+    display: none;
+}
+
+.toolbar-expression.is-expanded .expression-list {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    max-height: min(260px, 45vh);
+    overflow: auto;
+    padding: 10px 12px;
+    border: 1px solid rgba(89, 102, 126, 0.28);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(20, 29, 45, 0.98), rgba(12, 19, 32, 0.98));
+    box-shadow: 0 18px 32px rgba(0, 0, 0, 0.28);
+}
+
+.toolbar-expression-cards {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+    min-width: 0;
+}
+
+.toolbar-expression-cards > [hidden] {
+    display: none;
+}
+
+.toolbar-expression-cards:has(.toolbar-expression-card--simplified[hidden]) {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.toolbar-expression-cards:not(.has-simplified-expression) {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.toolbar-expression-card {
+    display: grid;
+    gap: 9px;
+    min-width: 0;
+}
+
 .expression-list {
     display: grid;
     gap: 6px;
@@ -219,6 +301,61 @@
 
 .expression-item {
     white-space: nowrap;
+}
+
+.expression-item--output {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) 26px;
+    align-items: baseline;
+    gap: 8px;
+    padding: 2px 0;
+    cursor: pointer;
+}
+
+.expression-output-name {
+    color: #9edbff;
+    font-weight: 800;
+}
+
+.expression-output-equals {
+    color: #9fb1c7;
+    font-weight: 700;
+}
+
+.expression-output-value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.expression-expand-btn {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #9aa7bc;
+    cursor: pointer;
+}
+
+.expression-expand-btn[hidden] {
+    display: none !important;
+}
+
+.expression-expand-btn:hover {
+    color: #eef4ff;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.toolbar-expression.is-expanded .expression-expand-btn i {
+    transform: rotate(180deg);
+}
+
+.expression-expand-btn i {
+    transition: transform 0.18s ease;
 }
 
 .editor-workspace {
@@ -307,6 +444,15 @@
 .node:hover {
     border-color: rgba(76, 201, 255, 0.26);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.26);
+}
+
+.node.circuit-flash {
+    border-color: rgba(101, 220, 131, 0.9);
+    box-shadow: 0 0 0 2px rgba(101, 220, 131, 0.2), 0 0 22px rgba(101, 220, 131, 0.35);
+}
+
+.node.node-svg.circuit-flash .node-graphic svg {
+    filter: drop-shadow(0 0 8px rgba(101, 220, 131, 0.5));
 }
 
 .node.dragging {
@@ -726,6 +872,12 @@
     filter: drop-shadow(0 0 4px rgba(76, 201, 255, 0.45));
 }
 
+.wire.circuit-flash {
+    stroke: #65dc83;
+    stroke-width: 5;
+    filter: drop-shadow(0 0 6px rgba(101, 220, 131, 0.7));
+}
+
 .wire-energy-dots {
     display: none;
     pointer-events: none;
@@ -733,6 +885,15 @@
 
 .wire-energy-dots.active {
     display: block;
+}
+
+.wire-energy-dots.circuit-flash {
+    display: block;
+}
+
+.wire-energy-dots.circuit-flash circle {
+    fill: #65dc83;
+    filter: drop-shadow(0 0 6px rgba(101, 220, 131, 0.9));
 }
 
 .wire-energy-dots circle {

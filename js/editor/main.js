@@ -2,8 +2,10 @@ import { createGate } from './gates.js';
 import { createWire } from './wires.js';
 import { renderGate, updateGatePosition, updateGateValues, updateWirePath, getPinCenter } from './renderer.js';
 import { recompute } from './simulator.js';
-import { updateElectricalView } from '../electrical/main.js';
+import { pauseElectricalView, updateElectricalView } from '../electrical/main.js';
 import { buildLogicTrees } from '../electrical/parser.js';
+import { convertLogicToElectrical } from '../electrical/converter.js';
+import { simplifyLogicTree } from '../electrical/simplifier.js';
 
 const workspace = document.getElementById('workspace');
 const simulatorShell = document.getElementById('simulator-workspace');
@@ -12,13 +14,19 @@ const componentsSection = simulatorShell?.querySelector('.toolbar-section--compo
 const nodeLayer = document.getElementById('node-layer');
 const wireLayer = document.getElementById('wire-layer');
 const handleLayer = document.getElementById('wire-handles');
+const expressionCards = document.querySelector('.toolbar-expression-cards');
 const expressionLabel = document.getElementById('expression-label');
+const simplifiedExpressionCard = document.getElementById('simplified-expression-card');
+const simplifiedExpressionLabel = document.getElementById('simplified-expression-label');
+const expressionExpandBtn = document.querySelector('[data-action="toggle-expression-list"]');
+const simplifiedExpressionExpandBtn = document.querySelector('[data-action="toggle-simplified-expression-list"]');
 const deleteToggleBtn = document.querySelector('[data-action="toggle-delete"]');
 const expandToggleBtn = document.querySelector('[data-action="toggle-expand"]');
 const tutorialStartBtns = document.querySelectorAll('[data-action="start-tutorial"]');
 const switchingTabBtn = document.getElementById('tab-switching');
 const zoomLabel = document.getElementById('zoom-label');
 const expressionCopyBtn = document.querySelector('[data-action="copy-expression"]');
+const simplifiedExpressionCopyBtn = document.querySelector('[data-action="copy-simplified-expression"]');
 
 const state = {
     gates: [],
@@ -72,6 +80,15 @@ let exampleLoadedTipShowTimeoutId = 0;
 let exampleLoadedTipHideTimeoutId = 0;
 let truthTableCircuitIndex = 0;
 let openedFromExample = false;
+let selectedExpressionIndex = 0;
+let expressionEntries = [];
+let simplifiedExpressionEntries = [];
+let currentOutputGateIds = [];
+let circuitFlashTimeoutId = 0;
+let isSimulatorViewVisible = true;
+let simulatorViewDirty = false;
+let isSwitchingViewVisible = false;
+let switchingViewDirty = true;
 
 // Exibe o glow do botão de comutação por um período após alterações do circuito.
 function signalCircuitChange() {
@@ -90,13 +107,14 @@ function signalCircuitChange() {
     }, switchingGlowInactivityMs);
 }
 
-// Mostra uma mensagem curta no canto da tela quando o simulador abre por exemplo.
-function showExampleLoadedTip() {
+// Mostra uma mensagem curta no canto da tela.
+function showExampleLoadedTip(message = 'Exemplo carregado') {
     const tip = document.querySelector('.example-loaded-tip');
     if (!tip) {
         return;
     }
 
+    const text = tip.querySelector('.example-loaded-tip__text');
     const progressBar = tip.querySelector('.example-loaded-tip__progress-bar');
 
     if (exampleLoadedTipShowTimeoutId) {
@@ -109,16 +127,20 @@ function showExampleLoadedTip() {
         exampleLoadedTipHideTimeoutId = 0;
     }
 
+    if (text) {
+        text.textContent = message;
+    }
+
     tip.setAttribute('aria-hidden', 'false');
     tip.classList.add('is-visible');
 
     if (progressBar) {
-        progressBar.style.transform = 'scaleX(1)';
-        progressBar.style.transition = `transform ${exampleLoadedTipVisibleMs}ms linear`;
+        progressBar.style.setProperty('transition', 'none', 'important');
+        progressBar.style.setProperty('transform', 'scaleX(1)', 'important');
+        progressBar.offsetWidth;
         requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                progressBar.style.transform = 'scaleX(0)';
-            });
+            progressBar.style.setProperty('transition', `transform ${exampleLoadedTipVisibleMs}ms linear`, 'important');
+            progressBar.style.setProperty('transform', 'scaleX(0)', 'important');
         });
     }
 
@@ -127,8 +149,8 @@ function showExampleLoadedTip() {
         tip.setAttribute('aria-hidden', 'true');
         exampleLoadedTipHideTimeoutId = window.setTimeout(() => {
             if (progressBar) {
-                progressBar.style.transition = '';
-                progressBar.style.transform = '';
+                progressBar.style.removeProperty('transition');
+                progressBar.style.removeProperty('transform');
             }
             exampleLoadedTipHideTimeoutId = 0;
         }, exampleLoadedTipExitMs);
@@ -146,13 +168,31 @@ function scrollToSimulatorWorkspace() {
     simulatorWorkspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Copia a expressão booleana exibida no toolbar.
-async function copyExpression() {
-    if (!expressionLabel || !expressionCopyBtn) {
+function syncElectricalView() {
+    switchingViewDirty = true;
+
+    if (!isSwitchingViewVisible) {
         return;
     }
 
-    const expressionText = expressionLabel.innerText.trim();
+    updateElectricalView(state);
+    switchingViewDirty = false;
+}
+
+function pauseSimulatorView() {
+    clearCircuitFlash();
+    state.wires.forEach((wire) => {
+        wire.energyDots?.classList.remove('active');
+    });
+}
+
+// Copia a expressão booleana exibida no toolbar.
+async function copyExpressionFrom(labelElement, buttonElement) {
+    if (!labelElement || !buttonElement) {
+        return;
+    }
+
+    const expressionText = labelElement.innerText.trim();
     if (!expressionText || expressionText === '-') {
         return;
     }
@@ -171,11 +211,97 @@ async function copyExpression() {
         textarea.remove();
     }
 
-    expressionCopyBtn.classList.add('is-copied');
-    window.setTimeout(() => expressionCopyBtn.classList.remove('is-copied'), 900);
+    buttonElement.classList.add('is-copied');
+    window.setTimeout(() => buttonElement.classList.remove('is-copied'), 900);
+}
+
+async function copyExpression() {
+    copyExpressionFrom(expressionLabel, expressionCopyBtn);
+}
+
+async function copySimplifiedExpression() {
+    copyExpressionFrom(simplifiedExpressionLabel, simplifiedExpressionCopyBtn);
+}
+
+async function copyExpressionRow(buttonElement) {
+    if (!buttonElement) {
+        return;
+    }
+
+    const expressionText = buttonElement.dataset.copyText || '';
+    if (!expressionText) {
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(expressionText);
+    } catch (error) {
+        const textarea = document.createElement('textarea');
+        textarea.value = expressionText;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+    }
+
+    buttonElement.classList.add('is-copied');
+    window.setTimeout(() => buttonElement.classList.remove('is-copied'), 900);
+}
+
+// Dispara a cópia dos botões individuais das expressões renderizadas dinamicamente.
+function handleExpressionRowCopyClick(event) {
+    const buttonElement = event.target.closest('[data-action="copy-expression-row"]');
+    if (!buttonElement) {
+        return;
+    }
+
+    copyExpressionRow(buttonElement);
+}
+
+function syncExpressionExpandButton(buttonElement, cardElement, lineCount) {
+    if (!buttonElement || !cardElement) {
+        return;
+    }
+
+    const canExpand = lineCount > 1;
+    buttonElement.hidden = !canExpand;
+    buttonElement.setAttribute('aria-expanded', 'false');
+    buttonElement.title = canExpand ? 'Mostrar todas as expressões' : '';
+    cardElement.classList.remove('is-expanded');
 }
 
 // Converte a posição do mouse para as coordenadas do simulador.
+function setExpressionCardsExpanded(expanded) {
+    const normalCard = expressionLabel?.closest('.toolbar-expression');
+    const simplifiedCard = simplifiedExpressionLabel?.closest('.toolbar-expression');
+
+    [normalCard, simplifiedCard].forEach((card) => {
+        card?.classList.toggle('is-expanded', expanded);
+    });
+
+    [expressionExpandBtn, simplifiedExpressionExpandBtn].forEach((button) => {
+        if (!button || button.hidden) {
+            return;
+        }
+        button.setAttribute('aria-expanded', String(expanded));
+        button.title = expanded ? 'Recolher expressões' : 'Mostrar todas as expressões';
+    });
+}
+
+function toggleExpressionCards(buttonElement) {
+    if (!buttonElement || buttonElement.hidden) {
+        return;
+    }
+
+    const normalCard = expressionLabel?.closest('.toolbar-expression');
+    const simplifiedCard = simplifiedExpressionLabel?.closest('.toolbar-expression');
+    const expanded = !(normalCard?.classList.contains('is-expanded') || simplifiedCard?.classList.contains('is-expanded'));
+    setExpressionCardsExpanded(expanded);
+}
+
 function screenToWorld(event) {
     const workspaceRect = workspace.getBoundingClientRect();
 
@@ -829,7 +955,7 @@ function clearSimulator() {
     state.wires = [];
     state.nodes.clear();
     expressionLabel.textContent = '-';
-    updateElectricalView(state);
+    syncElectricalView();
 }
 
 // Cria um fio visual e registra a conexão entre portas.
@@ -924,9 +1050,15 @@ function updateAllWires() {
     });
 }
 
-// Reavalia o circuito e sincroniza a interface com os novos valores.
-function updateSimulation() {
-    recompute(state);
+function syncOutputLabels() {
+    state.gates
+        .filter((gate) => gate.type === 'OUTPUT')
+        .forEach((gate, index) => {
+            gate.label = `Y${index + 1}`;
+        });
+}
+
+function syncSimulatorVisuals() {
     state.gates.forEach((gate) => {
         const node = state.nodes.get(gate.id);
         if (node) {
@@ -935,7 +1067,21 @@ function updateSimulation() {
     });
     updateAllWires();
     computeExpression();
-    updateElectricalView(state);
+    simulatorViewDirty = false;
+}
+
+// Reavalia o circuito e sincroniza a interface com os novos valores.
+function updateSimulation() {
+    recompute(state);
+    syncOutputLabels();
+
+    if (isSimulatorViewVisible) {
+        syncSimulatorVisuals();
+    } else {
+        simulatorViewDirty = true;
+    }
+
+    syncElectricalView();
 }
 
 // Trata o clique nos botões que adicionam novas portas.
@@ -1336,7 +1482,244 @@ function combine(symbolic) {
     return symbolic;
 }
 
-// Monta a expressão booleana correspondente ao circuito atual.
+function countElectricalSwitches(node) {
+    if (!node) {
+        return 0;
+    }
+
+    switch (node.type) {
+        case 'SWITCH':
+            return 1;
+        case 'OUTPUT':
+            return countElectricalSwitches(node.child);
+        case 'INVERT':
+            return 1 + countElectricalSwitches(node.child);
+        case 'SERIES':
+        case 'PARALLEL':
+            return (node.children || []).reduce((sum, child) => sum + countElectricalSwitches(child), 0);
+        default:
+            return 0;
+    }
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function buildTreeExpression(node) {
+    if (!node) {
+        return '?';
+    }
+
+    const children = node.inputs || [];
+
+    switch (node.type) {
+        case 'OUTPUT':
+            return buildTreeExpression(node.input || node.child);
+        case 'INPUT':
+            return node.name || 'A';
+        case 'CONST':
+            return node.value ? '1' : '0';
+        case 'NOT':
+            return `¬${wrap(buildTreeExpression(children[0]))}`;
+        case 'AND':
+            return children.map((child) => wrapProductPart(buildTreeExpression(child))).join(' · ');
+        case 'OR':
+            return children.map((child) => buildTreeExpression(child)).join(' + ');
+        case 'NAND':
+            return `¬(${children.map((child) => wrapProductPart(buildTreeExpression(child))).join(' · ')})`;
+        case 'NOR':
+            return `¬(${children.map((child) => buildTreeExpression(child)).join(' + ')})`;
+        case 'XOR':
+            return children.map((child) => buildTreeExpression(child)).join(' ⊕ ');
+        case 'XNOR':
+            return children.map((child) => buildTreeExpression(child)).join(' ⊙ ');
+        default:
+            return '?';
+    }
+}
+
+function getSimplifiedExpression(root, inputValues, normalExpr) {
+    if (!root) {
+        return null;
+    }
+
+    const normalElectrical = convertLogicToElectrical(root, inputValues);
+    const simplifiedRoot = simplifyLogicTree(root, inputValues);
+    const simplifiedElectrical = convertLogicToElectrical(simplifiedRoot, inputValues);
+    const canSimplify = countElectricalSwitches(simplifiedElectrical) < countElectricalSwitches(normalElectrical);
+
+    if (!canSimplify) {
+        return null;
+    }
+
+    const simplifiedExpr = buildTreeExpression(simplifiedRoot);
+    return simplifiedExpr && simplifiedExpr !== normalExpr ? simplifiedExpr : null;
+}
+
+// Monta uma linha de expressão booleana correspondente ao circuito atual.
+function buildExpressionLine(outputLabel, expression, outputIndex, isSelected = false) {
+    const copyText = `${outputLabel} = ${expression}`;
+    return `<div class="expression-item expression-item--output${isSelected ? ' is-selected' : ''}" data-expression-index="${outputIndex}" aria-selected="${isSelected ? 'true' : 'false'}">`
+        + `<span class="expression-output-name">${escapeHtml(outputLabel)}</span>`
+        + `<span class="expression-output-equals">=</span>`
+        + `<span class="expression-output-value">${escapeHtml(expression)}</span>`
+        + `<button class="expression-copy-btn expression-copy-btn--line" data-action="copy-expression-row" data-copy-text="${escapeHtml(copyText)}" type="button" aria-label="Copiar ${escapeHtml(outputLabel)}" title="Copiar ${escapeHtml(outputLabel)}">`
+        + `<i class="fa-regular fa-copy" aria-hidden="true"></i>`
+        + `</button>`
+        + `</div>`;
+}
+
+function buildUnavailableExpressionLine(expression) {
+    return `<div class="expression-item expression-item--output expression-item--status">`
+        + `<span class="expression-output-name" aria-hidden="true"></span>`
+        + `<span class="expression-output-equals" aria-hidden="true"></span>`
+        + `<span class="expression-output-value">${escapeHtml(expression)}</span>`
+        + `</div>`;
+}
+
+function renderExpressionList(labelElement, entries, selectedIndex) {
+    if (!labelElement) {
+        return [];
+    }
+
+    const availableEntries = entries.filter(Boolean);
+    if (availableEntries.length === 0) {
+        labelElement.textContent = '-';
+        return [];
+    }
+
+    const currentIndex = Number.isInteger(selectedIndex) && entries[selectedIndex] ? selectedIndex : availableEntries[0].index;
+    const selectedEntry = entries[currentIndex] || availableEntries[0];
+    const orderedEntries = [selectedEntry, ...availableEntries.filter((entry) => entry.index !== selectedEntry.index)];
+
+    labelElement.innerHTML = orderedEntries
+        .map((entry) => buildExpressionLine(entry.outputLabel, entry.expression, entry.index, entry.index === currentIndex))
+        .join('');
+
+    return orderedEntries;
+}
+
+function setSelectedExpressionIndex(index) {
+    if (!Number.isInteger(index) || index < 0) {
+        return;
+    }
+
+    selectedExpressionIndex = index;
+    setExpressionCardsExpanded(false);
+    renderExpressionCards();
+    flashCircuitForExpression(index);
+}
+
+function handleExpressionSelectionClick(event) {
+    const expressionItem = event.target.closest('.expression-item--output[data-expression-index]');
+    if (!expressionItem || event.target.closest('.expression-copy-btn')) {
+        return;
+    }
+
+    const index = Number.parseInt(expressionItem.dataset.expressionIndex, 10);
+    if (Number.isNaN(index)) {
+        return;
+    }
+
+    setSelectedExpressionIndex(index);
+    showExampleLoadedTip('O circuito foi testacado no simulador');
+}
+
+function clearCircuitFlash() {
+    if (circuitFlashTimeoutId) {
+        clearTimeout(circuitFlashTimeoutId);
+        circuitFlashTimeoutId = 0;
+    }
+
+    nodeLayer?.querySelectorAll('.circuit-flash').forEach((element) => {
+        element.classList.remove('circuit-flash');
+    });
+    wireLayer?.querySelectorAll('.circuit-flash').forEach((element) => {
+        element.classList.remove('circuit-flash');
+    });
+}
+
+function getRelatedGateIds(outputGateId) {
+    const relatedGateIds = new Set();
+    const incomingWires = new Map();
+
+    state.wires.forEach((wire) => {
+        if (!incomingWires.has(wire.toId)) {
+            incomingWires.set(wire.toId, []);
+        }
+        incomingWires.get(wire.toId).push(wire);
+    });
+
+    const visit = (gateId) => {
+        if (!gateId || relatedGateIds.has(gateId)) {
+            return;
+        }
+
+        relatedGateIds.add(gateId);
+        (incomingWires.get(gateId) || []).forEach((wire) => visit(wire.fromId));
+    };
+
+    visit(outputGateId);
+    return relatedGateIds;
+}
+
+function flashCircuitForExpression(index) {
+    const outputGateId = currentOutputGateIds[index];
+    if (!outputGateId) {
+        return;
+    }
+
+    clearCircuitFlash();
+
+    const relatedGateIds = getRelatedGateIds(outputGateId);
+
+    state.nodes.forEach((node, gateId) => {
+        node.classList.toggle('circuit-flash', relatedGateIds.has(gateId));
+    });
+
+    state.wires.forEach((wire) => {
+        const isRelated = relatedGateIds.has(wire.fromId) && relatedGateIds.has(wire.toId);
+        wire.path?.classList.toggle('circuit-flash', isRelated);
+        wire.energyDots?.classList.toggle('circuit-flash', isRelated);
+    });
+
+    circuitFlashTimeoutId = window.setTimeout(clearCircuitFlash, 1100);
+}
+
+function renderExpressionCards() {
+    if (!expressionLabel) {
+        return;
+    }
+
+    const normalEntries = renderExpressionList(expressionLabel, expressionEntries, selectedExpressionIndex);
+    const simplifiedEntries = simplifiedExpressionEntries.filter(Boolean);
+
+    if (simplifiedExpressionLabel) {
+        if (simplifiedExpressionCard) {
+            simplifiedExpressionCard.hidden = false;
+        }
+        if (expressionCards) {
+            expressionCards.classList.add('has-simplified-expression');
+        }
+
+        if (simplifiedEntries.length > 0) {
+            renderExpressionList(simplifiedExpressionLabel, simplifiedExpressionEntries, selectedExpressionIndex);
+            syncExpressionExpandButton(simplifiedExpressionExpandBtn, simplifiedExpressionLabel?.closest('.toolbar-expression'), simplifiedEntries.length);
+        } else {
+            simplifiedExpressionLabel.innerHTML = buildUnavailableExpressionLine('Não possui');
+            syncExpressionExpandButton(simplifiedExpressionExpandBtn, simplifiedExpressionLabel?.closest('.toolbar-expression'), 0);
+        }
+    }
+
+    syncExpressionExpandButton(expressionExpandBtn, expressionLabel?.closest('.toolbar-expression'), normalEntries.length);
+}
+
 function computeExpression() {
     if (!expressionLabel) {
         return;
@@ -1349,8 +1732,21 @@ function computeExpression() {
     });
 
     const outputGates = state.gates.filter((gate) => gate.type === 'OUTPUT');
+    currentOutputGateIds = outputGates.map((gate) => gate.id);
     if (outputGates.length === 0) {
         expressionLabel.textContent = '-';
+        if (simplifiedExpressionLabel) {
+            simplifiedExpressionLabel.textContent = '-';
+        }
+        if (simplifiedExpressionCard) {
+            simplifiedExpressionCard.hidden = true;
+        }
+        if (expressionCards) {
+            expressionCards.classList.remove('has-simplified-expression');
+        }
+        clearCircuitFlash();
+        syncExpressionExpandButton(expressionExpandBtn, expressionLabel?.closest('.toolbar-expression'), 0);
+        syncExpressionExpandButton(simplifiedExpressionExpandBtn, simplifiedExpressionLabel?.closest('.toolbar-expression'), 0);
         return;
     }
 
@@ -1455,14 +1851,31 @@ function computeExpression() {
         return expr;
     };
 
-    const lines = outputGates.map((gate, index) => {
+    const { roots, inputs } = buildLogicTrees(state);
+    expressionEntries = outputGates.map((gate, index) => {
         const expr = buildExpr(gate.id) || '-';
-        return `Y${index + 1} = ${expr}`;
+        const outputLabel = `Y${index + 1}`;
+        return { index, outputLabel, expression: expr };
     });
 
-    expressionLabel.innerHTML = lines
-        .map((line) => `<div class="expression-item">${line}</div>`)
-        .join('');
+    simplifiedExpressionEntries = outputGates.map((gate, index) => {
+        const expr = buildExpr(gate.id) || '-';
+        const root = roots.find((item) => item.gateId === gate.id) || roots[index];
+        const simplifiedExpr = getSimplifiedExpression(root, inputs, expr);
+        const outputLabel = `Y${index + 1}`;
+
+        if (!simplifiedExpr) {
+            return null;
+        }
+
+        return { index, outputLabel, expression: simplifiedExpr };
+    });
+
+    if (selectedExpressionIndex >= expressionEntries.length) {
+        selectedExpressionIndex = 0;
+    }
+
+    renderExpressionCards();
 }
 
 // Carrega um circuito pronto no editor.
@@ -1600,9 +2013,24 @@ function init() {
     if (expressionCopyBtn) {
         expressionCopyBtn.addEventListener('click', copyExpression);
     }
+    if (simplifiedExpressionCopyBtn) {
+        simplifiedExpressionCopyBtn.addEventListener('click', copySimplifiedExpression);
+    }
+    document.addEventListener('click', handleExpressionSelectionClick);
+    if (expressionExpandBtn) {
+        expressionExpandBtn.addEventListener('click', () => {
+            toggleExpressionCards(expressionExpandBtn);
+        });
+    }
+    if (simplifiedExpressionExpandBtn) {
+        simplifiedExpressionExpandBtn.addEventListener('click', () => {
+            toggleExpressionCards(simplifiedExpressionExpandBtn);
+        });
+    }
     document.addEventListener('click', handleClearSimulator);
     document.addEventListener('click', handleZoomClick);
     document.addEventListener('click', handleExpandToggle);
+    document.addEventListener('click', handleExpressionRowCopyClick);
 
     workspace.addEventListener('pointerdown', handleWorkspacePointerDown);
     workspace.addEventListener('click', handleWireClick);
@@ -1635,11 +2063,12 @@ function init() {
     }
 
     if (shouldAutoStartTutorial) {
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                startTutorial(true);
-            });
-        });
+        const startWhenIdle = () => startTutorial(true);
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(startWhenIdle, { timeout: 1800 });
+        } else {
+            window.setTimeout(startWhenIdle, 900);
+        }
     }
 }
 
@@ -1829,6 +2258,10 @@ if (tabSim && tabTT && tabSwitch && simSection && ttSection && switchingSection)
         simSection.style.display = 'none';
         ttSection.style.display = 'none';
         switchingSection.style.display = 'none';
+        isSimulatorViewVisible = false;
+        isSwitchingViewVisible = false;
+        pauseSimulatorView();
+        pauseElectricalView();
         tabSim.classList.remove('active');
         tabTT.classList.remove('active');
         tabSwitch.classList.remove('active');
@@ -1838,6 +2271,8 @@ if (tabSim && tabTT && tabSwitch && simSection && ttSection && switchingSection)
         hideAll();
         tabSim.classList.add('active');
         simSection.style.display = '';
+        isSimulatorViewVisible = true;
+        syncSimulatorVisuals();
     });
 
     tabTT.addEventListener('click', () => {
@@ -1894,7 +2329,8 @@ if (tabSim && tabTT && tabSwitch && simSection && ttSection && switchingSection)
         hideAll();
         tabSwitch.classList.add('active');
         switchingSection.style.display = '';
-        // update electrical view immediately when switching panel opens
-        try { updateElectricalView(state); } catch (e) { /* ignore */ }
+        isSwitchingViewVisible = true;
+        updateElectricalView(state);
+        switchingViewDirty = false;
     });
 }

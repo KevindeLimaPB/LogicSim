@@ -1,30 +1,11 @@
-/* GLOBAL */
+/* CSS usado pela pagina do simulador. Mantem fora os estilos de paginas estaticas. */
 
 @import "./global/global.css";
 @import "./global/header.css";
 
-/* UTILIDADES*/
-
 @import "./utilidades/componentes.css";
 @import "./utilidades/cores.css";
 
-/* SIMULADOR */
-
 @import "./simulador/simulador.css";
-
-/* EDITOR */
-
 @import "./editor/editor.css";
-
-/* SOBRE */
-
-@import "./sobre/sobre.css";
-
-/* MATERIAL THEME */
-
 @import "./theme-material.css";
-
-
-/* Saiba Mais*/
-
-@import "./saibaMais/saiba.css";

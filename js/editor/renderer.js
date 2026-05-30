@@ -275,7 +275,8 @@ export function renderGate(gate, nodeLayer) {
         inputPin.dataset.pinIndex = '0';
 
         const label = document.createElement('span');
-        label.textContent = 'OUT';
+        label.dataset.role = 'output-label';
+        label.textContent = gate.label || 'OUT';
 
         const value = document.createElement('div');
         value.className = 'node-value';
@@ -361,6 +362,11 @@ export function updateGateValues(gate, node) {
         value.textContent = isOn;
         value.classList.toggle('is-on', isOn === '1');
         value.classList.toggle('is-off', isOn !== '1');
+    }
+
+    const outputLabel = node.querySelector('[data-role="output-label"]');
+    if (outputLabel) {
+        outputLabel.textContent = gate.label || 'OUT';
     }
 
     const toggle = node.querySelector('[data-action="toggle-input"]');
