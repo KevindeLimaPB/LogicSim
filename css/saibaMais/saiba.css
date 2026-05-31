@@ -1,158 +1,20 @@
-.exemplos {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.exemplos-conteudo {
-    display: flex;
-    flex-direction: column; 
-    align-items: center;   
-    text-align: center;
-}
-
-.exemplo-descricao {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--cor-2);
-    color: var(--cor-10);
-    padding: 10px;
-    border-radius: 5px;
-}
-
-img {
-    display: block;
-    max-width: 100%;
-    height: auto;
-    margin: 0 auto;
-}
-
-.exemplo-lista dt{
-    padding-bottom: 1rem;
-}
-
-dt {
-    padding: 20px 10px;
-    color: #f7f7f7;
-}
-
-.exemplo-lista {
-    background-color: var(--cor-2);
-    margin-bottom: 15px;
-    width: 800px;
-    padding: 10px;
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.exemplo-lista button {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 12px;
-    position: relative;
-    cursor: pointer;
-    border: none;
-    background: none;
+.informacoes-portas {
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
     text-align: left;
-    padding: 0;
-    font: 600 1.112rem/1.35 "Poppins", sans-serif;
-    color: #f7f7f7;
 }
 
-.exemplo-lista button::before {
-    content: "";
-    display: block;
-    width: 8px;
-    height: 8px;
-    background-color: var(--cor-p1);
-}
 
-.exemplo-lista button::after {
-    content: "";
-    display: inline-block;
-    width: 14px;
-    height: 6px;
-    background: url("../../img/icones/seta-abrir.svg") no-repeat;
-    transition: 0.3s;
-}
 
-.exemplo-lista button:hover::after,
-.exemplo-lista button[aria-expanded="true"]::after {
-    transform: rotate(180deg);
-}
-
-.exemplo-lista dd {
-   display: none;
-}
-
-.exemplo-lista dd.ativa {
-    display: block;
-} 
-
-.exemplo-lista dd {
-    max-width: 80ch;
-    margin: 0;
-}
-
-.exemplo-definicao {
-    
-    font: 500 1.125/1.250 "Poppins", sans-serif;
+.informacoes-portas p {
     position: relative;
-    left: 5px;
-    top: -19px;
-    transition: none;
-    color: var(--cor-10);
+    top: -25px;
+    line-height: 1.7;
 }
 
-
-@media (max-width: 900px) {
-    .exemplo-lista {
-        width: 600px;
-    }
+.portas {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
 }
-
-@media (max-width: 650px) {
-    .exemplo-lista {
-        width: 400px;
-    }
-    .exemplo-descricao {
-        padding: 5px;
-        width: 300px;
-    }
-}
-
-@media (max-width: 500px) {
-    h1 {
-        font-size: 1.250rem;
-    }
-    .exemplo-lista {
-        width: 400px;
-    }
-    .exemplo-lista dd {
-        max-width: 50ch;
-    }
-}
-
-@media (max-width: 425px){
-    .exemplo-lista {
-        width: 270px;
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-    .exemplo-lista a img {
-        max-width: 215px;
-    }
-    .toolbar-btn {
-        margin-right: 20px;
-    }
-}
-
-
-
-
-   
-
