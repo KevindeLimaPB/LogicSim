@@ -432,6 +432,16 @@ body.simulator-page.theme-light .saved-circuit-action--primary {
 }
 
 @media (max-width: 560px) {
+    .saved-circuits-dropdown {
+        position: fixed;
+        top: auto;
+        right: 12px;
+        left: 12px;
+        bottom: 18px;
+        width: auto;
+        max-height: min(62vh, 420px);
+    }
+
     .saved-circuit-item {
         grid-template-columns: 1fr;
     }

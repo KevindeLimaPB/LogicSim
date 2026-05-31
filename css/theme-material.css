@@ -1731,8 +1731,42 @@ body.simulator-page.theme-light .example-loaded-tip__progress {
         flex-wrap: nowrap;
     }
 
+    .simulator-page .editor-toolbar .toolbar-section--actions .toolbar-group {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: visible;
+        width: 100%;
+        padding-bottom: 6px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(115, 170, 255, 0.42) transparent;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--actions .toolbar-group::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--actions .toolbar-group::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--actions .toolbar-group::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(115, 170, 255, 0.38);
+    }
+
     .simulator-page .editor-toolbar .toolbar-btn {
         flex: 1 1 92px;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--actions .toolbar-btn,
+    .simulator-page .editor-toolbar .toolbar-section--actions .saved-circuits-dropdown-wrap {
+        flex: 0 0 88px;
+    }
+
+    .simulator-page .editor-toolbar .toolbar-section--actions .toolbar-btn {
+        width: 88px;
+        min-width: 88px;
+        max-width: 88px;
     }
 
     .simulator-page .editor-toolbar .toolbar-section--components .toolbar-btn {
