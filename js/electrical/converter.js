@@ -68,6 +68,11 @@ function expandLogic(node) {
                 name: node.name || 'A',
                 value: node.value
             };
+        case 'CONST':
+            return {
+                type: 'CONST',
+                value: node.value ? 1 : 0
+            };
         case 'NOT':
             return { type: 'NOT', inputs: [expandLogic(node.inputs?.[0])] };
         case 'AND':
@@ -115,6 +120,11 @@ function pushNot(node, negate = false) {
                 value: node.value,
                 inverted: Boolean(negate)
             };
+        case 'CONST':
+            return {
+                type: 'CONST',
+                value: negate ? (node.value ? 0 : 1) : (node.value ? 1 : 0)
+            };
         case 'NOT':
             return pushNot(node.inputs?.[0], !negate);
         case 'AND':
@@ -147,6 +157,13 @@ function convertNormalizedToElectrical(node, inputValues) {
                 name: node.name || 'A',
                 state: node.value ?? inputValues?.get?.(node.name) ?? 0,
                 inverted: Boolean(node.inverted)
+            };
+        case 'CONST':
+            return {
+                type: 'SWITCH',
+                name: node.value ? '1' : '0',
+                state: node.value ? 1 : 0,
+                inverted: false
             };
         case 'AND':
             return {

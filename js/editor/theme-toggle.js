@@ -26,10 +26,11 @@ function applyTheme(theme) {
 
     body.dataset.theme = theme;
 
-        //SVG na parte SIM muda de cor
+    if (mudarCor) {
         mudarCor.style.fill = theme === 'light'
-        ? '#000000'
-        : 'white';
+            ? '#000000'
+            : 'white';
+    }
 
     try {
         localStorage.setItem(STORAGE_KEY, theme);

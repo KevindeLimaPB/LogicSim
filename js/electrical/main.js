@@ -1,19 +1,24 @@
 import { buildLogicTrees } from './parser.js';
 import { convertLogicToElectrical } from './converter.js';
 import { renderElectrical } from './renderer.js';
+import { simplifyLogicTree } from './simplifier.js';
 
 const svg = document.getElementById('switching-svg');
 const canvas = document.querySelector('.switching-canvas');
 const emptyState = document.getElementById('switching-empty');
-const status = document.getElementById('switching-status');
 const circuitSelectWrap = document.getElementById('switching-circuit-select-wrap');
 const circuitButton = document.getElementById('switching-circuit-button');
 const circuitButtonLabel = document.getElementById('switching-circuit-button-label');
 const circuitMenu = document.getElementById('switching-circuit-menu');
 const zoomLabel = document.getElementById('switching-zoom-label');
+const simplifyWrap = document.getElementById('switching-simplify-wrap');
+const simplifyButton = document.getElementById('switching-simplify-toggle');
+const switchingExpressionLabel = document.getElementById('switching-expression-label');
+const switchingExpressionCopyBtn = document.querySelector('[data-action="copy-switching-expression"]');
 
 let currentState = null;
 let selectedCircuitId = null;
+let isSimplifiedView = false;
 let zoomLevel = 1.75;
 const panOffset = { x: 0, y: 0 };
 let panDrag = null;
@@ -53,6 +58,139 @@ function changeSwitchingZoom(direction) {
     const nextZoom = zoomLevel + direction * zoomConfig.step;
     zoomLevel = Math.max(zoomConfig.min, Math.min(zoomConfig.max, Number(nextZoom.toFixed(2))));
     applySwitchingZoom();
+}
+
+function syncSimplifyButton(canSimplify) {
+    if (!simplifyButton) {
+        return;
+    }
+
+    if (simplifyWrap) {
+        simplifyWrap.hidden = !canSimplify;
+    }
+
+    simplifyButton.hidden = false;
+    simplifyButton.disabled = !canSimplify;
+    simplifyButton.classList.toggle('is-active', isSimplifiedView && canSimplify);
+    simplifyButton.setAttribute('aria-pressed', String(isSimplifiedView && canSimplify));
+}
+
+function countElectricalSwitches(node) {
+    if (!node) {
+        return 0;
+    }
+
+    switch (node.type) {
+        case 'SWITCH':
+            return 1;
+        case 'OUTPUT':
+            return countElectricalSwitches(node.child);
+        case 'INVERT':
+            return 1 + countElectricalSwitches(node.child);
+        case 'SERIES':
+        case 'PARALLEL':
+            return (node.children || []).reduce((sum, child) => sum + countElectricalSwitches(child), 0);
+        default:
+            return 0;
+    }
+}
+
+function isSimpleExpression(expr) {
+    return /^[A-Z0-9?]+$/i.test(expr);
+}
+
+function wrapExpression(expr) {
+    return isSimpleExpression(expr) ? expr : `(${expr})`;
+}
+
+function wrapProductExpression(expr) {
+    return expr.includes(' + ') || expr.includes(' ⊕ ') || expr.includes(' ⊙ ')
+        ? wrapExpression(expr)
+        : expr;
+}
+
+function getLogicExpression(node) {
+    if (!node) {
+        return '?';
+    }
+
+    const children = node.inputs || [];
+
+    switch (node.type) {
+        case 'OUTPUT':
+            return getLogicExpression(node.input || node.child);
+        case 'INPUT':
+            return node.name || 'A';
+        case 'CONST':
+            return node.value ? '1' : '0';
+        case 'NOT':
+            return `¬${wrapExpression(getLogicExpression(children[0]))}`;
+        case 'AND':
+            return children.map((child) => wrapProductExpression(getLogicExpression(child))).join(' · ');
+        case 'OR':
+            return children.map((child) => getLogicExpression(child)).join(' + ');
+        case 'NAND':
+            return `¬(${children.map((child) => wrapProductExpression(getLogicExpression(child))).join(' · ')})`;
+        case 'NOR':
+            return `¬(${children.map((child) => getLogicExpression(child)).join(' + ')})`;
+        case 'XOR':
+            return children.map((child) => getLogicExpression(child)).join(' ⊕ ');
+        case 'XNOR':
+            return children.map((child) => getLogicExpression(child)).join(' ⊙ ');
+        default:
+            return '?';
+    }
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function syncSwitchingExpression(root) {
+    if (!switchingExpressionLabel) {
+        return;
+    }
+
+    if (!root) {
+        switchingExpressionLabel.textContent = '-';
+        return;
+    }
+
+    const expression = getLogicExpression(root) || '-';
+    switchingExpressionLabel.innerHTML = `<div class="expression-item">${escapeHtml(root.name || 'Y')} = ${escapeHtml(expression)}</div>`;
+}
+
+async function copySwitchingExpression() {
+    if (!switchingExpressionLabel || !switchingExpressionCopyBtn) {
+        return;
+    }
+
+    const expressionText = switchingExpressionLabel.innerText.trim();
+    if (!expressionText || expressionText === '-') {
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(expressionText);
+    } catch (error) {
+        const textarea = document.createElement('textarea');
+        textarea.value = expressionText;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+    }
+
+    switchingExpressionCopyBtn.classList.add('is-copied');
+    window.setTimeout(() => switchingExpressionCopyBtn.classList.remove('is-copied'), 900);
 }
 
 function handleCanvasWheel(event) {
@@ -169,9 +307,9 @@ function setEmpty(message) {
 // Desenha o circuito atualmente selecionado.
 function renderSelectedCircuit(roots, inputs) {
     if (!roots.length) {
-        if (status) {
-            status.textContent = 'Sem saida';
-        }
+        isSimplifiedView = false;
+        syncSimplifyButton(false);
+        syncSwitchingExpression(null);
         syncCircuitSelector([]);
         setEmpty('Monte um circuito com saida para visualizar a conversao eletrica.');
         return;
@@ -182,17 +320,25 @@ function renderSelectedCircuit(roots, inputs) {
     const selectedRoot = roots.find((root) => root.gateId === selectedCircuitId) || roots[0];
     selectedCircuitId = selectedRoot.gateId;
 
-    if (status) {
-        status.textContent = roots.length > 1
-            ? `${selectedRoot.name || 'OUT'} (${roots.findIndex((root) => root.gateId === selectedRoot.gateId) + 1} de ${roots.length})`
-            : `${selectedRoot.name || 'OUT'}`;
+    const normalElectrical = convertLogicToElectrical(selectedRoot, inputs);
+    const simplifiedRoot = simplifyLogicTree(selectedRoot, inputs);
+    const simplifiedElectrical = convertLogicToElectrical(simplifiedRoot, inputs);
+    const canSimplify = countElectricalSwitches(simplifiedElectrical) < countElectricalSwitches(normalElectrical);
+
+    if (!canSimplify) {
+        isSimplifiedView = false;
     }
+
+    syncSimplifyButton(canSimplify);
+    const renderedRoot = isSimplifiedView ? simplifiedRoot : selectedRoot;
+    const renderedElectrical = isSimplifiedView ? simplifiedElectrical : normalElectrical;
+    syncSwitchingExpression(renderedRoot);
 
     if (emptyState) {
         emptyState.style.display = 'none';
     }
 
-    renderElectrical(svg, convertLogicToElectrical(selectedRoot, inputs));
+    renderElectrical(svg, renderedElectrical);
     applySwitchingZoom();
 }
 
@@ -208,7 +354,36 @@ export function updateElectricalView(state) {
     renderSelectedCircuit(roots, inputs);
 }
 
+export function pauseElectricalView() {
+    if (svg?.__energyAnimFrame) {
+        cancelAnimationFrame(svg.__energyAnimFrame);
+        svg.__energyAnimFrame = null;
+    }
+}
+
 document.addEventListener('click', (event) => {
+    const copyExpression = event.target.closest('[data-action="copy-switching-expression"]');
+    if (copyExpression) {
+        copySwitchingExpression();
+        return;
+    }
+
+    const simplifyToggle = event.target.closest('[data-action="switching-toggle-simplified"]');
+    if (simplifyToggle) {
+        if (simplifyToggle.disabled) {
+            return;
+        }
+
+        isSimplifiedView = !isSimplifiedView;
+        syncSimplifyButton(true);
+
+        if (currentState) {
+            const { roots, inputs } = buildLogicTrees(currentState);
+            renderSelectedCircuit(roots, inputs);
+        }
+        return;
+    }
+
     const zoomIn = event.target.closest('[data-action="switching-zoom-in"]');
     if (zoomIn) {
         changeSwitchingZoom(1);
