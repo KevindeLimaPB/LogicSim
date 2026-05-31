@@ -981,6 +981,16 @@ body.simulator-page.theme-dark .wire.preview {
     overflow: visible;
 }
 
+.simulator-page .editor-toolbar .toolbar-section--actions {
+    overflow: visible;
+    position: relative;
+    z-index: 40;
+}
+
+.simulator-page .editor-toolbar .toolbar-section--actions .toolbar-group {
+    overflow: visible;
+}
+
 .simulator-page .editor-toolbar .toolbar-expression-cards {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
