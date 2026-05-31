@@ -192,6 +192,269 @@ body.simulator-page.theme-light .logic-tutorial__progress {
     display: block;
 }
 
+.saved-circuits-list {
+    display: grid;
+    gap: 10px;
+    overflow: auto;
+    padding: 14px;
+}
+
+.saved-circuit-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.saved-circuit-item__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 800;
+}
+
+.saved-circuit-item__meta {
+    margin-top: 4px;
+    color: #9fb1c7;
+    font-size: 0.78rem;
+}
+
+.saved-circuit-item__actions {
+    display: inline-flex;
+    gap: 8px;
+}
+
+.saved-circuit-action {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.07);
+    color: #eef4ff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.saved-circuit-action--delete {
+    color: #ffd1d1;
+}
+
+.saved-circuits-empty {
+    padding: 18px;
+    color: #9fb1c7;
+    text-align: center;
+}
+
+.saved-circuits-dropdown-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.saved-circuits-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1300;
+    width: min(88vw, 460px);
+    max-height: min(70vh, 460px);
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(13, 22, 38, 0.98), rgba(8, 14, 26, 0.98));
+    box-shadow: 0 22px 58px rgba(0, 0, 0, 0.38);
+    color: #eef4ff;
+}
+
+.saved-circuits-dropdown[hidden] {
+    display: none;
+}
+
+.saved-circuits-dropdown__head {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    color: #8d98ad;
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.save-circuit-modal,
+.rename-circuit-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    display: none;
+    place-items: center;
+    box-sizing: border-box;
+    padding: 24px;
+}
+
+.save-circuit-modal.is-open,
+.rename-circuit-modal.is-open {
+    display: grid;
+}
+
+.save-circuit-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 10, 20, 0.62);
+    backdrop-filter: blur(8px);
+}
+
+.save-circuit-modal__panel {
+    position: relative;
+    z-index: 1;
+    width: min(360px, calc(100vw - 32px));
+    max-width: 360px;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(13, 22, 38, 0.98), rgba(8, 14, 26, 0.98));
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.42);
+    color: #eef4ff;
+}
+
+.save-circuit-form {
+    display: grid;
+    gap: 14px;
+    box-sizing: border-box;
+    padding: 18px;
+}
+
+.save-circuit-modal__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.save-circuit-modal__head h2 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.2;
+}
+
+.save-circuit-modal__close {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: inherit;
+    cursor: pointer;
+}
+
+.save-circuit-field {
+    display: grid;
+    gap: 8px;
+}
+
+.save-circuit-field span {
+    color: #9fb1c7;
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.save-circuit-field input {
+    width: 100%;
+    min-height: 42px;
+    box-sizing: border-box;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #eef4ff;
+    padding: 0 12px;
+    font: inherit;
+}
+
+.save-circuit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.save-circuit-actions .saved-circuit-action {
+    width: auto;
+    padding: 0 12px;
+}
+
+.saved-circuit-action--primary {
+    color: #baf7cc;
+}
+
+body.simulator-page.theme-light .saved-circuit-item {
+    border-color: rgba(60, 64, 67, 0.12);
+    background: rgba(248, 250, 253, 0.92);
+}
+
+body.simulator-page.theme-light .saved-circuit-action {
+    background: #ffffff;
+    color: #1a73e8;
+}
+
+body.simulator-page.theme-light .saved-circuit-action--delete {
+    color: #b3261e;
+}
+
+body.simulator-page.theme-light .saved-circuits-dropdown,
+body.simulator-page.theme-light .save-circuit-modal__panel {
+    border-color: rgba(60, 64, 67, 0.16);
+    background: #ffffff;
+    color: #202124;
+    box-shadow: 0 24px 58px rgba(15, 23, 42, 0.18);
+}
+
+body.simulator-page.theme-light .save-circuit-field input {
+    background: #ffffff;
+    border-color: rgba(60, 64, 67, 0.18);
+    color: #202124;
+}
+
+body.simulator-page.theme-light .saved-circuit-action--primary {
+    color: #137333;
+}
+
+@media (max-width: 560px) {
+    .saved-circuits-dropdown {
+        position: fixed;
+        top: auto;
+        right: 12px;
+        left: 12px;
+        bottom: 18px;
+        width: auto;
+        max-height: min(62vh, 420px);
+    }
+
+    .saved-circuit-item {
+        grid-template-columns: 1fr;
+    }
+
+    .saved-circuit-item__actions {
+        width: 100%;
+    }
+
+    .saved-circuit-action {
+        flex: 1 1 0;
+    }
+}
+
 .logic-tutorial__btn {
     border: 1px solid rgba(148, 163, 184, 0.26);
     background: rgba(255, 255, 255, 0.08);

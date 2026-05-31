@@ -20,6 +20,15 @@ const simplifiedExpressionCard = document.getElementById('simplified-expression-
 const simplifiedExpressionLabel = document.getElementById('simplified-expression-label');
 const expressionExpandBtn = document.querySelector('[data-action="toggle-expression-list"]');
 const simplifiedExpressionExpandBtn = document.querySelector('[data-action="toggle-simplified-expression-list"]');
+const savedCircuitsDropdownWrap = document.getElementById('saved-circuits-dropdown-wrap');
+const savedCircuitsDropdown = document.getElementById('saved-circuits-dropdown');
+const savedCircuitsList = document.getElementById('saved-circuits-list');
+const saveCircuitModal = document.getElementById('save-circuit-modal');
+const saveCircuitForm = document.getElementById('save-circuit-form');
+const saveCircuitNameInput = document.getElementById('save-circuit-name');
+const renameCircuitModal = document.getElementById('rename-circuit-modal');
+const renameCircuitForm = document.getElementById('rename-circuit-form');
+const renameCircuitNameInput = document.getElementById('rename-circuit-name');
 const deleteToggleBtn = document.querySelector('[data-action="toggle-delete"]');
 const expandToggleBtn = document.querySelector('[data-action="toggle-expand"]');
 const tutorialStartBtns = document.querySelectorAll('[data-action="start-tutorial"]');
@@ -27,6 +36,7 @@ const switchingTabBtn = document.getElementById('tab-switching');
 const zoomLabel = document.getElementById('zoom-label');
 const expressionCopyBtn = document.querySelector('[data-action="copy-expression"]');
 const simplifiedExpressionCopyBtn = document.querySelector('[data-action="copy-simplified-expression"]');
+const openSavedCircuitsBtn = document.querySelector('[data-action="open-saved-circuits"]');
 
 const state = {
     gates: [],
@@ -72,6 +82,7 @@ const tutorialState = {
 };
 
 const tutorialStorageKey = 'logicsim:tutorial:v1';
+const savedCircuitsStorageKey = 'logicsim:saved-circuits:v1';
 const switchingGlowInactivityMs = 2600;
 const exampleLoadedTipVisibleMs = 2800;
 const exampleLoadedTipExitMs = 260;
@@ -89,6 +100,7 @@ let isSimulatorViewVisible = true;
 let simulatorViewDirty = false;
 let isSwitchingViewVisible = false;
 let switchingViewDirty = true;
+let circuitIdBeingRenamed = null;
 
 // Exibe o glow do botão de comutação por um período após alterações do circuito.
 function signalCircuitChange() {
@@ -184,6 +196,234 @@ function pauseSimulatorView() {
     state.wires.forEach((wire) => {
         wire.energyDots?.classList.remove('active');
     });
+}
+
+function readSavedCircuits() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(savedCircuitsStorageKey) || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function writeSavedCircuits(circuits) {
+    localStorage.setItem(savedCircuitsStorageKey, JSON.stringify(circuits));
+}
+
+function serializeCircuit(name) {
+    return {
+        id: crypto.randomUUID(),
+        name,
+        savedAt: new Date().toISOString(),
+        viewport: {
+            zoom: zoomLevel,
+            panX: panOffset.x,
+            panY: panOffset.y
+        },
+        gates: state.gates.map((gate) => ({
+            id: gate.id,
+            type: gate.type,
+            x: gate.x,
+            y: gate.y,
+            inputs: Array.from(gate.inputs || []),
+            output: gate.output,
+            label: gate.label || ''
+        })),
+        wires: state.wires.map((wire) => ({
+            fromId: wire.fromId,
+            toId: wire.toId,
+            inputIndex: wire.inputIndex
+        }))
+    };
+}
+
+function saveCurrentCircuit(name) {
+    if (!name) {
+        return;
+    }
+
+    const circuits = readSavedCircuits();
+    const existingIndex = circuits.findIndex((circuit) => circuit.name.toLowerCase() === name.toLowerCase());
+    const savedCircuit = serializeCircuit(name);
+
+    if (existingIndex >= 0) {
+        circuits[existingIndex] = { ...savedCircuit, id: circuits[existingIndex].id };
+    } else {
+        circuits.push(savedCircuit);
+    }
+
+    try {
+        writeSavedCircuits(circuits);
+        if (savedCircuitsDropdown && !savedCircuitsDropdown.hidden) {
+            renderSavedCircuitsList();
+        }
+        showExampleLoadedTip('Circuito salvo no navegador');
+    } catch (error) {
+        showExampleLoadedTip('Não foi possível salvar o circuito');
+    }
+}
+
+function openSaveCircuitModal() {
+    if (!saveCircuitModal || !saveCircuitNameInput) {
+        saveCurrentCircuit(`Circuito ${readSavedCircuits().length + 1}`);
+        return;
+    }
+
+    saveCircuitNameInput.value = `Circuito ${readSavedCircuits().length + 1}`;
+    saveCircuitModal.classList.add('is-open');
+    saveCircuitModal.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => {
+        saveCircuitNameInput.focus();
+        saveCircuitNameInput.select();
+    });
+}
+
+function closeSaveCircuitModal() {
+    if (saveCircuitModal) {
+        saveCircuitModal.classList.remove('is-open');
+        saveCircuitModal.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function submitSaveCircuitName(event) {
+    event.preventDefault();
+    const name = saveCircuitNameInput?.value.trim();
+    if (!name) {
+        saveCircuitNameInput?.focus();
+        return;
+    }
+
+    saveCurrentCircuit(name);
+    closeSaveCircuitModal();
+}
+
+function formatSavedDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return 'Data indisponível';
+    }
+
+    return date.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function renderSavedCircuitsList() {
+    if (!savedCircuitsList) {
+        return;
+    }
+
+    const circuits = readSavedCircuits().sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+    if (!circuits.length) {
+        savedCircuitsList.innerHTML = '<div class="saved-circuits-empty">Nenhum circuito salvo.</div>';
+        return;
+    }
+
+    savedCircuitsList.innerHTML = circuits.map((circuit) => {
+        const gateCount = Array.isArray(circuit.gates) ? circuit.gates.length : 0;
+        const wireCount = Array.isArray(circuit.wires) ? circuit.wires.length : 0;
+        return `<article class="saved-circuit-item" data-saved-circuit-id="${escapeHtml(circuit.id)}">`
+            + `<div>`
+            + `<div class="saved-circuit-item__name">${escapeHtml(circuit.name || 'Circuito sem nome')}</div>`
+            + `<div class="saved-circuit-item__meta">${gateCount} componentes · ${wireCount} fios · ${escapeHtml(formatSavedDate(circuit.savedAt))}</div>`
+            + `</div>`
+            + `<div class="saved-circuit-item__actions">`
+            + `<button class="saved-circuit-action" data-action="load-saved-circuit" type="button" aria-label="Carregar circuito" title="Carregar circuito">`
+            + `<i class="fa-solid fa-arrow-right" aria-hidden="true"></i>`
+            + `</button>`
+            + `<button class="saved-circuit-action" data-action="rename-saved-circuit" type="button" aria-label="Renomear circuito" title="Renomear circuito">`
+            + `<i class="fa-solid fa-pencil" aria-hidden="true"></i>`
+            + `</button>`
+            + `<button class="saved-circuit-action saved-circuit-action--delete" data-action="delete-saved-circuit" type="button" aria-label="Excluir circuito" title="Excluir circuito">`
+            + `<i class="fa-solid fa-trash-can" aria-hidden="true"></i>`
+            + `</button>`
+            + `</div>`
+            + `</article>`;
+    }).join('');
+}
+
+function openSavedCircuitsDropdown() {
+    renderSavedCircuitsList();
+    if (savedCircuitsDropdown) {
+        savedCircuitsDropdown.hidden = false;
+        savedCircuitsDropdownWrap?.querySelector('[data-action="open-saved-circuits"]')?.setAttribute('aria-expanded', 'true');
+    }
+}
+
+function closeSavedCircuitsDropdown() {
+    if (savedCircuitsDropdown) {
+        savedCircuitsDropdown.hidden = true;
+        savedCircuitsDropdownWrap?.querySelector('[data-action="open-saved-circuits"]')?.setAttribute('aria-expanded', 'false');
+    }
+}
+
+function toggleSavedCircuitsDropdown() {
+    if (!savedCircuitsDropdown || savedCircuitsDropdown.hidden) {
+        openSavedCircuitsDropdown();
+    } else {
+        closeSavedCircuitsDropdown();
+    }
+}
+
+function openRenameCircuitModal(circuitId) {
+    const circuit = readSavedCircuits().find((item) => item.id === circuitId);
+    if (!circuit || !renameCircuitModal || !renameCircuitNameInput) {
+        return;
+    }
+
+    circuitIdBeingRenamed = circuitId;
+    renameCircuitNameInput.value = circuit.name || 'Circuito sem nome';
+    renameCircuitModal.classList.add('is-open');
+    renameCircuitModal.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => {
+        renameCircuitNameInput.focus();
+        renameCircuitNameInput.select();
+    });
+}
+
+function closeRenameCircuitModal() {
+    circuitIdBeingRenamed = null;
+    if (renameCircuitModal) {
+        renameCircuitModal.classList.remove('is-open');
+        renameCircuitModal.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function submitRenameCircuit(event) {
+    event.preventDefault();
+    const name = renameCircuitNameInput?.value.trim();
+    if (!name || !circuitIdBeingRenamed) {
+        renameCircuitNameInput?.focus();
+        return;
+    }
+
+    const circuits = readSavedCircuits();
+    const circuitIndex = circuits.findIndex((circuit) => circuit.id === circuitIdBeingRenamed);
+    if (circuitIndex < 0) {
+        closeRenameCircuitModal();
+        showExampleLoadedTip('Circuito salvo não encontrado');
+        return;
+    }
+
+    circuits[circuitIndex] = {
+        ...circuits[circuitIndex],
+        name,
+        renamedAt: new Date().toISOString()
+    };
+
+    try {
+        writeSavedCircuits(circuits);
+        renderSavedCircuitsList();
+        closeRenameCircuitModal();
+        showExampleLoadedTip('Circuito renomeado');
+    } catch (error) {
+        showExampleLoadedTip('Não foi possível renomear');
+    }
 }
 
 // Copia a expressão booleana exibida no toolbar.
@@ -932,7 +1172,7 @@ function removeGate(gateId) {
 }
 
 // Limpa todo o circuito e reinicia a área do editor.
-function clearSimulator() {
+function resetCircuitEditor() {
     dragTarget = null;
     panDrag = null;
     wiring = null;
@@ -955,10 +1195,74 @@ function clearSimulator() {
     state.wires = [];
     state.nodes.clear();
     expressionLabel.textContent = '-';
+}
+
+function clearSimulator() {
+    resetCircuitEditor();
     syncElectricalView();
 }
 
 // Cria um fio visual e registra a conexão entre portas.
+function loadSavedCircuit(circuitId) {
+    const circuit = readSavedCircuits().find((item) => item.id === circuitId);
+    if (!circuit || !Array.isArray(circuit.gates)) {
+        showExampleLoadedTip('Circuito salvo não encontrado');
+        renderSavedCircuitsList();
+        return;
+    }
+
+    resetCircuitEditor();
+
+    const restoredIds = new Set();
+    circuit.gates.forEach((savedGate) => {
+        if (!savedGate?.type) {
+            return;
+        }
+
+        const gate = createGate(savedGate.type, Number(savedGate.x) || 120, Number(savedGate.y) || 120);
+        gate.id = savedGate.id || crypto.randomUUID();
+        gate.inputs = Array.isArray(savedGate.inputs) ? savedGate.inputs.map((value) => value ? 1 : 0) : gate.inputs;
+        gate.output = savedGate.output ? 1 : 0;
+        gate.label = savedGate.label || gate.label;
+        state.gates.push(gate);
+
+        const node = renderGate(gate, nodeLayer);
+        state.nodes.set(gate.id, node);
+        restoredIds.add(gate.id);
+    });
+
+    (circuit.wires || []).forEach((wire) => {
+        if (!restoredIds.has(wire.fromId) || !restoredIds.has(wire.toId)) {
+            return;
+        }
+        addWire(wire.fromId, wire.toId, Number(wire.inputIndex) || 0);
+    });
+
+    if (circuit.viewport) {
+        zoomLevel = Math.max(zoomConfig.min, Math.min(zoomConfig.max, Number(circuit.viewport.zoom) || 1));
+        panOffset.x = Number(circuit.viewport.panX) || 0;
+        panOffset.y = Number(circuit.viewport.panY) || 0;
+        applyViewport();
+    }
+
+    setDeleteMode(false);
+    selectedExpressionIndex = 0;
+    updateSimulation();
+    closeSavedCircuitsDropdown();
+    showExampleLoadedTip('Circuito carregado');
+}
+
+function deleteSavedCircuit(circuitId) {
+    const nextCircuits = readSavedCircuits().filter((circuit) => circuit.id !== circuitId);
+    try {
+        writeSavedCircuits(nextCircuits);
+        renderSavedCircuitsList();
+        showExampleLoadedTip('Circuito excluído');
+    } catch (error) {
+        showExampleLoadedTip('Não foi possível excluir');
+    }
+}
+
 function addWire(fromId, toId, inputIndex) {
     const wire = createWire(fromId, toId, inputIndex);
     wire.path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -1127,6 +1431,61 @@ function handleClearSimulator(event) {
 }
 
 // Inicia arraste, pan ou criação de fio conforme o alvo clicado.
+function handleSavedCircuitActions(event) {
+    const saveButton = event.target.closest('[data-action="save-circuit"]');
+    if (saveButton) {
+        openSaveCircuitModal();
+        return;
+    }
+
+    const openButton = event.target.closest('[data-action="open-saved-circuits"]');
+    if (openButton) {
+        toggleSavedCircuitsDropdown();
+        return;
+    }
+
+    if (event.target.closest('[data-action="close-saved-circuits"]')) {
+        closeSavedCircuitsDropdown();
+        return;
+    }
+
+    if (event.target.closest('[data-action="close-save-circuit"]')) {
+        closeSaveCircuitModal();
+        return;
+    }
+
+    if (event.target.closest('[data-action="close-rename-circuit"]')) {
+        closeRenameCircuitModal();
+        return;
+    }
+
+    if (savedCircuitsDropdown && !savedCircuitsDropdown.hidden && event.target instanceof Node
+        && !savedCircuitsDropdownWrap?.contains(event.target)) {
+        closeSavedCircuitsDropdown();
+    }
+
+    const item = event.target.closest('.saved-circuit-item[data-saved-circuit-id]');
+    if (!item) {
+        return;
+    }
+
+    const circuitId = item.dataset.savedCircuitId;
+    if (event.target.closest('[data-action="load-saved-circuit"]')) {
+        loadSavedCircuit(circuitId);
+        signalCircuitChange();
+        return;
+    }
+
+    if (event.target.closest('[data-action="rename-saved-circuit"]')) {
+        openRenameCircuitModal(circuitId);
+        return;
+    }
+
+    if (event.target.closest('[data-action="delete-saved-circuit"]')) {
+        deleteSavedCircuit(circuitId);
+    }
+}
+
 function handleWorkspacePointerDown(event) {
     if (event.target.closest('[data-action="delete-node"], [data-action="inc-inputs"], [data-action="dec-inputs"], [data-action="toggle-input"], [data-action="set-label"]')) {
         return;
@@ -2027,7 +2386,20 @@ function init() {
             toggleExpressionCards(simplifiedExpressionExpandBtn);
         });
     }
+    if (saveCircuitForm) {
+        saveCircuitForm.addEventListener('submit', submitSaveCircuitName);
+    }
+    if (renameCircuitForm) {
+        renameCircuitForm.addEventListener('submit', submitRenameCircuit);
+    }
+    if (openSavedCircuitsBtn) {
+        openSavedCircuitsBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleSavedCircuitsDropdown();
+        });
+    }
     document.addEventListener('click', handleClearSimulator);
+    document.addEventListener('click', handleSavedCircuitActions);
     document.addEventListener('click', handleZoomClick);
     document.addEventListener('click', handleExpandToggle);
     document.addEventListener('click', handleExpressionRowCopyClick);

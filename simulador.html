@@ -413,6 +413,21 @@
                                 <i class="fa-solid fa-eraser" aria-hidden="true"></i>
                                 Limpar
                             </button>
+                            <button class="toolbar-btn" data-action="save-circuit" type="button">
+                                <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+                                Salvar
+                            </button>
+                            <div class="saved-circuits-dropdown-wrap" id="saved-circuits-dropdown-wrap">
+                                <button class="toolbar-btn" data-action="open-saved-circuits" type="button"
+                                    aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+                                    Carregar
+                                </button>
+                                <div class="saved-circuits-dropdown" id="saved-circuits-dropdown" hidden>
+                                    <div class="saved-circuits-dropdown__head">Circuitos salvos</div>
+                                    <div class="saved-circuits-list" id="saved-circuits-list"></div>
+                                </div>
+                            </div>
                             <button class="toolbar-btn" data-action="toggle-expand" type="button" aria-pressed="false">
                                 <i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i>
                                 <span>Expandir</span>
@@ -586,6 +601,58 @@
             <span class="example-loaded-tip__progress" aria-hidden="true">
                 <span class="example-loaded-tip__progress-bar"></span>
             </span>
+        </div>
+
+        <div class="save-circuit-modal" id="save-circuit-modal" aria-hidden="true">
+            <div class="save-circuit-modal__backdrop" data-action="close-save-circuit"></div>
+            <section class="save-circuit-modal__panel" role="dialog" aria-modal="true"
+                aria-labelledby="save-circuit-title">
+                <form class="save-circuit-form" id="save-circuit-form">
+                    <div class="save-circuit-modal__head">
+                        <h2 id="save-circuit-title">Salvar circuito</h2>
+                        <button class="save-circuit-modal__close" data-action="close-save-circuit" type="button"
+                            aria-label="Fechar">
+                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <label class="save-circuit-field">
+                        <span>Nome do circuito</span>
+                        <input id="save-circuit-name" name="circuitName" type="text" maxlength="64" autocomplete="off"
+                            required>
+                    </label>
+                    <div class="save-circuit-actions">
+                        <button class="saved-circuit-action" data-action="close-save-circuit" type="button">Cancelar</button>
+                        <button class="saved-circuit-action saved-circuit-action--primary" type="submit">Salvar</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div class="rename-circuit-modal" id="rename-circuit-modal" aria-hidden="true">
+            <div class="save-circuit-modal__backdrop" data-action="close-rename-circuit"></div>
+            <section class="save-circuit-modal__panel" role="dialog" aria-modal="true"
+                aria-labelledby="rename-circuit-title">
+                <form class="save-circuit-form" id="rename-circuit-form">
+                    <div class="save-circuit-modal__head">
+                        <h2 id="rename-circuit-title">Renomear circuito</h2>
+                        <button class="save-circuit-modal__close" data-action="close-rename-circuit" type="button"
+                            aria-label="Fechar">
+                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <label class="save-circuit-field">
+                        <span>Novo nome</span>
+                        <input id="rename-circuit-name" name="circuitName" type="text" maxlength="64"
+                            autocomplete="off" required>
+                    </label>
+                    <div class="save-circuit-actions">
+                        <button class="saved-circuit-action" data-action="close-rename-circuit"
+                            type="button">Cancelar</button>
+                        <button class="saved-circuit-action saved-circuit-action--primary"
+                            type="submit">Renomear</button>
+                    </div>
+                </form>
+            </section>
         </div>
     </div>
 
