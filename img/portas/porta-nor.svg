@@ -1,0 +1,10 @@
+<svg width="200" height="120" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+  <line x1="20" y1="40" x2="65" y2="40" stroke="#dc3545" stroke-width="3"/>
+  <line x1="20" y1="80" x2="65" y2="80" stroke="#dc3545" stroke-width="3"/>
+  <text x="5" y="45" font-family="Arial" font-weight="bold" fill="#333">A</text>
+  <text x="5" y="85" font-family="Arial" font-weight="bold" fill="#333">B</text>
+  <path d="M60,30 Q75,60 60,90 Q125,90 125,60 Q125,30 60,30 Z" fill="none" stroke="#dc3545" stroke-width="3"/>
+  <circle cx="131" cy="60" r="6" fill="none" stroke="#dc3545" stroke-width="3"/>
+  <line x1="137" y1="60" x2="165" y2="60" stroke="#dc3545" stroke-width="3"/>
+  <text x="175" y="65" font-family="Arial" font-weight="bold" fill="#333">Y</text>
+</svg>

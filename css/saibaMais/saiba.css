@@ -1,4 +1,4 @@
-.informacoes-portas {
+.conteudo {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
@@ -6,15 +6,144 @@
     text-align: left;
 }
 
+.informacoes-portas,
+.portas-listas {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    
+}
 
+.informacoes-portas {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.informacoes-portas h1 {
+    position: relative;
+    padding-left: 1rem;
+}
 
 .informacoes-portas p {
-    position: relative;
-    top: -25px;
-    line-height: 1.7;
+    position: absolute;
+    top: 25px;
+    margin-left: 1rem;
+    color: var(--cor-3);
+    line-height: 1.6;
+}
+
+.informacoes-portas h1::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.4rem;
+    width: 3px;
+    height: 2.2rem;
+    background-color: var(--cor-p1);
 }
 
 .portas {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    background: var(--cor-1);
+    border-radius: 10px;
+    
+}
+
+.porta-infor {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    text-align: center;
+    
+}
+
+.porta-conteudo {
+    text-align: left;
+}
+
+
+.porta-img {
+    width: 100%;
+    display: flex;
+    padding-left: 10px;
+}
+
+.porta-conteudo h1 {
+    position: relative;
+    top: 12px;
+}
+
+.porta-conteudo p {
+    color: var(--cor-3);
+    font: 500 1rem/1.5 "Poppins", sans-serif;
+    padding-bottom: 15px;
+}
+
+button {
+    grid-column: 1 / -1;
+    border: none;
+    border-top: 2px solid #9aa0a6;
+    padding: 15px;
+    text-transform: uppercase;
+    font: 500 1rem/1.5 "Poppins", sans-serif;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    display: flex;
+    align-items: center;    
+    justify-content: center; 
+    gap: 12px;            
+    cursor: pointer;
+    background-color: #f7f7f7; 
+}
+
+button::after {
+    content: "";
+    display: inline-block;
+    width: 25px; 
+    height: 20px; 
+    background: url("../../img/icones/flecha.svg") no-repeat center;
+    background-size: contain;
+    transition: transform 0.3s ease;
+}
+
+button:hover::after {
+    transform: translateX(5px);
+}
+
+@media (max-width: 550px) {
+    .portas {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 450px) {
+     .portas {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .porta-conteudo p {
+        font-size: 14px;
+    }
+}
+
+
+@media (max-width: 800px) {
+    button::after {
+        display: none;
+    }
+    .portas-listas {
+        padding-top: 15px;
+    }
+    .porta-infor {
+    grid-template-columns: 1fr;
+    }
 }
