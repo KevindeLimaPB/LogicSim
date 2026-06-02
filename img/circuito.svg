@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 120">
+  <style>
+    .wire { stroke:#000000; stroke-width:4; fill:none; }
+    .label { font:16px sans-serif; text-anchor:middle; }
+  </style>
+
+  <line class="wire" x1="20" y1="60" x2="100" y2="60"/>
+  <line class="wire" x1="200" y1="60" x2="280" y2="60"/>
+
+  <circle cx="100" cy="60" r="5" fill="#000000"/>
+  <circle cx="200" cy="60" r="5" fill="#000000"/>
+
+  <line class="wire" x1="100" y1="60" x2="185" y2="25"/>
+
+  <text class="label" x="10" y="50">A</text>
+  <text class="label" x="290" y="50">B</text>
+</svg>

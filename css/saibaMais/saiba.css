@@ -73,10 +73,13 @@ li {
 }
 
 
+
+
 .porta-img {
     width: 100%;
     display: flex;
     padding-left: 10px;
+    height: 200px;
 }
 
 .porta-conteudo h1 {

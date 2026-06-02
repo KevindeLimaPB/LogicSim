@@ -10,7 +10,7 @@
     --cor-8: #595959;
     --cor-9: #404040;
     --cor-10: #2E2E2E;
-    --cor-11: #121417;   
+    --cor-11: #000000;   
     --cor-p1: #0051ff;
     --cor-p2: #0044ff;
     --cor-p3: #1900ff;
@@ -19,6 +19,7 @@
     --cor-v1: #de1c20;
     --cor-a1: #0693b5;
     --cor-m1: #800000;
+    --cor-y1: #fbff00;
 }
 
 .cor-0{
@@ -101,6 +102,11 @@
 .cor-m1 {
     color: var(--cor-m1);
 }
+
+.cor-y1 {
+    color: var(--cor-y1);
+}
+
 
 .cor-success {
     color: var(--md-success);
