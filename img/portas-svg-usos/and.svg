@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="600px" height="480px" style="background-color: #0b0e14; font-family: sans-serif;">
+  <defs>
+    <style>
+      .box { fill: #111823; stroke: #1e293b; stroke-width: 2; rx: 20px; }
+      .text-label { fill: #ffffff; font-size: 18px; font-weight: bold; }
+      .text-value { fill: #4ade80; font-size: 24px; font-weight: bold; }
+      .switch-bg { fill: #e2e8f0; rx: 12px; }
+      .switch-btn { fill: #ffffff; stroke: #cbd5e1; stroke-dasharray: 0; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2)); }
+      .wire { fill: none; stroke: #38bdf8; stroke-width: 4; stroke-linecap: round; }
+      .wire-glow { fill: none; stroke: #38bdf8; stroke-width: 8; opacity: 0.3; stroke-linecap: round; }
+      .gate { fill: none; stroke: #ffffff; stroke-width: 4; stroke-linejoin: round; }
+      .node-green { fill: #4ade80; }
+      .node-orange { fill: #fb923c; }
+      .node-white { fill: #ffffff; stroke: #fb923c; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <g opacity="0.05">
+    <path d="M 0,50 L 800,50 M 0,100 L 800,100 M 0,150 L 800,150 M 0,200 L 800,200 M 0,250 L 800,250 M 0,300 L 800,300" stroke="#ffffff" stroke-width="1"/>
+    <path d="M 100,0 L 100,350 M 200,0 L 200,350 M 300,0 L 300,350 M 400,0 L 400,350 M 500,0 L 500,350 M 600,0 L 600,350 M 700,0 L 700,350" stroke="#ffffff" stroke-width="1"/>
+  </g>
+
+  <path d="M 250,90 C 280,90 280,140 320,140" class="wire-glow"/>
+  <path d="M 250,90 C 280,90 280,140 320,140" class="wire"/>
+  
+  <path d="M 250,210 C 280,210 280,180 320,180" class="wire-glow"/>
+  <path d="M 250,210 C 280,210 280,180 320,180" class="wire"/>
+  
+  <path d="M 411,160 L 580,160" class="wire-glow"/>
+  <path d="M 410,160 L 580,160" class="wire"/>
+
+  <g transform="translate(20, 40)">
+    <rect width="230" height="90" class="box" />
+    <text x="30" y="52" class="text-label">A</text>
+    <path d="M 50,47 L 56,53 L 62,47" fill="none" stroke="#ffffff" stroke-width="2" />
+    <rect x="90" y="27" width="70" height="34" class="switch-bg" fill="#e2fbd7"/>
+    <text x="100" y="49" font-size="11" fill="#94a3b8" font-weight="bold">OFF</text>
+    <rect x="124" y="30" width="32" height="28" rx="10" class="switch-btn" />
+    <text x="131" y="48" font-size="11" fill="#1e293b" font-weight="bold">ON</text>
+    <circle cx="205" cy="45" r="10" class="node-green" />
+  </g>
+
+  <g transform="translate(20, 160)">
+    <rect width="230" height="90" class="box" />
+    <text x="30" y="52" class="text-label">B</text>
+    <path d="M 50,47 L 56,53 L 62,47" fill="none" stroke="#ffffff" stroke-width="2" />
+    <rect x="90" y="27" width="70" height="34" class="switch-bg" fill="#e2fbd7"/>
+    <text x="100" y="49" font-size="11" fill="#94a3b8" font-weight="bold">OFF</text>
+    <rect x="124" y="30" width="32" height="28" rx="10" class="switch-btn" />
+    <text x="131" y="48" font-size="11" fill="#1e293b" font-weight="bold">ON</text>
+    <circle cx="205" cy="45" r="10" class="node-green" />
+  </g>
+
+  <g transform="translate(320, 110)">
+    <path d="M 20,10 L 50,10 A 40,40 0 0,1 50,90 L 20,90 Z" class="gate" />
+    <line x1="0" y1="30" x2="20" y2="30" stroke="#ffffff" stroke-width="4" />
+    <line x1="0" y1="70" x2="20" y2="70" stroke="#ffffff" stroke-width="4" />
+  </g>
+
+  <g transform="translate(560, 100)">
+    <rect width="160" height="120" class="box" />
+    <text x="120" y="45" fill="#94a3b8" font-size="16" font-weight="bold">Y1</text>
+    <text x="75" y="90" class="text-value">1</text>
+    <circle cx="25" cy="40" r="10" fill="#fef08a" stroke="#fb923c" stroke-width="2" />
+  </g>
+
+  
+</svg>

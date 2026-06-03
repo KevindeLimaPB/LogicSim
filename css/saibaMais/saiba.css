@@ -1,3 +1,11 @@
+body.theme-dark li {
+    background-color: var(--cor-10);
+}
+
+body.theme-dark button  {
+    background-color: var(--cor-11);
+}
+
 .conteudo {
     width: 100%;
     max-width: 1200px;
@@ -72,9 +80,6 @@ li {
     text-align: left;
 }
 
-
-
-
 .porta-img {
     width: 100%;
     display: flex;
@@ -126,6 +131,42 @@ button::after {
 button:hover::after {
     transform: translateX(5px);
 }
+
+body.theme-dark .conteudo-bg {
+    background-color: #151516;
+}
+
+body.theme-light .conteudo-bg {
+    background-color: #f7f7f7;
+}
+
+.conteudo-infor {
+    display: grid;
+    max-width: 1200px;
+    padding-left: 20px;
+    padding-right: 20px;
+    grid-template-columns: 1fr 1fr;
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+
+.conteudo-detalhado {
+    grid-column: 1 / -1;
+}
+
+.conteudo-img {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.conteudo-img img {
+    width: 280px;
+}
+
+
+
 
 @media (max-width: 750px) {
     .portas {
