@@ -65,8 +65,8 @@
                     <h1 class="cor-p3">AND</h1>
                     <p>A saída é 1 quando todos os valores de entrada forem 1.</p>
                 </div>
-                <button class="cor-p3">Explorar</button>
-                </div>
+                <button class="cor-p3" id="btn-explorar-and">Explorar</button>
+                </div>   
             </li>
 
             <li>
@@ -79,7 +79,7 @@
                     <h1 class="cor-success">OR</h1>
                     <p>A saída é 1 quando pelo menos uma das entradas for 1.</p>
                 </div>
-                <button class="cor-success">Explorar</button>
+                <button class="cor-success" id="btn-explorar-or">Explorar</button>
                 </div>
             </li>
 
@@ -93,7 +93,7 @@
                     <h1 class="cor-r1">NOT</h1>
                     <p>A saída pode receber sinais positivos que viram negativo.</p>
                 </div>
-                <button class="cor-r1">Explorar</button>
+                <button class="cor-r1" id="btn-explorar-not">Explorar</button>
                 </div>
             </li>
 
@@ -202,10 +202,7 @@
                 <a  href="./simulador.html">
                 <img  src="./img/portas-svg-usos/and.svg" alt="porta logica AND">
                 </a>
-
                 <img src="./img/tables-usos/and.svg" alt="tabela verdade">
-
-                
             </div>
 
             <div class="conteudo-descricao">
@@ -213,7 +210,57 @@
                 <h2>Porta Lógica AND</h2>
                 <p>Nessas imagem vemos que tem algo em incomum, ambas as entradas tem valor de 1 com A e B ou em termos técnicos A · B fazendo sua multiplicação com a saída sendo 1, E isso mostrando na simulação com a porta AND e também mostrando na tabela verdade e no circuito de comutação mas todas as imagem mesmo com regras diferentes chegam na mesma saída, Não importa quantas entradas terá na porta lógica mas para ser AND todas devem está ligadas. Clique na imagem do circuito para ir direito ao simulador com o exemplo.</p>
             </div>
+    </div>
+</article>
 
+<article class="conteudo-bg">
+    <div id="infor-or" class="conteudo-infor">
+
+        <div class="conteudo-detalhado">
+            <h1>Explorando a Porta OR</h1>
+            <p>
+               A porta OR é um circuito digital básico que realiza a soma lógica. Ela emite um sinal verdadeiro (1) se pelo menos uma de suas entradas for verdadeira. A saída só será falsa (0) se todas as entradas forem obrigatoriamente falsas.Imagine a seguinte situação: para uma lâmpada acender, você pode apertar o interruptor A OU o interruptor B. Se você apertar o interruptor A (A = 1) e deixar o B desligado (B = 0), a lâmpada ainda assim irá acender (Saída = 1). Confira exemplos abaixo:
+            </p>
+        </div>
+            
+            <div class="conteudo-img">
+                <a  href="./simulador.html">
+                <img  src="./img/portas-svg-usos/or.svg" alt="porta logica OR">
+                </a>
+                <img src="./img/tables-usos/or.svg" alt="tabela verdade">
+            </div>
+
+            <div class="conteudo-descricao">
+
+                <h2>Porta Lógica OR</h2>
+                <p>Nessas imagem vemos que tem algo em incomum, uma das entradas tem valor de 1 com A OU B ou em termos técnicos A + B fazendo sua multiplicação com a saída sendo 1, E isso mostrando na simulação com a porta OR e também mostrando na tabela verdade e no circuito de comutação mas todas as imagem mesmo com regras diferentes chegam na mesma saída, Não importa quantas entradas estiverem ligadas ser pelo menos uma estive ligada a saída será 1. Clique na imagem do circuito para ir direito ao simulador com o exemplo.</p>
+            </div>
+    </div>
+</article>
+
+<article class="conteudo-bg">
+    <div id="infor-not" class="conteudo-infor">
+
+        <div class="conteudo-detalhado">
+            <h1>Explorando a Porta NOT</h1>
+            <p>
+                A porta NOT é um circuito digital básico que realiza a negação lógica. Ela possui apenas uma entrada e uma saída. Seu funcionamento é simples: a saída sempre apresenta o valor oposto ao da entrada. Assim, quando a entrada for verdadeira (1), a saída será falsa (0). Da mesma forma, quando a entrada for falsa (0), a saída será verdadeira (1).
+                Imagine a seguinte situação: uma lâmpada é controlada por um sistema que funciona de forma invertida. Se o interruptor estiver desligado (Entrada = 0), a lâmpada acende (Saída = 1). Porém, ao ligar o interruptor (Entrada = 1), a lâmpada apaga (Saída = 0). Confira os exemplos abaixo:
+            </p>
+        </div>
+            
+            <div class="conteudo-img">
+                <a  href="./simulador.html">
+                <img  src="./img/portas-svg-usos/not.svg" alt="porta logica NOT">
+                </a>
+                <img src="./img/tables-usos/not.svg" alt="tabela verdade">
+            </div>
+
+            <div class="conteudo-descricao">
+
+                <h2>Porta Lógica NOT</h2>
+                <p>Nessas imagem as entradas manda sinal(A) de 1 ou 0 mas no NOT ele faz a negação(A') dessas entradas ou qualquer outra entrada, E isso mostrando na simulação com a porta NOT e também mostrando na tabela verdade e no circuito de comutação mas todas as imagem mesmo com regras diferentes chegam na mesma saída, Não importa quantas entradas estiverem ligadas, O NOT pega aquela entrada 1 e transformar em 0 ou contrário. Clique na imagem do circuito para ir direito ao simulador com o exemplo.</p>
+            </div>
     </div>
 </article>
 

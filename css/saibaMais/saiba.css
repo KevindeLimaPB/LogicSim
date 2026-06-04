@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+
 body.theme-dark li {
     background-color: var(--cor-10);
 }
@@ -155,28 +158,75 @@ body.theme-light .conteudo-bg {
     grid-column: 1 / -1;
 }
 
+.conteudo-detalhado h1 {
+    font: 600 2rem/1.5 "Nunito", sans-serif;
+}
+
+.conteudo-detalhado  p {
+    font: 400 1.1rem/1.8 "Roboto", sans-serif;
+}
+
+.conteudo-descricao {
+    border-radius: 5px;
+    text-align: left;
+}
+
+.conteudo-descricao h2 {
+    font: 600 1.525rem/1.5 "Nunito", sans-serif;
+}
+
+.conteudo-descricao p {
+    font: 400 1.1rem/1.8 "Roboto", sans-serif;
+}
+
 .conteudo-img {
     display: flex;
-    flex-wrap: wrap;
+    padding-right: 10px;
     gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
 }
 
 .conteudo-img img {
     width: 280px;
+    flex: 0 0 auto;
+    max-width: 100%;
 }
-
-
-
 
 @media (max-width: 750px) {
     .portas {
         grid-template-columns: 1fr 1fr;
     }
+    .conteudo-infor {
+        grid-template-columns: 1fr;
+    }
+    .conteudo-img {
+        flex-direction: column;
+        align-items: center;
+    }
+    .conteudo-img img {
+        width: 280px;
+        max-width: 100%;
+    }
+}
+
+.conteudo-bg {
+    display: none;
 }
 
 @media (max-width: 450px) {
      .portas {
         grid-template-columns: 1fr;
+    }
+    .conteudo-detalhado h1 {
+        max-width: 11ch;
+    }
+    .conteudo-detalhado p {
+        font-size: 1.215rem;
+    }
+    .conteudo-descricao p {
+        font-size: 1.215rem;
     }
 }
 

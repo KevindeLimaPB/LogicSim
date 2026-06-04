@@ -1,22 +1,25 @@
-//pagina saiba mais - exemplos 
+document.addEventListener("DOMContentLoaded", function () {
+    function setupExplorarButton(buttonId, infoId) {
+        const button = document.getElementById(buttonId);
+        const info = document.getElementById(infoId);
 
-const exemplos = document.querySelectorAll(".exemplo-lista button");
+        if (!button || !info) return;
 
-function ativarExemplo(event){
-    const exemplo = event.currentTarget;
-    const controls = exemplo.getAttribute('aria-controls');
-    const resposta = document.getElementById(controls);
+        const containerBg = info.closest(".conteudo-bg");
+        if (!containerBg) return;
 
-    
-    resposta.classList.toggle('ativa');
-    const ativa = resposta.classList.contains('ativa');
-    exemplo.setAttribute('aria-expanded', ativa);
-   
-}
+        button.addEventListener("click", function () {
+            // Fechar outros painéis antes de abrir este
+            document.querySelectorAll('.conteudo-bg').forEach((el) => {
+                if (el !== containerBg) el.style.display = 'none';
+            });
 
-function eventosExemplos(exemplo) {
-    exemplo.addEventListener('click', ativarExemplo);
-}
+            containerBg.style.display = "block";
+            info.scrollIntoView({ behavior: "smooth" });
+        });
+    }
 
-exemplos.forEach(eventosExemplos)
-console.log(exemplos);
+    setupExplorarButton("btn-explorar-and", "infor-and");
+    setupExplorarButton("btn-explorar-or", "infor-or");
+    setupExplorarButton("btn-explorar-not", "infor-not")
+});
