@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 380"  style="background-color: #0b0e14; font-family: sans-serif;">
+  <defs>
+    <style>
+      .table-bg { fill: #111823; stroke: #1e293b; stroke-width: 2; rx: 12px; }
+      .header-bg { fill: #1e293b; }
+      .row-line { stroke: #1e293b; stroke-width: 1; }
+      .col-line { stroke: #1e293b; stroke-width: 1; }
+      .text-header { fill: #94a3b8; font-size: 14px; font-weight: bold; text-anchor: middle; }
+      .text-data { fill: #ffffff; font-size: 15px; text-anchor: middle; }
+      .text-title { fill: #ffffff; font-size: 18px; font-weight: bold; }
+      .val-off { fill: #ef4444; font-weight: bold; }
+      .val-on { fill: #4ade80; font-weight: bold; }
+      .gate-symbol { fill: none; stroke: #94a3b8; stroke-width: 2; }
+    </style>
+  </defs>
+
+ 
+  <g transform="translate(30, 75)">
+    <rect width="440" height="260" class="table-bg" />
+    
+    <path d="M 0,12 A 12,12 0 0,1 12,0 L 428,0 A 12,12 0 0,1 440,12 L 440,50 L 0,50 Z" class="header-bg" />
+
+    <line x1="0" y1="50" x2="440" y2="50" stroke="#1e293b" stroke-width="2" />
+    <line x1="0" y1="102" x2="440" y2="102" class="row-line" />
+    <line x1="0" y1="154" x2="440" y2="154" class="row-line" />
+    <line x1="0" y1="206" x2="440" y2="206" class="row-line" />
+
+    <line x1="130" y1="0" x2="130" y2="260" class="col-line" />
+    <line x1="260" y1="0" x2="260" y2="260" class="col-line" />
+
+    <text x="65" y="30" class="text-header">ENTRADA A</text>
+    <text x="195" y="30" class="text-header">ENTRADA B</text>
+    <text x="350" y="30" class="text-header" fill="#38bdf8">SAÍDA (A NOR B)</text>
+
+    <g transform="translate(0, 50)">
+      <text x="65" y="32" class="text-data">0 <tspan class="val-off">(OFF)</tspan></text>
+      <text x="195" y="32" class="text-data">0 <tspan class="val-off">(OFF)</tspan></text>
+      <text x="350" y="32" class="text-data" font-weight="bold">1 <tspan class="val-on">(ON)</tspan></text>
+    </g>
+
+    <g transform="translate(0, 102)">
+      <text x="65" y="32" class="text-data">0 <tspan class="val-off">(OFF)</tspan></text>
+      <text x="195" y="32" class="text-data">1 <tspan class="val-on">(ON)</tspan></text>
+      <text x="350" y="32" class="text-data" font-weight="bold">0 <tspan class="val-off">(OFF)</tspan></text>
+    </g>
+
+    <g transform="translate(0, 154)">
+      <text x="65" y="32" class="text-data">1 <tspan class="val-on">(ON)</tspan></text>
+      <text x="195" y="32" class="text-data">0 <tspan class="val-off">(OFF)</tspan></text>
+      <text x="350" y="32" class="text-data" font-weight="bold">0 <tspan class="val-off">(OFF)</tspan></text>
+    </g>
+
+    <g transform="translate(0, 206)">
+      <text x="65" y="32" class="text-data">1 <tspan class="val-on">(ON)</tspan></text>
+      <text x="195" y="32" class="text-data">1 <tspan class="val-on">(ON)</tspan></text>
+          <text x="350" y="32" class="text-data" font-weight="bold">0 <tspan class="val-off">(OFF)</tspan></text>
+    </g>
+  </g>
+</svg>

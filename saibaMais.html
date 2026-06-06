@@ -100,42 +100,42 @@
             <li>
                  <div class="porta-infor">
                 <div class="porta-img">
-                    <img src="img/portas/porta-nand.svg" alt="porta and">
+                    <img src="img/portas/porta-nand.svg" alt="porta nand">
                 </div>
 
                 <div class="porta-conteudo">
                     <h1 class="cor-l1">NAND</h1>
                     <p>A saída é 0 somente quando todas as entradas forem 1.</p>
                 </div>
-                <button class="cor-l1">Explorar</button>
+                <button class="cor-l1" id="btn-explorar-nand">Explorar</button>
                 </div>
             </li>
 
             <li>
                  <div class="porta-infor">
                 <div class="porta-img">
-                    <img src="img/portas/porta-nor.svg" alt="porta and">
+                    <img src="img/portas/porta-nor.svg" alt="porta nor">
                 </div>
 
                 <div class="porta-conteudo">
                     <h1 class="cor-v1">NOR</h1>
                     <p>A saída é 1 somente quando todas as entradas forem 0.</p>
                 </div>
-                <button class="cor-v1">Explorar</button>
+                <button class="cor-v1" id="btn-explorar-nor">Explorar</button>
                 </div>
             </li>
 
             <li>
                    <div class="porta-infor">
                 <div class="porta-img">
-                    <img src="img/portas/porta-xor.svg" alt="porta and">
+                    <img src="img/portas/porta-xor.svg" alt="porta xor">
                 </div>
 
                 <div class="porta-conteudo">
                     <h1 class="cor-a1">XOR</h1>
                     <p>A saída é 1 somente quando as entradas são diferetes.</p>
                 </div>
-                <button class="cor-a1">Explorar</button>
+                <button class="cor-a1" id="btn-explorar-xor">Explorar</button>
                 </div>
             </li>
 
@@ -260,6 +260,85 @@
 
                 <h2>Porta Lógica NOT</h2>
                 <p>Nessas imagem as entradas manda sinal(A) de 1 ou 0 mas no NOT ele faz a negação(A') dessas entradas ou qualquer outra entrada, E isso mostrando na simulação com a porta NOT e também mostrando na tabela verdade e no circuito de comutação mas todas as imagem mesmo com regras diferentes chegam na mesma saída, Não importa quantas entradas estiverem ligadas, O NOT pega aquela entrada 1 e transformar em 0 ou contrário. Clique na imagem do circuito para ir direito ao simulador com o exemplo.</p>
+            </div>
+    </div>
+</article>
+
+<article class="conteudo-bg">
+    <div id="infor-nand" class="conteudo-infor">
+
+        <div class="conteudo-detalhado">
+            <h1>Explorando a Porta NAND</h1>
+            <p>
+                A porta NAND é um circuito digital básico que realiza a operação lógica de negação da porta AND. Ela pode possuir duas ou mais entradas e apenas uma saída. Seu funcionamento é simples: a saída será falsa (0) somente quando todas as entradas forem verdadeiras (1). Em qualquer outra combinação de entradas, a saída será verdadeira (1).
+                Imagine a seguinte situação: uma lâmpada é controlada por um sistema de segurança que utiliza uma porta NAND com dois interruptores. A lâmpada permanece acesa (Saída = 1) enquanto pelo menos um dos interruptores estiver desligado (Entrada = 0). Porém, quando os dois interruptores são ligados ao mesmo tempo (Entradas = 1 e 1), a lâmpada apaga (Saída = 0).Confira os exemplos abaixo:
+
+            </p>
+        </div>
+            
+            <div class="conteudo-img">
+                <a  href="./simulador.html">
+                <img  src="./img/portas-svg-usos/nand.svg" alt="porta logica NAND">
+                </a>
+                <img src="./img/tables-usos/nand.svg" alt="tabela verdade">
+            </div>
+
+            <div class="conteudo-descricao">
+
+                <h2>Porta Lógica NAND</h2>
+                <p>Nas imagem do circuito e da tabela verdade mostra que a porta lógica NAND é o completo oposto da porta AND e com regras parecidas da porta lógica OR. Clique na imagem do circuito para ir direito ao simulador com o exemplo.</p>
+            </div>
+    </div>
+</article>
+
+<article class="conteudo-bg">
+    <div id="infor-nor" class="conteudo-infor">
+
+        <div class="conteudo-detalhado">
+            <h1>Explorando a Porta NOR</h1>
+            <p>
+               A porta NOR é um circuito digital básico que realiza a operação lógica de negação da porta OR. Ela pode possuir duas ou mais entradas e apenas uma saída. Seu funcionamento é simples: a saída será verdadeira (1) somente quando todas as entradas forem falsas (0). Se pelo menos uma das entradas for verdadeira (1), a saída será falsa (0).
+                Imagine a seguinte situação: uma lâmpada é controlada por um sistema de segurança que utiliza uma porta NOR com dois interruptores. A lâmpada permanece acesa (Saída = 1) apenas quando os dois interruptores estão desligados (Entradas = 0 e 0). Porém, se qualquer um dos interruptores for ligado (Entrada = 1), a lâmpada apaga (Saída = 0).Confira os exemplos abaixo:
+            </p>
+        </div>
+            
+            <div class="conteudo-img">
+                <a  href="./simulador.html">
+                <img  src="./img/portas-svg-usos/nor.svg" alt="porta logica NOR">
+                </a>
+                <img src="./img/tables-usos/nor.svg" alt="tabela verdade">
+            </div>
+
+            <div class="conteudo-descricao">
+
+                <h2>Porta Lógica NOR</h2>
+                <p>Diferente do OR, a porta lógica NOR só aceita entradas falsas(0) e nenhuma verdadeira, Confira a tabela verdade da OR e da AND que você irá ver regras diferentes que a NOR usa. Clique na imagem do circuito para ir direito ao simulador com o exemplo.</p>
+            </div>
+    </div>
+</article>
+
+<article class="conteudo-bg">
+    <div id="infor-xor" class="conteudo-infor">
+
+        <div class="conteudo-detalhado">
+            <h1>Explorando a Porta XOR</h1>
+            <p>
+             A porta XOR (OU exclusivo) é um circuito digital básico que realiza uma operação lógica na qual a saída será verdadeira (1) somente quando as entradas forem diferentes entre si. Ela pode possuir duas ou mais entradas e apenas uma saída. Seu funcionamento é simples: a saída será 1 quando houver um número ímpar de entradas em nível lógico alto (1), e será 0 quando todas as entradas forem iguais.
+            Imagine a seguinte situação: uma lâmpada é controlada por um sistema de iluminação que utiliza uma porta XOR com dois interruptores. A lâmpada permanece acesa (Saída = 1) quando apenas um dos interruptores está ligado. Porém, se ambos estiverem na mesma posição (os dois desligados ou os dois ligados), a lâmpada permanece apagada (Saída = 0). Confira os exemplos abaixo:
+            </p>
+        </div>
+            
+            <div class="conteudo-img">
+                <a  href="./simulador.html">
+                <img  src="./img/portas-svg-usos/xor.svg" alt="porta logica XOR">
+                </a>
+                <img src="./img/tables-usos/xor.svg" alt="tabela verdade">
+            </div>
+
+            <div class="conteudo-descricao">
+
+                <h2>Porta Lógica XOR</h2>
+                <p>A Porta XOR tem duas regras, como foi dito acima. O XOR não aceita valores iguais entre as entradas, pois sua saída depende da paridade dos valores lógicos. Em um circuito com duas entradas, a saída será 1 quando as entradas forem diferentes e 0 quando forem iguais.Observando a tabela verdade, percebe-se que a saída é 1 apenas quando há um número ímpar de entradas em nível lógico alto (1), pois a XOR depende da paridade. Isso significa que, por exemplo, em um circuito com quatro entradas, se três delas forem 1 e uma for 0, a saída será 1, pois 1 + 1 + 1 = 3, e 3 é um número ímpar.Clique na imagem do circuito para ser direcionado diretamente ao simulador com o exemplo.</p>
             </div>
     </div>
 </article>

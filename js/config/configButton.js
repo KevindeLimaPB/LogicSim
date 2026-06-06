@@ -21,5 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setupExplorarButton("btn-explorar-and", "infor-and");
     setupExplorarButton("btn-explorar-or", "infor-or");
-    setupExplorarButton("btn-explorar-not", "infor-not")
+    setupExplorarButton("btn-explorar-not", "infor-not");
+    setupExplorarButton("btn-explorar-nand", "infor-nand");
+    setupExplorarButton("btn-explorar-nor", "infor-nor");
+    setupExplorarButton("btn-explorar-xor","infor-xor")
 });

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 350" width="600px" height="480px" style="background-color: #0b0e14; font-family: sans-serif;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 350" width="600px" height="480px" style="background-color: #0b0e14; font-family: sans-serif;">
   <defs>
     <style>
       .box { fill: #111823; stroke: #1e293b; stroke-width: 2; rx: 20px; }
@@ -66,13 +66,7 @@
   />
 
   <!-- Curva traseira da OR -->
-  <path
-    d="M 0,10
-       Q 25,50 0,90"
-    fill="none"
-    stroke="#ffffff"
-    stroke-width="4"
-  />
+ 
 
   <!-- Entradas -->
   <line x1="-5" y1="30" x2="18" y2="30"
