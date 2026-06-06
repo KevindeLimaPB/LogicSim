@@ -27,7 +27,7 @@ body.theme-dark button  {
 
 .informacoes-portas {
     position: relative;
-    padding-bottom: 1.5rem;
+    padding-bottom: 1.9rem;
 }
 
 .informacoes-portas h1 {
@@ -35,12 +35,22 @@ body.theme-dark button  {
     padding-left: 1rem;
 }
 
-.informacoes-portas p {
+body.theme-dark .informacoes-portas p {
     position: absolute;
     top: 25px;
     margin-left: 1rem;
-    color: var(--cor-3);
+    color: var(--cor-9);
     line-height: 1.6;
+    font-family: "Poppins", sans-serif;
+}
+
+body.theme-light .informacoes-portas p {
+    position: absolute;
+    top: 25px;
+    margin-left: 1rem;
+    color: var(--cor-2);
+    line-height: 1.6;
+    font-family: "Poppins", sans-serif;
 }
 
 .informacoes-portas h1::before {
@@ -151,7 +161,15 @@ body.theme-light .conteudo-bg {
     grid-template-columns: 1fr 1fr;
     margin-left: auto;
     margin-right: auto;
-    
+}
+
+.conteudo-infor-no{
+    max-width: 1200px;
+    padding-left: 20px;
+    padding-right: 20px;
+    grid-template-columns: 1fr;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .conteudo-detalhado {
@@ -194,6 +212,22 @@ body.theme-light .conteudo-bg {
     max-width: 100%;
 }
 
+.conteudo-img img.imagem-table {
+    width: 920px;
+    max-width: 100%;
+    padding-bottom: 10px;
+}
+
+.conteudo-bg {
+    display: none;
+}
+@media (max-width: 650px) {
+    .conteudo-img img.imagem-table {
+    display: none;
+    }
+}
+
+
 @media (max-width: 750px) {
     .portas {
         grid-template-columns: 1fr 1fr;
@@ -211,9 +245,6 @@ body.theme-light .conteudo-bg {
     }
 }
 
-.conteudo-bg {
-    display: none;
-}
 
 @media (max-width: 450px) {
      .portas {

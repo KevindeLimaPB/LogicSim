@@ -24,5 +24,8 @@ document.addEventListener("DOMContentLoaded", function () {
     setupExplorarButton("btn-explorar-not", "infor-not");
     setupExplorarButton("btn-explorar-nand", "infor-nand");
     setupExplorarButton("btn-explorar-nor", "infor-nor");
-    setupExplorarButton("btn-explorar-xor","infor-xor")
+    setupExplorarButton("btn-explorar-xor","infor-xor");
+    setupExplorarButton("btn-explorar-xnor","infor-xnor");
+    setupExplorarButton("btn-explorar-tabela","infor-tabela");
+    setupExplorarButton("btn-explorar-comu","infor-comu");
 });

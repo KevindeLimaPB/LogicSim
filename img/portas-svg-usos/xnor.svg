@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 350" width="600px" height="480px" style="background-color: #0b0e14; font-family: sans-serif;">
+  <defs>
+    <style>
+      .box { fill: #111823; stroke: #1e293b; stroke-width: 2; rx: 20px; }
+      .text-label { fill: #ffffff; font-size: 18px; font-weight: bold; }
+      .text-value { fill: #4ade80; font-size: 24px; font-weight: bold; }
+      .switch-bg { fill: #e2e8f0; rx: 12px; }
+      .switch-btn { fill: #ffffff; stroke: #cbd5e1; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2)); }
+      .wire { fill: none; stroke: #38bdf8; stroke-width: 4; stroke-linecap: round; }
+      .wire-glow { fill: none; stroke: #38bdf8; stroke-width: 8; opacity: 0.3; stroke-linecap: round; }
+      .gate { fill: none; stroke: #ffffff; stroke-width: 4; stroke-linejoin: round; }
+      .node-green { fill: #4ade80; }
+      .node-orange { fill: #fb923c; }
+    </style>
+  </defs>
+
+  <!-- GRID -->
+  <g opacity="0.05">
+    <path d="M 0,50 L 800,50 M 0,100 L 800,100 M 0,150 L 800,150 M 0,200 L 800,200 M 0,250 L 800,250 M 0,300 L 800,300"
+          stroke="#ffffff" stroke-width="1"/>
+  </g>
+
+  <!-- WIRES ENTRADA -->
+  <path d="M 250,90 C 280,90 280,140 320,140" class="wire-glow"/>
+  <path d="M 250,90 C 280,90 280,140 320,140" class="wire"/>
+
+  <path d="M 250,210 C 280,210 280,180 320,180" class="wire-glow"/>
+  <path d="M 250,210 C 280,210 280,180 320,180" class="wire"/>
+
+  <!-- ENTRADA A -->
+  <g transform="translate(20, 40)">
+    <rect width="230" height="90" class="box"/>
+    <text x="30" y="52" class="text-label">A</text>
+
+    <rect x="90" y="27" width="70" height="34" rx="12" fill="#e2e8f0"/>
+    <text x="136" y="49" font-size="11" fill="#94a3b8" font-weight="bold">ON</text>
+
+    <rect x="94" y="30" width="32" height="28" rx="10" class="switch-btn"/>
+    <text x="101" y="48" font-size="11" fill="#1e293b" font-weight="bold">OFF</text>
+
+    <circle cx="205" cy="45" r="10" class="node-orange"/>
+  </g>
+
+  <!-- ENTRADA B -->
+  <g transform="translate(20, 160)">
+    <rect width="230" height="90" class="box"/>
+    <text x="30" y="52" class="text-label">B</text>
+
+    <rect x="90" y="27" width="70" height="34" rx="12" fill="#e2e8f0"/>
+    <text x="136" y="49" font-size="11" fill="#94a3b8" font-weight="bold">ON</text>
+
+    <rect x="94" y="30" width="32" height="28" rx="10" class="switch-btn"/>
+    <text x="101" y="48" font-size="11" fill="#1e293b" font-weight="bold">OFF</text>
+
+    <circle cx="205" cy="45" r="10" class="node-orange"/>
+  </g>
+
+  <!-- PORTA XNOR -->
+  <g transform="translate(320, 110)">
+
+    <!-- Corpo da porta -->
+    <path d="M 15,10 Q 40,50 15,90 Q 55,90 85,50 Q 55,10 15,10"
+          class="gate"/>
+
+    <!-- Curva traseira -->
+    <path d="M 0,10 Q 25,50 0,90"
+          fill="none"
+          stroke="#ffffff"
+          stroke-width="4"/>
+
+  
+
+    <!-- Entradas -->
+    <line x1="-5" y1="30" x2="18" y2="30" stroke="#ffffff" stroke-width="4"/>
+    <line x1="-5" y1="70" x2="18" y2="70" stroke="#ffffff" stroke-width="4"/>
+
+    <!-- Bolha de inversão -->
+    <circle cx="95" cy="50" r="8"
+            fill="#0b0e14"
+            stroke="#ffffff"
+            stroke-width="4"/>
+
+  </g>
+
+  <!-- SAÍDA -->
+  <path d="M 423,160 L 580,160" class="wire-glow"/>
+  <path d="M 423,160 L 580,160" class="wire"/>
+
+  <!-- OUTPUT -->
+  <g transform="translate(560, 100)">
+    <rect width="160" height="120" class="box"/>
+
+    <text x="72" y="35"
+          fill="#94a3b8"
+          font-size="16"
+          font-weight="bold">
+      XNOR
+    </text>
+
+    <!-- A=0 e B=0 => saída = 1 -->
+    <circle cx="25" cy="40" r="10" class="node-green"/>
+
+    <text x="120" y="60"
+          fill="#94a3b8"
+          font-size="16"
+          font-weight="bold">
+      Y
+    </text>
+
+    <text x="72" y="90"
+          class="text-value">
+      1
+    </text>
+  </g>
+
+</svg>

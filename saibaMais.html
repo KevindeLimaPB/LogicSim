@@ -149,7 +149,7 @@
                     <h1 class="cor-m1">XNOR</h1>
                     <p>A saída é 1 quando as entradas são iguais e 0 quando são diferente.</p>
                 </div>
-                <button class="cor-m1">Explorar</button>
+                <button class="cor-m1" id="btn-explorar-xnor">Explorar</button>
                 </div>
             </li>
 
@@ -162,10 +162,10 @@
                 <div class="porta-conteudo">
                     <h2 class="cor-y1">Tabela Verdade</h2>
                     <p>
-                         Uma de lista todas as combinações possíveis de entrada e saídas do circuito.
+                         Uma de lista todas as combinações possíveis de entrada e saídas.
                     </p>
                 </div>
-                <button class="cor-y1">Explorar</button>
+                <button class="cor-y1" id="btn-explorar-tabela">Explorar</button>
                 </div>
             </li>
 
@@ -181,7 +181,7 @@
                         Uma ligação direta e exclusiva entre dois dispositivos para trocar de dados.
                     </p>
                 </div>
-                <button style="color: #0a0808;">Explorar</button>
+                <button style="color: #0a0808;" id="btn-explorar-comu">Explorar</button>
                 </div>
             </li>
         </ul>
@@ -342,6 +342,75 @@
             </div>
     </div>
 </article>
+
+<article class="conteudo-bg">
+    <div id="infor-xnor" class="conteudo-infor">
+
+        <div class="conteudo-detalhado">
+            <h1>Explorando a Porta XNOR</h1>
+            <p>
+           A porta XNOR (OU exclusivo negado) é um circuito digital básico que realiza uma operação lógica na qual a saída será verdadeira (1) somente quando as entradas forem iguais entre si. Ela pode possuir duas ou mais entradas e apenas uma saída. Seu funcionamento é simples: a saída será 1 quando houver um número par de entradas em nível lógico alto (1) e será 0 quando houver um número ímpar de entradas em nível lógico alto (1).
+            Imagine a seguinte situação: um sistema de segurança utiliza uma porta XNOR para comparar dois códigos digitais. A saída será 1 quando os dois códigos comparados forem iguais, indicando que a informação recebida corresponde à informação esperada. Porém, se houver qualquer diferença entre os códigos, a saída será 0, sinalizando uma incompatibilidade. Confira os exemplos abaixo:
+            </p>
+        </div>
+            
+            <div class="conteudo-img">
+                <a  href="./simulador.html">
+                <img  src="./img/portas-svg-usos/xnor.svg" alt="porta logica XOR">
+                </a>
+                <img src="./img/tables-usos/xnor.svg" alt="tabela verdade">
+            </div>
+
+            <div class="conteudo-descricao">
+
+                <h2>Porta Lógica XNOR</h2>
+                <p>A porta XNOR possui uma característica semelhante à porta AND, pois sua saída é ativada quando as entradas apresentam o mesmo valor lógico. No entanto, diferentemente da AND, a XNOR também produz saída igual a 1 quando todas as entradas estão em nível lógico baixo (0).Outra forma de entender a porta XNOR é observando sua relação com a porta XOR. Enquanto a XOR produz saída 1 quando há uma quantidade ímpar de entradas em nível lógico alto (1), a XNOR produz saída 1 quando há uma quantidade par de entradas em nível lógico alto. Por exemplo, em uma porta XNOR com quatro entradas iguais a 1 (1 + 1 + 1 + 1), o total de entradas em nível alto é 4, que é um número par; portanto, a saída será 1.
+                Clique na imagem do circuito para ser direcionado diretamente ao simulador com o exemplo.</p>
+            </div>
+    </div>
+</article>
+
+<article class="conteudo-bg">
+    <div id="infor-tabela" class="conteudo-infor-no">
+
+        <div class="conteudo-detalhado">
+            <h1>Explorando a Tabela Verdade</h1>
+            <p>
+          A tabela-verdade é uma ferramenta matemática e lógica usada para determinar o valor lógico (Verdadeiro ou Falso) de proposições compostas, mapeando todas as combinações possíveis de suas entradas. Ela é a base para o raciocínio lógico formal, circuitos digitais e algoritmos.
+            </p>
+        </div>
+            
+            <div class="conteudo-img">
+                
+                <img class="imagem-table" src="./img/tables-usos/table.svg" alt="Tabela Verdade">
+            </div>
+
+            <div class="conteudo-descricao">
+
+                <h2>Como montar uma tabela Verdade</h2>
+                <p>A tabela-verdade é uma forma de representar todas as combinações possíveis de entradas de uma operação lógica e o resultado correspondente de cada uma delas. Ela é usada para analisar o comportamento de portas lógica,Para montá-la, primeiro é necessário observar quantas entradas o sistema possui, pois isso determina a quantidade de combinações possíveis. Por exemplo, com duas entradas (A e B), existem quatro combinações: 0 e 0, 0 e 1, 1 e 0, e 1 e 1. Depois de listar todas essas possibilidades, aplica-se a operação lógica escolhida em cada linha para encontrar o valor da saída.Assim, cada linha da tabela mostra um caso diferente de entrada e seu respectivo resultado, permitindo entender exatamente como o circuito se comporta em todas as situações possíveis.</p>
+            </div>
+    </div>
+</article>
+
+<article class="conteudo-bg">
+    <div id="infor-comu" class="conteudo-infor-no">
+
+        <div class="conteudo-detalhado">
+            <h1>Explorando circuito de comutação</h1>
+            <p>
+          Um circuito de comutação é um tipo de circuito eletrônico ou digital que tem a função de controlar o fluxo de sinais elétricos, alternando entre dois estados principais: ligado (1) e desligado (0).Ele funciona “comutando” (trocando) entre esses estados de acordo com as entradas recebidas, sendo muito usado em sistemas digitais para realizar decisões lógicas, como em portas lógicas (AND, OR, XOR etc.), memórias e controladores.Na prática, um circuito de comutação pode ser encontrado em dispositivos que precisam ligar ou desligar algo automaticamente, como sistemas de iluminação, computadores e equipamentos eletrônicos em geral. Na página do simulador tem um botão que mostrar o circuito perfeitamente montado e funcionando.
+            </p>
+        </div>
+            
+            <div class="conteudo-img">
+                
+                <img class="imagem-table" src="./img/tables-usos/comu.svg" alt="Comutação">
+            </div>
+
+        
+</article>
+
 
      <footer class="site-footer">
         <div class="footer-bottom">

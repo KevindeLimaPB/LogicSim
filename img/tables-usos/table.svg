@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500"  style="background:#0b0e14;font-family:sans-serif">
+
+  <defs>
+    <style>
+      .title { fill:#ffffff; font-size:40px; font-weight:bold; }
+      .header { fill:#1e3a5f; }
+      .cell { fill:#111823; }
+      .border { stroke:#334155; stroke-width:2; fill:none; }
+      .txt { fill:#e2e8f0; font-size:25px; }
+      .txt-bold { fill:#ffffff; font-size:18px; font-weight:bold; }
+      .symbol { fill:#38bdf8; font-size:30px; font-weight:bold; }
+    </style>
+  </defs>
+
+  <!-- TÍTULO -->
+  <text x="600" y="40" text-anchor="middle" class="title">
+    Conectivos Lógicos
+  </text>
+
+  <!-- CABEÇALHO -->
+  <rect x="20" y="70" width="220" height="70" rx="12" class="header"/>
+  <rect x="240" y="70" width="160" height="70" rx="12" class="header"/>
+  <rect x="400" y="70" width="220" height="70" rx="12" class="header"/>
+  <rect x="620" y="70" width="560" height="70" rx="12" class="header"/>
+
+  <text x="130" y="113" text-anchor="middle" class="txt-bold">Conectivo</text>
+  <text x="320" y="113" text-anchor="middle" class="txt-bold">Símbolo</text>
+  <text x="510" y="113" text-anchor="middle" class="txt-bold">Operação Lógica</text>
+  <text x="900" y="113" text-anchor="middle" class="txt-bold">Valor Lógico</text>
+
+  <!-- LINHA 1 -->
+  <rect x="20" y="140" width="220" height="70" rx="10" class="cell"/>
+  <rect x="240" y="140" width="160" height="70" rx="10" class="cell"/>
+  <rect x="400" y="140" width="220" height="70" rx="10" class="cell"/>
+  <rect x="620" y="140" width="560" height="70" rx="10" class="cell"/>
+
+  <text x="130" y="183" text-anchor="middle" class="txt">não</text>
+  <text x="320" y="188" text-anchor="middle" class="symbol">~</text>
+  <text x="510" y="183" text-anchor="middle" class="txt">negação</text>
+  <text x="640" y="170" class="txt">Terá valor falso quando a proposição for</text>
+  <text x="640" y="195" class="txt">verdadeira e vice-versa.</text>
+
+  <!-- LINHA 2 -->
+  <rect x="20" y="210" width="220" height="70" rx="10" class="cell"/>
+  <rect x="240" y="210" width="160" height="70" rx="10" class="cell"/>
+  <rect x="400" y="210" width="220" height="70" rx="10" class="cell"/>
+  <rect x="620" y="210" width="560" height="70" rx="10" class="cell"/>
+
+  <text x="130" y="253" text-anchor="middle" class="txt">e</text>
+  <text x="320" y="258" text-anchor="middle" class="symbol">∧</text>
+  <text x="510" y="253" text-anchor="middle" class="txt">conjunção</text>
+  <text x="640" y="240" class="txt">Será verdadeira somente quando todas as</text>
+  <text x="640" y="265" class="txt">proposições forem verdadeiras.</text>
+
+  <!-- LINHA 3 -->
+  <rect x="20" y="280" width="220" height="70" rx="10" class="cell"/>
+  <rect x="240" y="280" width="160" height="70" rx="10" class="cell"/>
+  <rect x="400" y="280" width="220" height="70" rx="10" class="cell"/>
+  <rect x="620" y="280" width="560" height="70" rx="10" class="cell"/>
+
+  <text x="130" y="323" text-anchor="middle" class="txt">ou</text>
+  <text x="320" y="328" text-anchor="middle" class="symbol">∨</text>
+  <text x="510" y="323" text-anchor="middle" class="txt">disjunção</text>
+  <text x="640" y="310" class="txt">Será verdadeira quando pelo menos uma</text>
+  <text x="640" y="335" class="txt">das proposições for verdadeira.</text>
+
+  <!-- LINHA 4 -->
+  <rect x="20" y="350" width="220" height="70" rx="10" class="cell"/>
+  <rect x="240" y="350" width="160" height="70" rx="10" class="cell"/>
+  <rect x="400" y="350" width="220" height="70" rx="10" class="cell"/>
+  <rect x="620" y="350" width="560" height="70" rx="10" class="cell"/>
+
+  <text x="130" y="393" text-anchor="middle" class="txt">se...então</text>
+  <text x="320" y="398" text-anchor="middle" class="symbol">→</text>
+  <text x="510" y="393" text-anchor="middle" class="txt">condicional</text>
+  <text x="640" y="380" class="txt">Será falsa quando a proposição antecedente</text>
+  <text x="640" y="405" class="txt">for verdadeira e a consequente falsa.</text>
+
+  <!-- LINHA 5 -->
+  <rect x="20" y="420" width="220" height="70" rx="10" class="cell"/>
+  <rect x="240" y="420" width="160" height="70" rx="10" class="cell"/>
+  <rect x="400" y="420" width="220" height="70" rx="10" class="cell"/>
+  <rect x="620" y="420" width="560" height="70" rx="10" class="cell"/>
+
+  <text x="130" y="463" text-anchor="middle" class="txt">se e somente se</text>
+  <text x="320" y="468" text-anchor="middle" class="symbol">↔</text>
+  <text x="510" y="463" text-anchor="middle" class="txt">bicondicional</text>
+  <text x="640" y="450" class="txt">Será verdadeira quando ambas as</text>
+  <text x="640" y="475" class="txt">proposições forem verdadeiras ou falsas.</text>
+
+</svg>
