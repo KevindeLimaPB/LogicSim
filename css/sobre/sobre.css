@@ -1,11 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
 body {
     background: rgb(0, 0, 0);
+}
+
+/* Fonts para página Sobre */
+.sobre-page h1,
+.sobre-page h2,
+.sobre-page h3,
+.team-name {
+    font-family: 'Poppins', sans-serif;
+}
+
+.sobre-page p,
+.sobre-page .team-role {
+    font-family: 'Roboto', sans-serif;
 }
 
 body:has(.sobre-page) .simulator-page__shell {
     display: flex;
     flex-direction: column;
     padding-bottom: 0;
+}
+
+body:has(.sobre-page) .theme-toggle-btn i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 
@@ -62,18 +83,13 @@ body.simulator-page.theme-light .team-link {
     background: rgba(26, 115, 232, 0.08);
     color: #1a73e8;
 }
-
-body.simulator-page.theme-light .avatar {
-    border-color: rgba(60, 64, 67, 0.12);
-    background: #f1f3f4;
-}
 .team-card:hover{
     transform: translateY(-8px);
     box-shadow: 0 14px 40px rgba(12,18,28,0.6), 0 6px 18px rgba(76,201,255,0.06);
 }
 .avatar-wrapper{
-    width: 104px;
-    height: 104px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     position: relative;
     display: flex;
@@ -82,17 +98,17 @@ body.simulator-page.theme-light .avatar {
     overflow: visible;
 }
 .avatar{
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
+    display: block;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid rgba(255,255,255,0.06);
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: none;
 }
 
 .team-name{
-    font-size: 1rem;
-    margin: 12px 0 0;
+    font-size: 0.90rem;
+    margin: 2px 0 0;
     color: var(--text-primary);
     font-weight: 600;
 }
@@ -326,7 +342,6 @@ body.theme-light .sobre-page .sobre-hero{
 }
 
 /* RESPONSIVO */
-
 
 @media (max-width: 800px){
 
