@@ -1,12 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 
-body.theme-dark li {
-    background-color: var(--cor-10);
+body.simulator-page.theme-dark li {
+    background-color: rgba(8, 17, 31, 0.94);
 }
 
-body.theme-dark button  {
-    background-color: var(--cor-11);
+body.simulator-page.theme-dark button  {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(8, 15, 27, 0.98));
+    border-top-color: rgba(148, 163, 184, 0.22);
 }
 
 .conteudo {
@@ -35,16 +36,16 @@ body.theme-dark button  {
     padding-left: 1rem;
 }
 
-body.theme-dark .informacoes-portas p {
+body.simulator-page.theme-dark .informacoes-portas p {
     position: absolute;
     top: 25px;
     margin-left: 1rem;
-    color: var(--cor-9);
+    color: #b8c6d8;
     line-height: 1.6;
     font-family: "Poppins", sans-serif;
 }
 
-body.theme-light .informacoes-portas p {
+body.simulator-page.theme-light .informacoes-portas p {
     position: absolute;
     top: 25px;
     margin-left: 1rem;
@@ -145,12 +146,49 @@ button:hover::after {
     transform: translateX(5px);
 }
 
-body.theme-dark .conteudo-bg {
-    background-color: #151516;
+body.simulator-page.theme-dark .conteudo-bg {
+    background-color: #05070f;
 }
 
-body.theme-light .conteudo-bg {
+body.simulator-page.theme-light .conteudo-bg {
     background-color: #f7f7f7;
+}
+
+body.simulator-page.theme-dark .conteudo-detalhado h1,
+body.simulator-page.theme-dark .conteudo-descricao h2 {
+    color: #f4f7fb;
+}
+
+body.simulator-page.theme-dark #infor-comu .conteudo-detalhado h1,
+body.simulator-page.theme-dark #btn-explorar-comu {
+    color: #ffffff !important;
+}
+
+body.simulator-page.theme-dark .portas > li:last-child .porta-conteudo h2 {
+    color: #ffffff !important;
+}
+
+body.simulator-page.theme-dark .conteudo-detalhado p,
+body.simulator-page.theme-dark .conteudo-descricao p,
+body.simulator-page.theme-dark .porta-conteudo p {
+    color: #c9d6e6;
+}
+
+body.simulator-page.theme-dark .porta-img img[src$=".svg"],
+body.simulator-page.theme-dark .conteudo-img img[src$=".svg"] {
+    filter: invert(1) hue-rotate(180deg) saturate(1.05);
+}
+
+body.simulator-page.theme-dark .hero-brand svg tspan:first-child {
+    fill: #9cc9ff;
+}
+
+body.simulator-page.theme-light .hero-brand svg tspan:first-child {
+    fill: #007bff;
+}
+
+body.simulator-page.theme-dark button::after {
+    filter: invert(1) brightness(1.1);
 }
 
 .conteudo-infor {
