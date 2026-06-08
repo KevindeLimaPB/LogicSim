@@ -24,9 +24,7 @@ body:has(.sobre-page) .simulator-page__shell {
 }
 
 body:has(.sobre-page) .theme-toggle-btn i {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: inline-block;
 }
 
 
@@ -144,7 +142,7 @@ body.simulator-page.theme-light .team-link {
 @media (max-width: 768px){
     .team-grid{ grid-template-columns: repeat(2, minmax(160px, 1fr)); }
 }
-@media (max-width: 480px){
+@media (max-width: 600px){
     .team-grid{ grid-template-columns: repeat(1, minmax(160px, 1fr)); }
 }
 /* SOBRE PAGE */
