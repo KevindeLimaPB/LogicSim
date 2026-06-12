@@ -23,10 +23,39 @@ body:has(.sobre-page) .simulator-page__shell {
     padding-bottom: 0;
 }
 
-body:has(.sobre-page) .theme-toggle-btn i {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/*ajustes no botão theme-toggle, porque ele não estava centralizado*/
+body:has(.sobre-page) .theme-toggle-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    position: relative;
+}
+
+body:has(.sobre-page) .theme-toggle-btn::before,
+body:has(.sobre-page) .theme-toggle-btn::after {
+    display: none !important;
+}
+
+body:has(.sobre-page) .theme-toggle-btn > * {
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+body:has(.sobre-page) .theme-toggle-btn i[data-theme-icon="moon"] {
+    opacity: 1;
+}
+
+body.theme-light:has(.sobre-page) .theme-toggle-btn i[data-theme-icon="sun"] {
+    opacity: 1;
+}
+
+body.theme-light:has(.sobre-page) .theme-toggle-btn i[data-theme-icon="moon"] {
+    opacity: 0;
 }
 
 
@@ -144,7 +173,7 @@ body.simulator-page.theme-light .team-link {
 @media (max-width: 768px){
     .team-grid{ grid-template-columns: repeat(2, minmax(160px, 1fr)); }
 }
-@media (max-width: 480px){
+@media (max-width: 600px){
     .team-grid{ grid-template-columns: repeat(1, minmax(160px, 1fr)); }
 }
 /* SOBRE PAGE */
